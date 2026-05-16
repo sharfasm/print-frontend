@@ -1,6 +1,7 @@
 export default {
-    brand: import.meta.env.VITE_BRAND || "printing",
-    api: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
+    brand: process.env.NEXT_PUBLIC_BRAND || "printing",
+    api: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
+    backend: "http://localhost:5000",
 
 theme:{
 light:{
