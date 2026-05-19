@@ -9,11 +9,15 @@ export const resolveImage = (src: string | null | undefined) => {
     if (!src) return "https://placehold.co/600x800?text=No+Image";
     
     // If it's already a full URL (Cloudinary or absolute path), return as is
-    if (src.startsWith('http')) return src;
+    if (src.startsWith('http') || src.startsWith('blob:') || src.startsWith('data:')) return src;
     
     // If it's a relative path starting with /uploads, prepend backend URL
     if (src.startsWith('/uploads')) {
         return `${config.backend}${src}`;
+    }
+
+    if (src.startsWith('uploads/')) {
+        return `${config.backend}/${src}`;
     }
     
     // Fallback: prepend backend URL if it seems like a relative path but doesn't start with /
@@ -21,5 +25,5 @@ export const resolveImage = (src: string | null | undefined) => {
         return `${config.backend}/uploads/${src}`;
     }
 
-    return src;
+    return `${config.backend}${src}`;
 };

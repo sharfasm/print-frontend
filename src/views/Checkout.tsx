@@ -55,8 +55,19 @@ export default function Checkout() {
 
     const findLinkedCustomization = (productId) => {
         return customRequests.find(req => 
-            req.productId?._id === productId && 
-            (req.requestStatus === 'pending' || req.requestStatus === 'reviewing' || req.requestStatus === 'approved')
+            req.productId?._id === productId &&
+            [
+                'pending_review',
+                'waiting_for_payment',
+                'payment_verified',
+                'designing_started',
+                'preview_sent',
+                'waiting_customer_response',
+                'changes_requested',
+                'approved',
+                'production_started',
+                'completed'
+            ].includes(req.requestStatus)
         );
     };
 

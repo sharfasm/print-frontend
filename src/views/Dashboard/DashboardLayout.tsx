@@ -14,6 +14,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const pathParts = pathname?.split('/').filter(Boolean) || [];
     const currentPage = pathParts.length > 1 ? pathParts[pathParts.length - 1] : 'Overview';
     const formattedPageName = currentPage.charAt(0).toUpperCase() + currentPage.slice(1).replace('-', ' ');
+    const isRequestsPage = pathname?.includes('/dashboard/requests');
 
     const handleLogout = () => {
         logout();
@@ -21,6 +22,47 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
 
     if (!user) return null; // Prevent flicker if hitting raw
+
+    // ═══════════════════════════════════════════════════════════════
+    // REQUESTS PAGE: Fullscreen messenger shell — NO ecommerce wrappers
+    // This completely bypasses max-w-7xl, mx-auto, padding, cards, gaps
+    // ═══════════════════════════════════════════════════════════════
+    if (isRequestsPage) {
+        return (
+            <div className="requests-app-shell">
+                <div className="requests-navbar-spacer" />
+                <div className="requests-app-body">
+                    {children}
+                </div>
+                <style>{`
+                    .requests-app-shell {
+                        width: 100%;
+                        height: 100dvh;
+                        display: flex;
+                        flex-direction: column;
+                        overflow: hidden;
+                        background: var(--bg);
+                        position: relative;
+                    }
+                    .requests-navbar-spacer {
+                        flex-shrink: 0;
+                        height: 62px;
+                    }
+                    @media (min-width: 768px) {
+                        .requests-navbar-spacer {
+                            height: 73px;
+                        }
+                    }
+                    .requests-app-body {
+                        flex: 1;
+                        display: flex;
+                        min-height: 0;
+                        overflow: hidden;
+                    }
+                `}</style>
+            </div>
+        );
+    }
 
     const SidebarLink = ({ to, icon, text, end }: any) => {
         const isActive = end ? pathname === to : pathname?.startsWith(to);
@@ -53,16 +95,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     return (
-        <section className="min-h-screen bg-[var(--bg)] pt-24 md:pt-32 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-500">
+        <section className={`bg-[var(--bg)] relative overflow-hidden transition-colors duration-500 flex flex-col ${isRequestsPage ? 'h-[100dvh] pt-24 md:pt-28 pb-0 md:pb-6 px-0 md:px-4 sm:px-6 lg:px-8' : 'min-h-screen pt-24 md:pt-32 pb-12 px-4 sm:px-6 lg:px-8'}`}>
             {/* Premium Background Decorative Blur */}
             <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-[var(--secondary)]/10 to-transparent pointer-events-none" />
             <div className="absolute -top-32 -left-32 w-96 h-96 bg-[var(--primary)]/5 rounded-full blur-[100px] pointer-events-none"></div>
             
-            <div className="max-w-7xl mx-auto relative z-10">
-                <div className="flex flex-col xl:flex-row gap-6 lg:gap-10 items-start">
+            <div className="max-w-7xl mx-auto relative z-10 w-full flex-1 flex flex-col min-h-0">
+                <div className="flex flex-col xl:flex-row gap-6 lg:gap-10 items-start flex-1 min-h-0">
                     
                     {/* User Sidebar Menu */}
-                    <div className="w-full xl:w-80 shrink-0 flex flex-col gap-6 sticky top-24 z-20">
+                    <div className={`w-full xl:w-80 shrink-0 flex flex-col gap-6 sticky top-20 z-20 ${isRequestsPage ? 'hidden' : ''}`}>
                         
                         {/* Profile Summary Card - Premium Glassmorphism */}
                         <div className="bg-[var(--bg)]/70 backdrop-blur-2xl rounded-3xl p-6 md:p-8 border border-[var(--secondary)]/20 shadow-xl shadow-[var(--secondary)]/5 flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300 group">
@@ -92,7 +134,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                                 <SidebarLink 
                                     to="/dashboard/requests" 
-                                    text="Custom Requests" 
+                                    text="Requests" 
                                     icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>}
                                 />
                                 
@@ -162,7 +204,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div className="flex-1 w-full text-[var(--text)] min-w-0 flex flex-col gap-6">
                         
                         {/* Breadcrumbs Top Bar */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--bg)]/70 backdrop-blur-2xl p-4 md:p-5 rounded-3xl border border-[var(--secondary)]/20 shadow-xl shadow-[var(--secondary)]/5">
+                        <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--bg)]/70 backdrop-blur-2xl p-4 md:p-5 rounded-3xl border border-[var(--secondary)]/20 shadow-xl shadow-[var(--secondary)]/5 shrink-0 ${isRequestsPage ? 'hidden' : ''}`}>
                             <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm font-bold w-full">
                                 <button onClick={() => navigate.back()} className="hover:text-[var(--primary)] transition-all flex items-center gap-1.5 group bg-[var(--secondary)]/10 hover:bg-[var(--secondary)]/20 px-3 md:px-4 py-2 rounded-xl shadow-sm shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 group-hover:-translate-x-1 transition-transform">
@@ -182,11 +224,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </div>
 
                         {/* Outlet Wrapper */}
-                        <div className="bg-[var(--bg)]/90 backdrop-blur-3xl rounded-[2rem] p-5 md:p-8 lg:p-10 border border-[var(--secondary)]/20 shadow-2xl shadow-[var(--secondary)]/5 relative overflow-hidden min-h-[500px]">
+                        <div className={`bg-[var(--bg)]/90 border border-[var(--secondary)]/20 shadow-2xl shadow-[var(--secondary)]/5 relative flex-1 min-h-0 flex flex-col ${isRequestsPage ? 'max-lg:rounded-none max-lg:p-0 max-lg:border-0 rounded-[2rem] p-3 sm:p-5 md:p-6 lg:p-8' : 'rounded-[2rem] p-3 sm:p-5 md:p-6 lg:p-8'}`}>
                             {/* Inner Decorative Effects */}
                             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-[var(--primary)]/5 to-transparent rounded-full blur-3xl pointer-events-none transform translate-x-1/3 -translate-y-1/3"></div>
                             
-                            <div className="relative z-10 w-full h-full">
+                            <div className="relative w-full flex-1 min-h-0">
                                 {children}
                             </div>
                         </div>
