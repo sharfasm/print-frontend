@@ -57,7 +57,7 @@ export default function UpdateCustomizationModal({ request, onClose, onUpdate }:
                     <X size={20} />
                 </button>
                 
-                <h2 className="text-2xl font-black mb-6">Update Customization Request</h2>
+                <h2 className="text-2xl font-black mb-6">Update Request</h2>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-4">

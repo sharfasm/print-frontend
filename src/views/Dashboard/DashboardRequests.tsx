@@ -5,57 +5,96 @@ import api from '../../lib/axios';
 import { 
     Clock, AlertCircle, Edit3, X, CheckCircle, Package, 
     CreditCard, Sparkles, MessageSquare, Image as ImageIcon, 
-    Trash2, Plus, Upload, ShieldCheck, ChevronRight, ChevronLeft, 
-    Send, Paperclip, MoreVertical, Check, CheckCheck
+    Trash2, Upload, ShieldCheck, ChevronLeft, 
+    Send, Paperclip, MoreVertical, Check, CheckCheck, Play, Pause, FileText, Search
 } from 'lucide-react';
 import { io, Socket } from 'socket.io-client';
+import { useRouter } from 'next/navigation';
 import VoiceRecorder from '../../components/VoiceRecorder';
 import UpdateCustomizationModal from './UpdateCustomizationModal';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useShop } from '../../context/ShopContext';
+
+const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Crect width='160' height='160' rx='24' fill='%23e7e2cb'/%3E%3Cpath d='M50 105h60l-15-20-12 14-17-24-16 30z' fill='%23505039' fill-opacity='.35'/%3E%3Ccircle cx='98' cy='58' r='10' fill='%23505039' fill-opacity='.35'/%3E%3Crect x='35' y='35' width='90' height='90' rx='16' fill='none' stroke='%23505039' stroke-opacity='.22' stroke-width='6'/%3E%3C/svg%3E";
+const WHATSAPP_SUPPORT_NUMBER = "919747723150";
+const workflowSteps = ['pending_review', 'designing_started', 'preview_sent', 'approved', 'production_started', 'completed'];
+const workflowLabels = ['Review', 'Designing', 'Preview', 'Approved', 'Production', 'Done'];
+
+// --- Whatsapp-style Voice Message Player ---
+const VoiceMessagePlayer = ({ src, isUser, durationText = "0:12" }: { src: string, isUser: boolean, durationText?: string }) => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    const togglePlay = () => {
+        if (!audioRef.current) return;
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play();
+        }
+        setIsPlaying(!isPlaying);
+    };
+
+    return (
+        <div className={`flex items-center gap-3 w-[220px] max-w-full rounded-full p-1 ${isUser ? '' : ''}`}>
+            <button 
+                onClick={togglePlay} 
+                className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-full transition-transform hover:scale-105 shadow-md ${isUser ? 'bg-white text-[var(--primary)]' : 'bg-[var(--primary)] text-white'}`}
+            >
+                {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-1" />}
+            </button>
+            <div className="flex-1 flex flex-col gap-1">
+                <div className="flex items-center gap-0.5">
+                    {/* Simulated Waveform */}
+                    {Array.from({length: 15}).map((_, i) => (
+                        <div 
+                            key={i} 
+                            className={`w-1 rounded-full ${isUser ? 'bg-white/70' : 'bg-[var(--primary)]/40'}`} 
+                            style={{ 
+                                height: Math.random() * 14 + 4 + 'px',
+                                opacity: isPlaying ? 1 : 0.6,
+                                animation: isPlaying ? `pulse 1s infinite ${i * 0.1}s` : 'none'
+                            }}
+                        ></div>
+                    ))}
+                </div>
+                <div className={`text-[10px] font-black tracking-wider ${isUser ? 'text-white/80' : 'text-gray-500'}`}>
+                    {durationText}
+                </div>
+            </div>
+            <audio ref={audioRef} src={src} onEnded={() => setIsPlaying(false)} className="hidden" />
+        </div>
+    );
+};
 
 export default function DashboardRequests() {
+    const router = useRouter();
+    const { setBuyNowItem } = useShop();
     const [requests, setRequests] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedRequest, setSelectedRequest] = useState<any>(null);
     
-    // Chat states
     const [messageText, setMessageText] = useState("");
     const [attachments, setAttachments] = useState<File[]>([]);
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [isTyping, setIsTyping] = useState(false);
     const [otherTyping, setOtherTyping] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        setIsMounted(true);
         fetchRequests();
         const newSocket = io("http://localhost:5000", { withCredentials: true });
         setSocket(newSocket);
-
-        newSocket.on("receive_message", (message) => {
-            setRequests(prev => prev.map(req => {
-                // If it's for the currently open request
-                if (selectedRequest && req._id === selectedRequest._id) {
-                    // Update selected request automatically in the effect below? No, react state is tricky here.
-                    // Instead, we will rely on selectedRequest reference updating, or just update the master list
-                }
-                return req; // We need to inject the message into the correct request in the state
-            }));
-            
-            // To properly update the specific request's messages:
-            setRequests(prev => prev.map(req => {
-                // Check if message belongs to this request (we might need requestId in payload, but backend sends just message)
-                // Actually backend sends just the message object. Wait, how do we know which request it belongs to?
-                // The socket is joined to a specific room "request_ID". We need to listen dynamically.
-                return req;
-            }));
-        });
 
         return () => {
             newSocket.disconnect();
@@ -63,17 +102,35 @@ export default function DashboardRequests() {
     }, []);
 
     useEffect(() => {
-        if (!socket || !selectedRequest) return;
+        const poll = setInterval(() => fetchRequests(true), 25000);
+        return () => clearInterval(poll);
+    }, [selectedRequest?._id]);
 
-        socket.emit("join_request", selectedRequest._id);
+    useEffect(() => {
+        if (!socket) return;
+        requests.forEach(req => socket.emit("join_request", req._id));
+    }, [socket, requests]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        if (selectedRequest?._id) socket.emit("join_request", selectedRequest._id);
 
         const handleReceiveMessage = (message: any) => {
-            setSelectedRequest((prev: any) => ({
-                ...prev,
-                messages: [...(prev.messages || []), message]
-            }));
+            const targetId = message.requestId || selectedRequest?._id;
+            if (!targetId) {
+                fetchRequests(true);
+                return;
+            }
+            setSelectedRequest((prev: any) => {
+                if (!prev || prev._id !== targetId) return prev;
+                return {
+                    ...prev,
+                    messages: [...(prev.messages || []), message]
+                };
+            });
             setRequests(prev => prev.map(req => 
-                req._id === selectedRequest._id 
+                req._id === targetId
                 ? { ...req, messages: [...(req.messages || []), message] }
                 : req
             ));
@@ -82,8 +139,13 @@ export default function DashboardRequests() {
         const handleTyping = () => setOtherTyping(true);
         const handleStopTyping = () => setOtherTyping(false);
         const handleStatusUpdate = (data: any) => {
-            setSelectedRequest((prev: any) => ({...prev, ...data}));
-            setRequests(prev => prev.map(req => req._id === selectedRequest._id ? { ...req, ...data } : req));
+            const targetId = data.requestId || selectedRequest?._id;
+            if (!targetId) {
+                fetchRequests(true);
+                return;
+            }
+            setSelectedRequest((prev: any) => prev?._id === targetId ? {...prev, ...data} : prev);
+            setRequests(prev => prev.map(req => req._id === targetId ? { ...req, ...data } : req));
         };
 
         socket.on("receive_message", handleReceiveMessage);
@@ -100,29 +162,124 @@ export default function DashboardRequests() {
     }, [socket, selectedRequest?._id]);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        const t = setTimeout(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
+        return () => clearTimeout(t);
     }, [selectedRequest?.messages]);
 
-    const fetchRequests = async () => {
-        setLoading(true);
+    // Instant scroll to bottom when switching conversations
+    useEffect(() => {
+        if (selectedRequest?._id) {
+            const t = setTimeout(() => {
+                messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+            }, 100);
+            return () => clearTimeout(t);
+        }
+    }, [selectedRequest?._id]);
+
+    const fetchRequests = async (silent = false) => {
+        if (!silent) setLoading(true);
         try {
             const res = await api.get('/customization/my-requests');
             setRequests(res.data);
-            if (res.data.length > 0 && !selectedRequest) {
-                // Don't auto-select on mobile, but maybe on desktop
-                if(window.innerWidth > 1024) setSelectedRequest(res.data[0]);
+            if (selectedRequest?._id) {
+                const freshSelected = res.data.find((req: any) => req._id === selectedRequest._id);
+                if (freshSelected) setSelectedRequest(freshSelected);
+            } else if (res.data.length > 0 && window.innerWidth > 1024) {
+                setSelectedRequest(res.data[0]);
             }
         } catch (err: any) {
             setError(err.message);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
     const resolveImage = (path: string) => {
-        if (!path) return '';
-        return path.startsWith('http') ? path : `${config.api.replace('/api', '')}/${path}`;
+        if (!path) return FALLBACK_IMAGE;
+        if (path.startsWith('http') || path.startsWith('blob:') || path.startsWith('data:')) return path;
+        const backend = config.api.replace('/api', '');
+        if (path.startsWith('/uploads')) return `${backend}${path}`;
+        if (path.startsWith('uploads/')) return `${backend}/${path}`;
+        return `${backend}/uploads/${path.replace(/^\/+/, '')}`;
     };
+
+    const getProductImageSource = (product: any) => (
+        product?.primaryImage ||
+        product?.coverImage ||
+        product?.image ||
+        product?.images?.[0] ||
+        product?.images?.find?.((img: string) => Boolean(img)) ||
+        ""
+    );
+    const productImage = (req: any) => resolveImage(getProductImageSource(req?.productId));
+    const openProduct = (productId?: string) => {
+        if (productId) router.push(`/product/${productId}`);
+    };
+    const openCheckout = (request?: any) => {
+        const product = request?.productId;
+        if (!product?._id) return;
+        setBuyNowItem({
+            ...product,
+            quantity: 1,
+            categoryName: "Custom Request",
+            isCustom: true,
+            customization: {
+                customRequestId: request._id,
+                requestId: `REQ-${String(request._id).slice(-6).toUpperCase()}`,
+                designStatus: request.requestStatus
+            },
+            image: getProductImageSource(product)
+        });
+        router.push('/checkout');
+    };
+    const openWhatsAppChat = (request?: any) => {
+        const requestId = request?._id ? `REQ-${String(request._id).slice(-6).toUpperCase()}` : 'Custom request';
+        const productName = request?.productId?.name || 'Custom Request';
+        const message = [
+            'Hi Print Cloud,',
+            `I want to chat about ${productName}.`,
+            `Request ID: ${requestId}`
+        ].join('\n');
+
+        window.open(`https://wa.me/${WHATSAPP_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+    };
+    const timeAgo = (date?: string) => {
+        if (!date) return 'now';
+        // Avoid hydration mismatch by not calculating relative time during SSR
+        if (typeof window === 'undefined') return '';
+        const mins = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
+        if (mins < 1) return 'now';
+        if (mins < 60) return `${mins}m ago`;
+        if (mins < 1440) return `${Math.floor(mins / 60)}h ago`;
+        return `${Math.floor(mins / 1440)}d ago`;
+    };
+    const previewText = (msg: any) => {
+        if (!msg) return 'Waiting for response...';
+        if (msg.type === 'audio' || msg.audio) return 'Voice message';
+        if (msg.type === 'file' || msg.files?.length) return 'Attachment';
+        if (msg.images?.length) return 'Image uploaded';
+        return msg.text || 'New update';
+    };
+    const formatMessageText = (text: string) => (
+        text.replace(/\b[A-Z]+(?:_[A-Z]+)+\b|\b(?:APPROVED|CANCELLED|PAID|UNPAID)\b/g, (status) =>
+            status
+                .toLowerCase()
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, (char) => char.toUpperCase())
+        )
+    );
+    const filteredRequests = requests.filter((req) => {
+        const query = searchQuery.trim().toLowerCase();
+        if (!query) return true;
+        return (
+            req.productId?.name?.toLowerCase().includes(query) ||
+            req.requestStatus?.toLowerCase().includes(query) ||
+            req.paymentStatus?.toLowerCase().includes(query) ||
+            String(req._id || "").toLowerCase().includes(query)
+        );
+    });
 
     const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMessageText(e.target.value);
@@ -181,7 +338,7 @@ export default function DashboardRequests() {
 
     const handleDeleteRequest = async () => {
         if (!selectedRequest) return;
-        setIsSending(true); // Re-use isSending for loading state
+        setIsSending(true); 
 
         try {
             await api.delete(`/customization/${selectedRequest._id}`);
@@ -198,340 +355,305 @@ export default function DashboardRequests() {
 
     const getStatusBadge = (status: string) => {
         const styles: any = {
-            pending_review: "bg-gray-100 text-gray-700",
-            waiting_for_payment: "bg-amber-100 text-amber-700",
-            payment_verified: "bg-blue-100 text-blue-700",
-            designing_started: "bg-purple-100 text-purple-700",
-            preview_sent: "bg-indigo-100 text-indigo-700",
-            approved: "bg-emerald-100 text-emerald-700",
-            production_started: "bg-cyan-100 text-cyan-700",
-            completed: "bg-green-100 text-green-800",
-            rejected: "bg-red-100 text-red-700"
+            pending_review: "bg-[var(--secondary)]/10 text-[var(--text)] border border-[var(--secondary)]/20",
+            waiting_for_payment: "bg-amber-100 text-amber-700 border border-amber-200",
+            payment_verified: "bg-blue-100 text-blue-700 border border-blue-200",
+            designing_started: "bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20",
+            preview_sent: "bg-indigo-100 text-indigo-700 border border-indigo-200",
+            approved: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+            production_started: "bg-cyan-100 text-cyan-700 border border-cyan-200",
+            completed: "bg-green-100 text-green-800 border border-green-200",
+            rejected: "bg-red-100 text-red-700 border border-red-200"
         };
-        return <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider ${styles[status] || "bg-gray-100 text-gray-700"}`}>{status?.replace(/_/g, ' ')}</span>;
+        return <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${styles[status] || "bg-gray-100 text-gray-700"}`}>{status?.replace(/_/g, ' ')}</span>;
     };
 
-    if (loading) return <div className="p-10 text-center font-bold opacity-50">Loading workspace...</div>;
+    if (loading) return <div className="p-10 text-center font-bold text-[var(--text)] opacity-50">Loading workspace...</div>;
     if (error) return <div className="text-red-500 p-10">{error}</div>;
 
     if (requests.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 opacity-40">
+            <div className="flex flex-col items-center justify-center py-20 text-[var(--text)] opacity-40">
                 <Sparkles size={48} className="mb-4" />
-                <h3 className="text-xl font-bold">No customization requests yet</h3>
+                <h3 className="text-xl font-bold">No requests yet</h3>
             </div>
         );
     }
 
     return (
-        <div className="flex h-[80vh] min-h-[600px] bg-[var(--bg)] border border-gray-200/50 rounded-[2.5rem] shadow-2xl overflow-hidden relative text-[var(--text)] transition-colors duration-500">
-            
-            {/* LEFT PANEL - Request List */}
-            <div className={`w-full lg:w-[380px] flex-shrink-0 border-r border-gray-200/30 bg-white/40 backdrop-blur-md flex flex-col transition-transform duration-300 ${selectedRequest ? 'hidden lg:flex' : 'flex'}`}>
-                <div className="p-6 border-b border-gray-200/30 bg-white/60">
-                    <h2 className="text-xl font-black flex items-center gap-2 text-[var(--text)]">
-                        <MessageSquare size={20} className="text-[var(--primary)]" />
-                        Active Requests
-                    </h2>
+        <>
+        <style>{`
+            .msg-root {
+                display: flex;
+                width: 100%;
+                height: 100%;
+                min-height: 0;
+                overflow: hidden;
+                position: relative;
+                color: var(--text);
+            }
+            .msg-sidebar {
+                width: 100%;
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                overflow: hidden;
+                background: var(--bg);
+                border-right: 1px solid rgba(128,128,100,0.12);
+                z-index: 20;
+            }
+            .msg-sidebar.is-hidden-mobile { display: none; }
+            .msg-chat {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+                min-height: 0;
+                overflow: hidden;
+                background: #efeae2;
+                position: relative;
+            }
+            .msg-chat.is-hidden-mobile { display: none; }
+            .msg-chat-empty {
+                flex: 1;
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-width: 0;
+                min-height: 0;
+                background: #efeae2;
+                position: relative;
+            }
+            .msg-messages {
+                flex: 1;
+                overflow-y: auto;
+                overflow-x: hidden;
+                min-height: 0;
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+            }
+            .msg-input-bar {
+                flex-shrink: 0;
+                z-index: 20;
+            }
+            .msg-chat-header { flex-shrink: 0; z-index: 30; }
+            .msg-progress { flex-shrink: 0; z-index: 10; }
+            .msg-payment-bar { flex-shrink: 0; z-index: 10; }
+            @media (min-width: 1024px) {
+                .msg-sidebar {
+                    width: 380px;
+                    display: flex !important;
+                }
+                .msg-chat { display: flex !important; }
+                .msg-chat.no-selection { display: none !important; }
+                .msg-chat-empty.no-selection-desktop { display: flex !important; }
+            }
+            @media (min-width: 1024px) and (max-width: 1279px) {
+                .msg-sidebar { width: 340px; }
+            }
+            @media (min-width: 1536px) {
+                .msg-sidebar { width: 420px; }
+            }
+        `}</style>
+
+        <div className="msg-root">
+            {/* ══════ SIDEBAR ══════ */}
+            <div className={`msg-sidebar ${selectedRequest ? 'is-hidden-mobile' : ''}`}>
+                {/* Sidebar Header */}
+                <div className="px-4 sm:px-5 pb-4 border-b border-[var(--secondary)]/10 bg-[var(--bg)] shrink-0" style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
+                    <button onClick={() => router.push('/dashboard')} className="flex items-center gap-1 text-[var(--text)]/50 hover:text-[var(--primary)] transition-colors text-[10px] font-black uppercase tracking-widest mb-3 w-fit">
+                        <ChevronLeft size={14} strokeWidth={3} /> Back to Dashboard
+                    </button>
+                    <div className="flex items-end justify-between gap-3">
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 mb-0.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-pulse shadow-[0_0_8px_var(--primary)]"></div>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--primary)]">Live Design Desk</p>
+                            </div>
+                            <h2 className="text-2xl font-black text-[var(--text)] leading-none tracking-tight">
+                                Requests
+                            </h2>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                            <span className="min-w-8 h-8 bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20 text-xs font-black px-2.5 rounded-full flex items-center justify-center">
+                                {requests.length}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
-                    {requests.map(req => {
+                
+                {/* Search Bar */}
+                <div className="px-4 py-3 bg-gradient-to-b from-[var(--bg)]/95 to-transparent z-10 shrink-0">
+                    <div className="relative group">
+                        <input 
+                            type="text" 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search requests..." 
+                            className="w-full h-11 sm:h-10 bg-[var(--secondary)]/5 border border-[var(--secondary)]/15 rounded-2xl py-2 pl-10 pr-4 text-[15px] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]/30 text-[var(--text)] placeholder:text-[var(--text)]/40 transition-all shadow-sm"
+                        />
+                        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text)]/40 group-focus-within:text-[var(--primary)]/70 transition-colors" />
+                    </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar px-3 py-1 sm:p-3 space-y-1.5 overscroll-contain min-h-0" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+                    {filteredRequests.map(req => {
                         const isSelected = selectedRequest?._id === req._id;
                         const latestMsg = req.messages?.[req.messages.length - 1];
+                        const unreadCount = req.messages?.filter((m: any) => m.sender === 'admin' && !m.isRead)?.length || 0;
                         return (
-                            <div 
+                            <motion.div 
+                                whileHover={{ scale: 1.005 }}
+                                whileTap={{ scale: 0.985 }}
                                 key={req._id}
                                 onClick={() => setSelectedRequest(req)}
-                                className={`p-4 rounded-3xl cursor-pointer transition-all border-2 ${isSelected ? 'bg-white border-[var(--primary)] shadow-lg scale-[1.02] z-10' : 'bg-white/50 border-transparent hover:bg-white/80 hover:scale-[1.01]'}`}
+                                className={`p-3.5 sm:p-4 rounded-[1.25rem] cursor-pointer transition-all border touch-manipulation group ${isSelected ? 'bg-[var(--primary)]/10 border-[var(--primary)]/30 shadow-[0_8px_20px_rgba(80,80,57,0.08)]' : 'bg-transparent border-transparent hover:bg-[var(--secondary)]/5 hover:border-[var(--secondary)]/10 active:bg-[var(--secondary)]/10'}`}
                             >
-                                <div className="flex items-start gap-4">
-                                    <img src={resolveImage(req.productId?.images?.[0])} className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-sm" />
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <h4 className="font-black text-sm truncate pr-2 text-[var(--text)]">{req.productId?.name}</h4>
-                                            <span className="text-[10px] text-gray-400 font-bold whitespace-nowrap">
-                                                {latestMsg ? new Date(latestMsg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'New'}
+                                <div className="flex items-start gap-3.5 sm:gap-4">
+                                    <div className="relative shrink-0">
+                                        {/* Product image with proper fallback */}
+                                        <div className="w-14 h-14 sm:w-14 sm:h-14 rounded-[1rem] overflow-hidden bg-[var(--secondary)]/5 border border-[var(--secondary)]/15 flex items-center justify-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] transition-transform group-hover:scale-105 group-active:scale-95">
+                                            <img
+                                                src={productImage(req)}
+                                                loading="lazy"
+                                                onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }}
+                                                className="w-full h-full object-cover"
+                                                alt={req.productId?.name || 'Product'}
+                                            />
+                                        </div>
+                                        {!isSelected && (unreadCount > 0 || req.requestStatus === 'preview_sent') && (
+                                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#00A884] border-2 border-[var(--bg)] rounded-full animate-pulse shadow-sm"></div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0 flex flex-col justify-center min-h-[56px] py-0.5">
+                                        <div className="flex justify-between items-baseline mb-1">
+                                            <h4 className="font-bold text-[15px] sm:text-[14px] truncate pr-2 text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">{req.productId?.name || 'Custom Product'}</h4>
+                                            <span className={`text-[11px] font-semibold whitespace-nowrap shrink-0 ${unreadCount > 0 && !isSelected ? 'text-[#00A884]' : 'text-[var(--text)]/40'}`}>
+                                                {isMounted ? timeAgo(latestMsg?.createdAt || req.updatedAt) : ''}
                                             </span>
                                         </div>
-                                        <div className="flex justify-between items-center">
-                                            <p className="text-xs text-gray-500 truncate pr-2 font-bold opacity-70">
-                                                {latestMsg ? (latestMsg.type === 'audio' ? '🎤 Voice message' : latestMsg.type === 'file' ? '📎 Attachment' : latestMsg.text) : 'Waiting for designer...'}
+                                        <div className="flex justify-between items-center mb-1.5 gap-2">
+                                            <p className={`text-[13px] sm:text-[12px] truncate font-medium ${unreadCount > 0 && !isSelected ? 'text-[var(--text)] font-semibold' : 'text-[var(--text)]/60'}`}>
+                                                {previewText(latestMsg)}
                                             </p>
-                                            {req.requestStatus === 'preview_sent' && <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)] shrink-0 animate-pulse"></div>}
+                                            {unreadCount > 0 && !isSelected && (
+                                                <div className="min-w-5 h-5 bg-[#00A884] text-white text-[10px] font-black px-1.5 rounded-full shrink-0 flex items-center justify-center shadow-sm">{unreadCount > 9 ? '9+' : unreadCount}</div>
+                                            )}
                                         </div>
-                                        <div className="mt-2 flex items-center gap-2">
+                                        <div className="flex items-center gap-1.5 flex-wrap mt-auto">
                                             {getStatusBadge(req.requestStatus)}
-                                            {req.paymentStatus === 'paid' && <CheckCircle size={10} className="text-emerald-500" />}
+                                            {req.paymentStatus !== 'paid' && (
+                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100">
+                                                    Unpaid
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
                         )
                     })}
+                    {filteredRequests.length === 0 && (
+                        <div className="py-14 text-center text-[var(--text)]/45">
+                            <Search size={28} className="mx-auto mb-3 opacity-60" />
+                            <p className="text-sm font-black">No matching requests</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* RIGHT PANEL - Active Conversation */}
-            <div className={`flex-1 flex flex-col bg-white/20 backdrop-blur-sm ${!selectedRequest ? 'hidden lg:flex items-center justify-center' : 'flex'}`}>
-                {!selectedRequest ? (
-                    <div className="text-center opacity-40 flex flex-col items-center">
-                        <div className="w-24 h-24 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mb-6">
-                            <ShieldCheck size={48} className="text-[var(--primary)]" />
-                        </div>
-                        <h2 className="text-3xl font-black text-[var(--text)]">Design Workspace</h2>
-                        <p className="text-sm font-bold text-gray-500 max-w-xs">Select a request from the list to start collaborating with our design team.</p>
-                    </div>
-                ) : (
+            {/* ══════ CHAT PANEL ══════ */}
+            <div className={`msg-chat ${!selectedRequest ? 'is-hidden-mobile no-selection' : ''}`}>
+                <div className="absolute inset-0 pointer-events-none opacity-[0.04] mix-blend-multiply" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
+                {selectedRequest && (
                     <>
-                        {/* Chat Header */}
-                        <div className="h-[96px] px-8 border-b border-gray-200/30 bg-white/80 backdrop-blur-lg flex items-center justify-between shadow-sm z-10 shrink-0">
-                            <div className="flex items-center gap-5">
-                                <button className="lg:hidden p-2 -ml-2 rounded-full hover:bg-gray-100 text-[var(--text)]" onClick={() => setSelectedRequest(null)}>
-                                    <ChevronLeft size={24} />
-                                </button>
-                                <img src={resolveImage(selectedRequest.productId?.images?.[0])} className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md" />
-                                <div>
-                                    <h3 className="font-black text-[var(--text)] text-lg leading-tight">{selectedRequest.productId?.name}</h3>
-                                    <div className="flex items-center gap-2 mt-1.5">
-                                        <span className="text-[10px] font-black text-[var(--primary)]/60 bg-[var(--primary)]/5 px-2 py-0.5 rounded-full uppercase tracking-widest">REQ-{(selectedRequest._id as string).slice(-6)}</span>
-                                        <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
-                                        {selectedRequest.paymentStatus === 'paid' ? 
-                                            <span className="text-[10px] font-black text-emerald-600 uppercase flex items-center gap-1"><CheckCircle size={10}/> Paid</span> :
-                                            <span className="text-[10px] font-black text-amber-600 uppercase flex items-center gap-1"><AlertCircle size={10}/> Unpaid</span>
-                                        }
-                                    </div>
+                        {/* Mobile Header */}
+                        <div className="msg-chat-header lg:hidden flex items-center justify-between gap-2 border-b border-[var(--secondary)]/15 bg-[var(--bg)] px-2.5 py-2">
+                            <button aria-label="Back" onClick={() => setSelectedRequest(null)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--secondary)]/10 text-[var(--text)] active:bg-[var(--secondary)]/20"><ChevronLeft size={24} strokeWidth={2.6} /></button>
+                            <button type="button" onClick={() => openProduct(selectedRequest.productId?._id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                                <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-[var(--secondary)]/15 bg-[var(--secondary)]/10"><img src={productImage(selectedRequest)} loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }} className="h-full w-full object-cover" alt="" /></span>
+                                <span className="min-w-0"><span className="block truncate text-sm font-black leading-tight text-[var(--text)]">{selectedRequest.productId?.name || 'Custom Request'}</span><span className="block truncate text-[10px] font-bold text-[var(--text)]/55">ID: {String(selectedRequest._id).slice(-6).toUpperCase()}</span></span>
+                            </button>
+                            <button onClick={() => openWhatsAppChat(selectedRequest)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366]/12 text-[#128C4A]"><svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+                        </div>
+                        {/* Desktop Header */}
+                        <div className="msg-chat-header hidden lg:flex items-center justify-between px-4 md:px-6 py-3 border-b border-[var(--secondary)]/10 bg-[var(--bg)]">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className="relative cursor-pointer" onClick={() => openProduct(selectedRequest.productId?._id)}>
+                                    <div className="w-11 h-11 rounded-full overflow-hidden bg-[var(--secondary)]/10 border border-[var(--secondary)]/15 shadow-sm shrink-0"><img src={productImage(selectedRequest)} loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }} className="w-full h-full object-cover" alt="" /></div>
+                                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[var(--bg)] rounded-full"></div>
+                                </div>
+                                <div className="min-w-0 cursor-pointer" onClick={() => openProduct(selectedRequest.productId?._id)}>
+                                    <h3 className="font-bold text-[var(--text)] text-[16px] leading-tight truncate hover:text-[var(--primary)] transition-colors">{selectedRequest.productId?.name || 'Custom Request'}</h3>
+                                    <span className="text-[11px] font-medium text-[var(--text)]/60 block">Online • ID: {String(selectedRequest._id).slice(-6).toUpperCase()}</span>
                                 </div>
                             </div>
-                            <div className="hidden sm:flex items-center gap-3 relative">
-                                <span className="bg-[var(--primary)] text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg shadow-[var(--primary)]/20">
-                                    {selectedRequest.designStatus.replace(/_/g, ' ')}
-                                </span>
-                                <button 
-                                    onClick={() => setShowDropdown(!showDropdown)}
-                                    className="p-2 text-gray-400 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"
-                                >
-                                    <MoreVertical size={20} />
-                                </button>
-
-                                {showDropdown && (
-                                    <div className="absolute top-12 right-0 bg-white border border-gray-100 shadow-xl rounded-2xl p-2 w-48 z-50 flex flex-col">
-                                        <button 
-                                            onClick={() => { setShowDropdown(false); setShowUpdateModal(true); }}
-                                            className="w-full text-left px-4 py-2.5 text-sm font-bold hover:bg-gray-50 rounded-xl transition-colors flex items-center gap-2"
-                                        >
-                                            <Edit3 size={16} /> Update Request
-                                        </button>
-                                        <button 
-                                            onClick={() => { setShowDropdown(false); setShowDeleteModal(true); }}
-                                            className="w-full text-left px-4 py-2.5 text-sm font-bold hover:bg-red-50 text-red-600 rounded-xl transition-colors flex items-center gap-2 mt-1"
-                                        >
-                                            <Trash2 size={16} /> Delete Request
-                                        </button>
-                                    </div>
-                                )}
+                            <div className="flex items-center gap-1.5 relative shrink-0">
+                                <button onClick={() => openWhatsAppChat(selectedRequest)} className="flex h-9 items-center gap-1.5 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 px-3 rounded-full text-[11px] font-bold transition-colors"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg><span className="hidden sm:inline">WhatsApp</span></button>
+                                <button onClick={() => setShowDropdown(!showDropdown)} className="w-10 h-10 text-[var(--text)]/60 hover:text-[var(--text)] hover:bg-[var(--secondary)]/10 rounded-full transition-colors flex items-center justify-center"><MoreVertical size={20} /></button>
+                                <AnimatePresence>{showDropdown && (<motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="absolute top-12 right-0 bg-[var(--bg)] border border-[var(--secondary)]/20 shadow-2xl rounded-2xl p-2 w-48 z-50 flex flex-col"><button onClick={() => { setShowDropdown(false); setShowUpdateModal(true); }} className="w-full text-left px-4 py-2.5 text-sm font-bold text-[var(--text)] hover:bg-[var(--secondary)]/10 rounded-xl transition-colors flex items-center gap-2"><Edit3 size={16} /> Update</button><button onClick={() => { setShowDropdown(false); setShowDeleteModal(true); }} className="w-full text-left px-4 py-2.5 text-sm font-bold hover:bg-red-500/10 text-red-500 rounded-xl transition-colors flex items-center gap-2 mt-1"><Trash2 size={16} /> Delete</button></motion.div>)}</AnimatePresence>
                             </div>
                         </div>
-
-                        {/* Custom Delete Confirmation Modal */}
-                        {showDeleteModal && (
-                            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-                                <div className="bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl transform animate-in zoom-in-95 duration-300">
-                                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <Trash2 size={32} className="text-red-500" />
-                                    </div>
-                                    <h3 className="text-2xl font-black text-center text-gray-900 mb-3">Delete Request?</h3>
-                                    <p className="text-gray-500 text-center font-medium mb-8 leading-relaxed">
-                                        Are you sure you want to permanently delete this customization request? This action cannot be undone.
-                                    </p>
-                                    <div className="flex gap-4">
-                                        <button 
-                                            onClick={() => setShowDeleteModal(false)}
-                                            className="flex-1 py-4 px-6 rounded-2xl bg-gray-100 text-gray-900 font-black uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button 
-                                            onClick={handleDeleteRequest}
-                                            disabled={isSending}
-                                            className="flex-1 py-4 px-6 rounded-2xl bg-red-500 text-white font-black uppercase tracking-widest text-xs hover:bg-red-600 transition-all shadow-lg shadow-red-200 disabled:opacity-50 flex items-center justify-center"
-                                        >
-                                            {isSending ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : "Delete Now"}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
+                        {/* Progress */}
+                        <div className="msg-progress bg-[var(--bg)]/90 px-3 sm:px-5 pt-3 pb-3 border-b border-[var(--secondary)]/5 flex justify-center overflow-x-auto no-scrollbar">
+                            <div className="flex items-start justify-between w-full min-w-[380px] max-w-xl">{workflowLabels.map((step, idx) => { const currentStep = Math.max(0, workflowSteps.indexOf(selectedRequest.requestStatus)); const isActive = idx <= currentStep; const isConnectorActive = idx < currentStep; return (<div key={idx} className="relative flex w-14 shrink-0 flex-col items-center text-center"><div className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-black shadow-sm ${isActive ? 'bg-[var(--text)] text-[var(--bg)]' : 'bg-[var(--secondary)]/20 text-[var(--text)]/40'}`}>{isActive && idx === 0 ? <Check size={12}/> : (idx + 1)}</div><span className={`mt-1.5 block text-[8px] sm:text-[9px] font-black leading-none ${isActive ? 'text-[var(--text)]' : 'text-[var(--text)]/40'}`}>{step}</span>{idx < 5 && (<div className={`absolute left-1/2 top-3 h-0.5 w-full ${isConnectorActive ? 'bg-[var(--text)]' : 'bg-[var(--secondary)]/20'}`}></div>)}</div>); })}</div>
+                        </div>
                         {/* Payment Warning */}
-                        {selectedRequest.paymentStatus !== 'paid' && (
-                            <div className="bg-amber-50 border-b border-amber-100 px-6 py-3 flex items-center justify-center gap-2 shrink-0">
-                                <AlertCircle size={14} className="text-amber-600" />
-                                <span className="text-xs font-bold text-amber-800">Payment pending. Design work will start after confirmation.</span>
-                            </div>
-                        )}
-
-                        {/* Chat Messages */}
-                        <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar bg-white/5">
-                            {/* Form Request Intro Box */}
-                            <div className="flex justify-center mb-10">
-                                <div 
-                                    onClick={() => setShowUpdateModal(true)}
-                                    className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-[2.5rem] p-8 max-w-lg text-center shadow-xl cursor-pointer hover:shadow-2xl hover:border-[var(--primary)] transition-all group relative overflow-hidden"
-                                >
-                                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent opacity-50"></div>
-                                    <Package size={28} className="mx-auto text-gray-300 mb-4 group-hover:text-[var(--primary)] group-hover:scale-110 transition-all" />
-                                    <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-3 group-hover:text-[var(--primary)] transition-colors">Initial Customization Data</h4>
-                                    <p className="text-base font-bold text-[var(--text)] italic leading-relaxed">"{selectedRequest.designIdea}"</p>
-                                    <div className="mt-6 flex items-center justify-center gap-2 text-[10px] font-black text-[var(--primary)] opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                                        <Edit3 size={12}/> CLICK TO EDIT REQUEST
+                        {selectedRequest.paymentStatus !== 'paid' && (<div className="msg-payment-bar bg-amber-50 border-b border-amber-200 px-3 sm:px-5 py-2.5"><div className="flex items-center justify-between gap-3"><div className="flex min-w-0 flex-1 items-center gap-2"><AlertCircle size={15} className="text-amber-700 shrink-0" /><span className="text-[11px] sm:text-xs font-black text-amber-900">Payment pending. Design starts after confirmation.</span></div><button onClick={() => openCheckout(selectedRequest)} className="h-8 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black px-3 rounded-lg shadow-md transition-colors shrink-0">Pay Now</button></div></div>)}
+                        {/* Messages */}
+                        <div className="msg-messages px-3 pb-3 pt-3 sm:px-4 md:px-6 space-y-2.5 relative z-0">
+                            <div className="flex justify-center my-3"><span className="bg-white/80 border border-[var(--secondary)]/10 text-[#667781] text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">Today</span></div>
+                            {selectedRequest.messages?.map((msg: any, idx: number) => { const isUser = msg.sender === 'user'; const showTail = idx === 0 || selectedRequest.messages[idx - 1].sender !== msg.sender; return (
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={idx} className={`flex ${isUser ? 'justify-end' : 'justify-start'} w-full`}>
+                                    <div className={`relative max-w-[85%] sm:max-w-[70%] rounded-2xl px-3.5 py-2.5 shadow-[0_1px_4px_rgba(17,27,33,0.06)] ring-1 ring-black/[0.04] ${isUser ? 'bg-[#d9fdd3] text-[#111B21] rounded-br-md' : 'bg-white text-[#111B21] rounded-bl-md'} ${showTail && isUser ? 'rounded-tr-md' : ''} ${showTail && !isUser ? 'rounded-tl-md' : ''}`}>
+                                        {!isUser && showTail && (<div className="text-[12px] font-bold text-[#00A884] mb-1">Design Team</div>)}
+                                        {msg.text && (<p className="text-[14px] leading-[1.45] whitespace-pre-wrap break-words pr-1 font-medium">{formatMessageText(msg.text)}</p>)}
+                                        {msg.audio && (<div className="mt-1 mb-1"><VoiceMessagePlayer src={resolveImage(msg.audio)} isUser={isUser} /></div>)}
+                                        {msg.images?.length > 0 && (<div className={`mt-1.5 grid gap-1 ${msg.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>{msg.images.map((img: string, i: number) => (<a key={i} href={resolveImage(img)} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-xl border border-black/5"><img src={resolveImage(img)} loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }} className="w-full h-40 md:h-48 object-cover" /></a>))}</div>)}
+                                        {msg.files?.length > 0 && (<div className="mt-1.5 space-y-1">{msg.files.map((file: string, i: number) => { const ext = file.split('.').pop()?.toUpperCase() || 'FILE'; return (<a key={i} href={resolveImage(file)} target="_blank" rel="noreferrer" className={`flex items-center gap-3 p-2.5 rounded-xl ${isUser ? 'bg-black/5' : 'bg-gray-50'}`}><div className={`w-10 h-10 rounded-lg flex items-center justify-center font-black text-[10px] relative ${isUser ? 'bg-[#00A884] text-white' : 'bg-[var(--primary)] text-white'}`}><FileText size={20} className="absolute opacity-30" /><span className="relative z-10">{ext}</span></div><span className="text-[13px] font-medium truncate flex-1">{file.split('/').pop()?.split('-').slice(2).join('-') || 'Document.pdf'}</span></a>); })}</div>)}
+                                        {!isUser && msg.images?.length > 0 && selectedRequest.requestStatus === 'preview_sent' && (<div className="mt-3 bg-white/50 rounded-xl p-3 border border-[var(--secondary)]/10 text-center"><h5 className="text-[12px] font-bold mb-2">Preview Uploaded</h5><div className="flex gap-2"><button className="flex-1 bg-[#00A884] hover:bg-[#008f6f] text-white text-[12px] font-bold py-2 rounded-lg">Approve</button><button className="flex-1 bg-[var(--secondary)]/10 text-[var(--text)] text-[12px] font-bold py-2 rounded-lg">Request Changes</button></div></div>)}
+                                        <div className="flex items-center justify-end gap-1 mt-1.5 float-right pl-3 text-[10px] leading-none text-[#667781]">{new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}{isUser && (msg.isRead ? <CheckCheck size={14} className="text-[#53bdeb] ml-0.5"/> : <Check size={14} className="ml-0.5"/>)}</div>
+                                        <div className="clear-both"></div>
                                     </div>
-                                </div>
-                            </div>
-
-                            {selectedRequest.messages?.map((msg: any, idx: number) => {
-                                const isUser = msg.sender === 'user';
-                                return (
-                                    <div key={idx} className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}>
-                                        <div className={`group relative max-w-[85%] md:max-w-[70%] rounded-[2rem] p-5 shadow-lg ${isUser ? 'bg-[var(--primary)] text-white rounded-tr-sm shadow-[var(--primary)]/20' : 'bg-white text-[var(--text)] border border-gray-100 rounded-tl-sm'}`}>
-                                            
-                                            <div className="flex items-center justify-between gap-6 mb-2">
-                                                <span className={`text-[10px] font-black uppercase tracking-widest ${isUser ? 'text-white/60' : 'text-[var(--primary)]/60'}`}>
-                                                    {isUser ? 'YOU' : 'DESIGN TEAM'}
-                                                </span>
-                                            </div>
-
-                                            {/* Text */}
-                                            {msg.text && <p className="text-sm font-bold leading-relaxed whitespace-pre-wrap">{msg.text}</p>}
-
-                                            {/* Audio */}
-                                            {msg.audio && (
-                                                <div className="mt-3">
-                                                    <audio controls src={resolveImage(msg.audio)} className={`h-10 w-full max-w-[250px] outline-none rounded-full ${isUser ? 'brightness-200' : ''}`} />
-                                                </div>
-                                            )}
-
-                                            {/* Images */}
-                                            {msg.images?.length > 0 && (
-                                                <div className={`mt-4 grid gap-3 ${msg.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                                                    {msg.images.map((img: string, i: number) => (
-                                                        <a key={i} href={resolveImage(img)} target="_blank" rel="noreferrer" className="block relative group/img overflow-hidden rounded-2xl border-2 border-white/10 shadow-md">
-                                                            <img src={resolveImage(img)} className="w-full h-40 object-cover transition-transform duration-500 group-hover/img:scale-110" />
-                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-all backdrop-blur-[2px]">
-                                                                <ImageIcon size={24} className="text-white scale-75 group-hover/img:scale-100 transition-transform" />
-                                                            </div>
-                                                        </a>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {/* Files */}
-                                            {msg.files?.length > 0 && (
-                                                <div className="mt-3 space-y-2">
-                                                    {msg.files.map((file: string, i: number) => {
-                                                        const ext = file.split('.').pop()?.toUpperCase() || 'FILE';
-                                                        return (
-                                                            <a key={i} href={resolveImage(file)} target="_blank" rel="noreferrer" className={`flex items-center gap-3 p-3 rounded-2xl border transition-colors ${isUser ? 'bg-white/10 border-white/5 hover:bg-white/20' : 'bg-gray-50 border-gray-100 hover:bg-gray-100'}`}>
-                                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[9px] ${isUser ? 'bg-white text-black' : 'bg-gray-200 text-gray-700'}`}>
-                                                                    {ext}
-                                                                </div>
-                                                                <span className="text-xs font-bold truncate flex-1">{file.split('/').pop()?.split('-').slice(2).join('-') || 'Document attached'}</span>
-                                                            </a>
-                                                        )
-                                                    })}
-                                                </div>
-                                            )}
-
-                                            <div className={`flex items-center justify-end gap-1 mt-2 text-[9px] font-bold ${isUser ? 'text-white/40' : 'text-gray-400'}`}>
-                                                {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                                                {isUser && (msg.isRead ? <CheckCheck size={12} className="text-blue-400 ml-1"/> : <Check size={12} className="ml-1"/>)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                            
-                            {otherTyping && (
-                                <div className="flex justify-start">
-                                    <div className="bg-white border border-gray-100 rounded-3xl rounded-tl-sm p-4 shadow-sm flex items-center gap-1.5">
-                                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
-                                    </div>
-                                </div>
-                            )}
-                            <div ref={messagesEndRef} />
+                                </motion.div>
+                            ); })}
+                            {otherTyping && (<div className="flex justify-start"><div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-[var(--text)]/40 rounded-full animate-bounce" style={{animationDelay:'0ms'}}></div><div className="w-1.5 h-1.5 bg-[var(--text)]/40 rounded-full animate-bounce" style={{animationDelay:'150ms'}}></div><div className="w-1.5 h-1.5 bg-[var(--text)]/40 rounded-full animate-bounce" style={{animationDelay:'300ms'}}></div></div></div>)}
+                            <div ref={messagesEndRef} className="h-1" />
                         </div>
-
-                        {/* Chat Input Area */}
-                        <div className="p-6 bg-white border-t border-gray-200/30 shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
-                            
-                            {attachments.length > 0 && (
-                                <div className="flex gap-3 mb-4 overflow-x-auto pb-2 custom-scrollbar">
-                                    {attachments.map((file, i) => (
-                                        <div key={i} className="relative w-20 h-20 shrink-0 rounded-2xl overflow-hidden border-2 border-[var(--primary)]/20 bg-white flex items-center justify-center shadow-md animate-in zoom-in-50">
-                                            {file.type.startsWith('image/') ? (
-                                                <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="flex flex-col items-center gap-1">
-                                                    <FileText size={20} className="text-[var(--primary)]" />
-                                                    <span className="text-[10px] font-black text-gray-500 uppercase">{file.name.split('.').pop()}</span>
-                                                </div>
-                                            )}
-                                            <button onClick={() => removeAttachment(i)} className="absolute top-1.5 right-1.5 bg-black/80 text-white p-1 rounded-full hover:bg-red-500 transition-all hover:scale-110">
-                                                <X size={10} />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            <div className="flex items-end gap-4">
+                        {/* Input Bar */}
+                        <div className="msg-input-bar px-3 pt-2 md:px-5 bg-[#f0f2f5] border-t border-black/5" style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
+                            {attachments.length > 0 && (<div className="flex gap-2 mb-2 overflow-x-auto pb-2">{attachments.map((file, i) => (<motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} key={i} className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden border border-black/10 bg-white flex items-center justify-center shadow-sm">{file.type.startsWith('image/') ? (<img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />) : (<div className="flex flex-col items-center gap-1"><FileText size={16} className="text-gray-500" /><span className="text-[8px] font-bold text-gray-500 uppercase">{file.name.split('.').pop()}</span></div>)}<button onClick={() => removeAttachment(i)} className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full hover:bg-red-500"><X size={10} /></button></motion.div>))}</div>)}
+                            <div className="flex items-end gap-2 relative">
                                 <input type="file" multiple className="hidden" ref={fileInputRef} onChange={handleFileAttach} />
-                                <button 
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="p-4 text-gray-400 hover:text-[var(--primary)] bg-gray-50 hover:bg-[var(--primary)]/5 rounded-2xl transition-all flex shrink-0 shadow-inner"
-                                >
-                                    <Paperclip size={24} />
-                                </button>
-
-                                <form onSubmit={sendMessage} className="flex-1 flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-[2.5rem] p-2 shadow-inner focus-within:ring-2 focus-within:ring-[var(--primary)]/30 focus-within:bg-white transition-all">
-                                    <input 
-                                        value={messageText}
-                                        onChange={handleTextChange}
-                                        placeholder="Type your design feedback here..."
-                                        className="flex-1 bg-transparent px-5 py-3 text-sm font-bold focus:outline-none placeholder-gray-400 text-[var(--text)]"
-                                        disabled={isSending}
-                                    />
-                                    {messageText.trim() || attachments.length > 0 ? (
-                                        <button 
-                                            type="submit"
-                                            disabled={isSending}
-                                            className="w-12 h-12 flex items-center justify-center bg-[var(--primary)] text-white rounded-full hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[var(--primary)]/30 shrink-0 disabled:opacity-50"
-                                        >
-                                            {isSending ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <Send size={20} className="ml-1" />}
-                                        </button>
-                                    ) : (
-                                        <div className="shrink-0 mr-1">
-                                            <VoiceRecorder onSend={(blob) => sendMessage(undefined, blob)} />
-                                        </div>
-                                    )}
+                                <form onSubmit={sendMessage} className="flex-1 flex items-end bg-white rounded-[1.65rem] min-h-[48px] shadow-[0_1px_6px_rgba(17,27,33,0.06)] border border-black/5 pr-1.5 py-1">
+                                    <button type="button" onClick={() => fileInputRef.current?.click()} className="w-10 h-10 flex items-center justify-center text-[#54656f] hover:bg-gray-100 rounded-full transition-colors shrink-0 ml-0.5"><Paperclip size={20} className="rotate-45" /></button>
+                                    <textarea value={messageText} onChange={(e) => { handleTextChange(e as any); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'; }} placeholder="Type a message" rows={1} className="flex-1 bg-transparent px-2 py-3 text-[16px] leading-6 resize-none focus:outline-none placeholder:text-[#8696a0] text-[#111b21] min-w-0" disabled={isSending} style={{ minHeight: '40px', maxHeight: '120px' }} />
                                 </form>
+                                <div className="shrink-0">{messageText.trim() || attachments.length > 0 ? (<motion.button initial={{ scale: 0.8 }} animate={{ scale: 1 }} type="button" onClick={() => sendMessage()} disabled={isSending} className="w-11 h-11 flex items-center justify-center bg-[#00A884] text-white rounded-full hover:bg-[#008f6f] shadow-sm transition-all disabled:opacity-50">{isSending ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <Send size={20} className="ml-1" />}</motion.button>) : (<VoiceRecorder onSend={(blob) => sendMessage(undefined, blob)} />)}</div>
                             </div>
                         </div>
                     </>
                 )}
             </div>
 
-            {showUpdateModal && selectedRequest && (
-                <UpdateCustomizationModal 
-                    request={selectedRequest} 
-                    onClose={() => setShowUpdateModal(false)}
-                    onUpdate={(updatedData) => {
-                        setSelectedRequest(updatedData);
-                        setRequests(prev => prev.map(r => r._id === updatedData._id ? updatedData : r));
-                    }}
-                />
-            )}
+            {/* ══════ EMPTY STATE (Desktop) ══════ */}
+            <div className={`msg-chat-empty ${!selectedRequest ? 'no-selection-desktop' : ''}`}>
+                <div className="absolute inset-0 pointer-events-none opacity-[0.04] mix-blend-multiply" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
+                <div className="text-center flex flex-col items-center z-10 p-8">
+                    <div className="w-24 h-24 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mb-6"><ShieldCheck size={48} className="text-[var(--primary)]" /></div>
+                    <h2 className="text-3xl font-black text-[var(--text)]">Workspace Connect</h2>
+                    <p className="text-sm font-bold text-[var(--text)]/60 max-w-xs mt-2">Select a request to start collaborating.</p>
+                </div>
+            </div>
         </div>
+
+        {/* Modals */}
+        <AnimatePresence>{showDeleteModal && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"><motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-3xl p-8 max-w-md w-full shadow-2xl"><div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6"><Trash2 size={32} className="text-red-500" /></div><h3 className="text-2xl font-black text-center text-[var(--text)] mb-3">Delete Request?</h3><p className="text-[var(--text)]/60 text-center font-medium mb-8">Are you sure? This cannot be undone.</p><div className="flex gap-4"><button onClick={() => setShowDeleteModal(false)} className="flex-1 py-3.5 rounded-2xl bg-[var(--secondary)]/10 text-[var(--text)] font-black text-xs hover:bg-[var(--secondary)]/20">Cancel</button><button onClick={handleDeleteRequest} disabled={isSending} className="flex-1 py-3.5 rounded-2xl bg-red-500 text-white font-black text-xs hover:bg-red-600 shadow-lg disabled:opacity-50 flex items-center justify-center">{isSending ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : "Delete Now"}</button></div></motion.div></motion.div>)}</AnimatePresence>
+        {showUpdateModal && selectedRequest && (<UpdateCustomizationModal request={selectedRequest} onClose={() => setShowUpdateModal(false)} onUpdate={(updatedData) => { setSelectedRequest(updatedData); setRequests(prev => prev.map(r => r._id === updatedData._id ? updatedData : r)); }} />)}
+        </>
     );
 }
+
