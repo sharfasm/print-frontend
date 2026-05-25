@@ -41,6 +41,7 @@ export default function Products() {
     const [categories, setCategories] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
     const [products, setProducts] = useState([]);
+    const [allProducts, setAllProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedSubcategory, setSelectedSubcategory] = useState(null);
     const [showAllProducts, setShowAllProducts] = useState(false);
@@ -108,6 +109,7 @@ export default function Products() {
             try {
                 const res = await api.get('/products');
                 const allProds = res.data;
+                setAllProducts(allProds);
                 if (allProds.length > 0) {
                     const prices = allProds.map(p => p.offerPrice || p.price || 0);
                     const highest = Math.max(...prices);
@@ -942,36 +944,67 @@ export default function Products() {
                                                  </div>
                                              </div>
 
-                                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-                                                 {categorySubs.map((sub) => (
-                                                     <motion.div 
-                                                         key={sub._id}
-                                                         whileHover={{ y: -6 }}
-                                                         onClick={() => {
-                                                             setSelectedSubcategory(sub);
-                                                             setShowAllProducts(false);
-                                                         }}
-                                                         className="group cursor-pointer relative rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 bg-[#A7AA63]/12 dark:bg-[#121A1B]/40 aspect-[4/5] flex items-end border border-[var(--secondary)]/15"
-                                                     >
-                                                         {sub.image ? (
-                                                             <img 
-                                                                 src={resolveImage(sub.image)} 
-                                                                 alt={sub.name} 
-                                                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-108" 
-                                                             />
-                                                         ) : (
-                                                             <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--secondary)]/10" />
-                                                         )}
-                                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
-                                                         <div className="relative z-10 p-6 w-full transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 space-y-1">
-                                                             <span className="text-[10px] font-bold text-[#A7AA63] uppercase tracking-widest">Bespoke Collection</span>
-                                                             <h3 className="text-white text-xl font-bold tracking-wide">{sub.name}</h3>
-                                                             <div className="h-0 overflow-hidden group-hover:h-auto group-hover:mt-1 transition-all opacity-0 group-hover:opacity-100 flex items-center gap-1.5 text-xs font-bold text-gray-300">
-                                                                 <span>Browse Products</span> &rarr;
+                                             <div className="flex overflow-x-auto snap-x snap-mandatory lg:grid lg:grid-cols-3 xl:grid-cols-4 lg:gap-8 gap-6 pb-6 lg:pb-0 scroll-smooth custom-scrollbar lg:overflow-x-visible">
+                                                 {categorySubs.map((sub) => {
+                                                     const isSelected = selectedSubcategory?._id === sub._id;
+                                                     const subProductCount = allProducts.filter(p => {
+                                                         const pSubId = typeof p.subcategory === 'object' ? p.subcategory?._id : p.subcategory;
+                                                         return String(pSubId) === String(sub._id);
+                                                     }).length;
+                                                     return (
+                                                         <div 
+                                                             key={sub._id}
+                                                             onClick={() => {
+                                                                 setSelectedSubcategory(sub);
+                                                                 setShowAllProducts(false);
+                                                             }}
+                                                             className="group cursor-pointer flex-shrink-0 w-[280px] sm:w-[320px] lg:w-auto snap-start flex flex-col"
+                                                         >
+                                                             {/* Image wrapper */}
+                                                             <div className={`relative overflow-hidden rounded-2xl aspect-[4/5] bg-[#A7AA63]/10 border transition-all duration-300 ${
+                                                                 isSelected 
+                                                                     ? 'border-[var(--primary)] ring-2 ring-[var(--primary)] shadow-[0_0_20px_rgba(167,170,99,0.35)] dark:shadow-[0_0_20px_rgba(167,170,99,0.2)]' 
+                                                                     : 'border-[var(--secondary)]/15 group-hover:border-[var(--secondary)]/40 shadow-md group-hover:shadow-xl'
+                                                             }`}>
+                                                                 {sub.image ? (
+                                                                     <img 
+                                                                         src={resolveImage(sub.image)} 
+                                                                         alt={sub.name} 
+                                                                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108" 
+                                                                     />
+                                                                 ) : (
+                                                                     <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--secondary)]/10" />
+                                                                 )}
+                                                                 
+                                                                 {/* Hover overlay with smooth gradient fade */}
+                                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 text-white">
+                                                                     <h4 className="text-xl font-bold tracking-wide transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 delay-75">{sub.name}</h4>
+                                                                     <p className="text-[11px] font-bold text-[#A7AA63] uppercase tracking-wider mt-0.5 transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 delay-100">
+                                                                         {subProductCount} {subProductCount === 1 ? 'Product' : 'Products'}
+                                                                     </p>
+                                                                     {sub.description && (
+                                                                         <p className="text-xs text-gray-300 line-clamp-3 mt-2 font-medium leading-relaxed transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 delay-150">
+                                                                             {sub.description}
+                                                                         </p>
+                                                                     )}
+                                                                     <div className="flex items-center gap-1 mt-4 text-xs font-bold text-[#A7AA63] hover:text-white transition-colors transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 delay-200 group/explore">
+                                                                         <span>Explore</span> &rarr;
+                                                                     </div>
+                                                                 </div>
+                                                             </div>
+
+                                                             {/* Outer text details */}
+                                                             <div className="mt-4 flex flex-col">
+                                                                 <h3 className="text-lg font-serif font-black tracking-tight text-[var(--text)] group-hover:text-[var(--primary)] transition-colors leading-tight">
+                                                                     {sub.name}
+                                                                 </h3>
+                                                                 <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">
+                                                                     {subProductCount} {subProductCount === 1 ? 'Product' : 'Products'}
+                                                                 </span>
                                                              </div>
                                                          </div>
-                                                     </motion.div>
-                                                 ))}
+                                                     );
+                                                 })}
                                              </div>
                                          </div>
                                      );
