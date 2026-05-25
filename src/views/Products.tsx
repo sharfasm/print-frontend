@@ -994,13 +994,14 @@ export default function Products() {
                                                              </div>
 
                                                              {/* Outer text details */}
-                                                             <div className="mt-4 flex flex-col">
+                                                             <div className="mt-4 flex flex-col items-start">
                                                                  <h3 className="text-lg font-serif font-black tracking-tight text-[var(--text)] group-hover:text-[var(--primary)] transition-colors leading-tight">
                                                                      {sub.name}
                                                                  </h3>
-                                                                 <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">
-                                                                     {subProductCount} {subProductCount === 1 ? 'Product' : 'Products'}
-                                                                 </span>
+                                                                 <div className="mt-1 flex items-center gap-1 text-[11px] font-bold text-gray-400 dark:text-gray-500 group-hover:text-[var(--primary)] transition-colors group/explore-link">
+                                                                     <span>Explore</span>
+                                                                     <span className="transition-transform group-hover/explore-link:translate-x-1">&rarr;</span>
+                                                                 </div>
                                                              </div>
                                                          </div>
                                                      );
