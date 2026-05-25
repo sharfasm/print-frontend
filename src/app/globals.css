@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
     --primary: #505039;
     --secondary: #A7AA63;
@@ -243,4 +245,51 @@ html.lenis body {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- PREMIUM RANGE SLIDER --- */
+.premium-range-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--secondary) 25%, var(--bg));
+    outline: none;
+}
+.premium-range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.premium-range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    background: var(--secondary);
+}
+.premium-range-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--bg);
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.premium-range-slider::-moz-range-thumb:hover {
+    transform: scale(1.15);
+    background: var(--secondary);
+}
+
+/* --- PREMIUM DRAWER FOR MOBILE FILTERS --- */
+.mobile-filter-drawer-overlay {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
 }

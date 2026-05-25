@@ -45,12 +45,32 @@ const Navbar = () => {
     }, [wishlistCount]);
 
     useEffect(() => {
+        // Load initial theme on mount
+        const savedMode = localStorage.getItem("theme-mode");
+        if (savedMode) {
+            setMode(savedMode);
+        } else {
+            const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            setMode(systemPrefersDark ? "dark" : "light");
+        }
+    }, []);
+
+    useEffect(() => {
         const theme = config.theme[mode];
         if (theme) {
             document.documentElement.style.setProperty("--primary", theme.primary);
             document.documentElement.style.setProperty("--secondary", theme.secondary);
             document.documentElement.style.setProperty("--bg", theme.bg);
             document.documentElement.style.setProperty("--text", theme.text);
+            
+            // Synchronize Tailwind dark variant and document theme
+            if (mode === "dark") {
+                document.documentElement.classList.add("dark");
+                document.documentElement.setAttribute("data-theme", "dark");
+            } else {
+                document.documentElement.classList.remove("dark");
+                document.documentElement.setAttribute("data-theme", "light");
+            }
         }
     }, [mode]);
 
@@ -216,7 +236,11 @@ const Navbar = () => {
 
                         {/* Theme Toggle Button */}
                         <button 
-                            onClick={() => setMode(mode === "light" ? "dark" : "light")}
+                            onClick={() => {
+                                const newMode = mode === "light" ? "dark" : "light";
+                                setMode(newMode);
+                                localStorage.setItem("theme-mode", newMode);
+                            }}
                             className={`p-2 rounded-full transition-colors ml-2 shrink-0 flex items-center justify-center ${isScrolled || !isTransparentPage ? 'hover:bg-[var(--text)]/10 text-[var(--text)]' : 'hover:bg-white/10 text-white'}`}
                             aria-label="Toggle Theme"
                             title={mode === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
