@@ -32,6 +32,14 @@ export default function ProductDetails() {
     const [customizationFields, setCustomizationFields] = useState([]);
     const [subcategoryData, setSubcategoryData] = useState(null);
 
+    // Bulk Order States
+    const [isBulkOpen, setIsBulkOpen] = useState(false);
+    const [bulkQuantity, setBulkQuantity] = useState('');
+    const [bulkPhone, setBulkPhone] = useState('');
+    const [bulkNotes, setBulkNotes] = useState('');
+    const [isSubmittingBulk, setIsSubmittingBulk] = useState(false);
+    const [bulkSuccess, setBulkSuccess] = useState(false);
+
     const methods = useForm();
     const { handleSubmit, reset } = methods;
 
@@ -268,6 +276,36 @@ export default function ProductDetails() {
         if (days <= 0) return "Today";
         if (days === 1) return "1 day ago";
         return `${days} days ago`;
+    };
+
+    const handleBulkSubmit = async (e) => {
+        e.preventDefault();
+        if (!isLoggedIn) {
+            triggerAuthGuard("Login to submit a bulk request");
+            return;
+        }
+        if (!bulkQuantity || !bulkPhone) return;
+
+        setIsSubmittingBulk(true);
+        try {
+            const res = await api.post('/customization/create', {
+                productId: id,
+                requestType: 'bulk',
+                bulkQuantity,
+                bulkPhone,
+                bulkNotes
+            });
+            if (res.status === 201) {
+                setBulkSuccess(true);
+                setBulkQuantity('');
+                setBulkPhone('');
+                setBulkNotes('');
+            }
+        } catch (err) {
+            console.error("Bulk request error:", err);
+        } finally {
+            setIsSubmittingBulk(false);
+        }
     };
 
     const fallbackSpecifications = [
@@ -513,8 +551,98 @@ export default function ProductDetails() {
                                         )}
                                     </button>
                                 </div>
+                                </div>
                             </div>
-                        </div>
+
+                        {/* Bulk Pricing Section */}
+                        {product.hasBulkPricing && product.bulkPricing && product.bulkPricing.length > 0 && (
+                            <div className="mb-10">
+                                <button 
+                                    onClick={() => setIsBulkOpen(!isBulkOpen)}
+                                    className={`w-full flex items-center justify-between p-5 rounded-2xl border transition-all duration-300 ${isBulkOpen ? 'bg-[var(--secondary)]/5 border-[var(--primary)] text-[var(--primary)] shadow-md' : 'bg-[var(--bg)] border-[var(--secondary)]/20 text-[var(--text)] hover:border-[var(--primary)]/50 shadow-sm'}`}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br ${isBulkOpen ? 'from-[var(--primary)]/20 to-[var(--primary)]/5 text-[var(--primary)]' : 'from-[var(--secondary)]/10 to-[var(--secondary)]/5 text-[var(--text)]/70'}`}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                                            </svg>
+                                        </div>
+                                        <div className="text-left">
+                                            <p className={`text-[10px] font-black uppercase tracking-widest ${isBulkOpen ? 'text-[var(--primary)]' : 'text-[var(--text)]/50'}`}>Corporate & Events</p>
+                                            <p className="font-bold text-lg">Bulk Pricing Available</p>
+                                        </div>
+                                    </div>
+                                    <div className={`w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 ${isBulkOpen ? 'bg-[var(--primary)] text-white rotate-180 shadow-md shadow-[var(--primary)]/30' : 'bg-[var(--secondary)]/10 text-[var(--text)]/50'}`}>
+                                        <ChevronDown size={20} />
+                                    </div>
+                                </button>
+
+                                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isBulkOpen ? 'max-h-[1000px] opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+                                    <div className="bg-[var(--secondary)]/5 p-6 sm:p-8 rounded-3xl border border-[var(--secondary)]/10 shadow-inner space-y-8">
+                                        
+                                        {/* Pricing Tier Table */}
+                                        <div className="overflow-hidden rounded-2xl border border-[var(--secondary)]/15 bg-[var(--bg)]">
+                                            <div className="grid grid-cols-2 bg-[var(--text)] text-[var(--bg)] text-[10px] sm:text-xs font-black uppercase tracking-widest">
+                                                <div className="px-4 py-3 sm:py-4 border-r border-[var(--bg)]/20">Quantity Tier</div>
+                                                <div className="px-4 py-3 sm:py-4">Price Per Unit</div>
+                                            </div>
+                                            {product.bulkPricing.map((tier, idx) => (
+                                                <div key={idx} className={`grid grid-cols-2 border-t border-[var(--secondary)]/10 ${idx % 2 === 0 ? 'bg-[var(--secondary)]/5' : 'bg-[var(--bg)]'}`}>
+                                                    <div className="px-4 py-3 sm:py-4 text-sm font-bold text-[var(--secondary)]/80 flex items-center gap-2">
+                                                        {tier.minQty}{tier.maxQty ? ` - ${tier.maxQty}` : '+'} units
+                                                    </div>
+                                                    <div className="px-4 py-3 sm:py-4 text-base font-black text-[var(--text)] flex items-center justify-between">
+                                                        <span>₹{tier.pricePerUnit}</span>
+                                                        {tier.bestPriceAvailable && (
+                                                            <span className="hidden sm:inline-block bg-green-500 text-white text-[9px] px-2 py-0.5 rounded uppercase tracking-wider font-bold">Best Value</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Request Form */}
+                                        {bulkSuccess ? (
+                                            <div className="text-center p-6 bg-green-500/10 border border-green-500/20 rounded-2xl">
+                                                <div className="w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/30">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                                                </div>
+                                                <h4 className="font-black text-xl mb-2 text-green-700">Request Received!</h4>
+                                                <p className="text-sm font-medium opacity-80 mb-6">Our team will review your bulk order requirements and send a quotation to your dashboard.</p>
+                                                <Link href="/dashboard/requests" className="inline-block bg-[var(--text)] text-[var(--bg)] font-bold px-6 py-3 rounded-xl hover:scale-105 transition-transform shadow-lg">
+                                                    View Dashboard
+                                                </Link>
+                                            </div>
+                                        ) : (
+                                            <form onSubmit={handleBulkSubmit} className="space-y-4">
+                                                <div>
+                                                    <h4 className="font-black text-lg mb-1">Request a Quote</h4>
+                                                    <p className="text-xs font-medium opacity-60 mb-4">Fill out the details below to get a customized bulk pricing quote.</p>
+                                                </div>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-xs font-bold uppercase tracking-wider opacity-50 mb-1.5 ml-1">Estimated Quantity *</label>
+                                                        <input type="number" required value={bulkQuantity} onChange={(e) => setBulkQuantity(e.target.value)} className="w-full bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-xl px-4 py-3 focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] outline-none transition-all font-medium" placeholder="E.g., 50" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-bold uppercase tracking-wider opacity-50 mb-1.5 ml-1">Contact Phone *</label>
+                                                        <input type="tel" required value={bulkPhone} onChange={(e) => setBulkPhone(e.target.value)} className="w-full bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-xl px-4 py-3 focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] outline-none transition-all font-medium" placeholder="+91 98765 43210" />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold uppercase tracking-wider opacity-50 mb-1.5 ml-1">Additional Requirements</label>
+                                                    <textarea value={bulkNotes} onChange={(e) => setBulkNotes(e.target.value)} className="w-full bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-xl px-4 py-3 focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] outline-none transition-all font-medium min-h-[100px]" placeholder="Specific colors, deadline, delivery location, etc." />
+                                                </div>
+                                                <button disabled={isSubmittingBulk} type="submit" className="w-full h-14 bg-[var(--primary)] text-[var(--bg)] font-black rounded-xl hover:opacity-95 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 shadow-md shadow-[var(--primary)]/20 flex items-center justify-center gap-2 overflow-hidden group/bulk">
+                                                    <div className="absolute inset-0 -translate-x-full group-hover/bulk:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"></div>
+                                                    {isSubmittingBulk ? "Submitting Request..." : "Submit Bulk Request"}
+                                                </button>
+                                            </form>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Delivery Info */}
                         <div className="bg-[var(--secondary)]/5 p-6 rounded-2xl border border-[var(--secondary)]/10 flex items-start gap-4">
@@ -773,9 +901,12 @@ export default function ProductDetails() {
                                         </div>
                                         <div className="p-6">
                                             <div className="text-xs uppercase tracking-widest font-bold opacity-50 mb-1">{categoryName}</div>
-                                            <h3 className="text-lg font-bold group-hover:text-[var(--primary)] transition-colors mb-2 truncate">
+                                            <h3 className="text-lg font-bold group-hover:text-[var(--primary)] transition-colors mb-1 truncate">
                                                 {related.name}
                                             </h3>
+                                            <p className="mb-2 text-[11px] font-medium leading-snug text-[var(--text)] opacity-60 line-clamp-1">
+                                                {related.shortDescription || "Premium bespoke custom printing."}
+                                            </p>
                                             <div className="font-black text-lg">₹{related.price}</div>
                                         </div>
                                     </Link>

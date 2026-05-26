@@ -133,9 +133,12 @@ export default function NewArrivals() {
                                         {typeof product.category === 'object' ? product.category?.name : (product.categoryName || 'New Collection')}
                                     </span>
                                     <div className="block mb-auto">
-                                        <h3 className="text-lg font-bold line-clamp-2 group-hover:text-[var(--primary)] transition-colors">
+                                        <h3 className="text-lg font-bold line-clamp-1 group-hover:text-[var(--primary)] transition-colors">
                                             {product.name}
                                         </h3>
+                                        <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--text)] opacity-60 line-clamp-1">
+                                            {product.shortDescription || "Premium bespoke custom printing."}
+                                        </p>
                                     </div>
                                     <div className="mt-2 flex items-center justify-between">
                                         <div className="flex flex-col">

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
     --primary: #505039;
     --secondary: #A7AA63;
@@ -243,4 +245,200 @@ html.lenis body {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- PREMIUM RANGE SLIDER --- */
+.premium-range-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--secondary) 25%, var(--bg));
+    outline: none;
+    touch-action: manipulation;
+}
+.premium-range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    border: 2.5px solid var(--bg);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18), 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+    transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.premium-range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    background: var(--secondary);
+}
+.premium-range-slider::-webkit-slider-thumb:active {
+    transform: scale(1.2);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.22), 0 0 0 5px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+.premium-range-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border: 2.5px solid var(--bg);
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18), 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.premium-range-slider::-moz-range-thumb:hover {
+    transform: scale(1.15);
+    background: var(--secondary);
+}
+
+/* Mobile: Larger touch-friendly slider thumb */
+@media (max-width: 768px) {
+    .premium-range-slider {
+        height: 8px;
+    }
+    .premium-range-slider::-webkit-slider-thumb {
+        width: 26px;
+        height: 26px;
+        border-width: 3px;
+    }
+    .premium-range-slider::-moz-range-thumb {
+        width: 26px;
+        height: 26px;
+        border-width: 3px;
+    }
+}
+
+/* --- PREMIUM DRAWER FOR MOBILE FILTERS --- */
+.mobile-filter-drawer-overlay {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Drag handle indicator for bottom sheet */
+.drawer-handle {
+    width: 40px;
+    height: 4px;
+    border-radius: 9999px;
+    background: rgba(128, 128, 128, 0.4);
+    margin: 0 auto;
+    transition: background 0.2s ease;
+}
+.drawer-handle:active {
+    background: rgba(128, 128, 128, 0.7);
+}
+
+/* Filter section accordion header */
+.filter-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+.filter-section-header:active {
+    opacity: 0.7;
+}
+
+/* Ensure all interactive elements in filter drawer have proper touch area */
+.filter-chip {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* --- STAGGERED CARD ENTRANCE --- */
+@keyframes cardFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.animate-card-enter {
+    animation: cardFadeUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* --- FILTER CHIP BOUNCE --- */
+@keyframes chipBounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    60% {
+        transform: scale(1.04);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.animate-chip-bounce {
+    animation: chipBounceIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* --- REDUCED MOTION --- */
+@media (prefers-reduced-motion: reduce) {
+    .animate-card-enter,
+    .animate-chip-bounce,
+    .animate-cart-bounce,
+    .animate-scale-in,
+    .animate-slide-in-right,
+    .animate-slide-out-right,
+    .animate-marquee {
+        animation: none !important;
+    }
+    * {
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* --- MOBILE SAFE AREA UTILITIES --- */
+.pl-safe {
+    padding-left: env(safe-area-inset-left);
+}
+.pr-safe {
+    padding-right: env(safe-area-inset-right);
+}
+
+/* --- MOBILE PRODUCT GRID SNAP SCROLL --- */
+.mobile-snap-scroll {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.mobile-snap-scroll::-webkit-scrollbar {
+    display: none;
+}
+.mobile-snap-scroll > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+}
+
+/* --- MOBILE TOUCH UTILITIES --- */
+.touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile: Remove 300ms tap delay globally on interactive elements */
+@media (max-width: 1024px) {
+    button, a, input, select, textarea, [role="button"] {
+        touch-action: manipulation;
+    }
 }

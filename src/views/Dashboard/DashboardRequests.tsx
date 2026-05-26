@@ -17,8 +17,19 @@ import { useShop } from '../../context/ShopContext';
 
 const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Crect width='160' height='160' rx='24' fill='%23e7e2cb'/%3E%3Cpath d='M50 105h60l-15-20-12 14-17-24-16 30z' fill='%23505039' fill-opacity='.35'/%3E%3Ccircle cx='98' cy='58' r='10' fill='%23505039' fill-opacity='.35'/%3E%3Crect x='35' y='35' width='90' height='90' rx='16' fill='none' stroke='%23505039' stroke-opacity='.22' stroke-width='6'/%3E%3C/svg%3E";
 const WHATSAPP_SUPPORT_NUMBER = "919747723150";
-const workflowSteps = ['pending_review', 'designing_started', 'preview_sent', 'approved', 'production_started', 'completed'];
-const workflowLabels = ['Review', 'Designing', 'Preview', 'Approved', 'Production', 'Done'];
+const getWorkflowSteps = (type: string) => {
+    if (type === 'bulk') {
+        return ['pending_review', 'waiting_for_payment', 'approved', 'production_started', 'completed'];
+    }
+    return ['pending_review', 'designing_started', 'preview_sent', 'approved', 'production_started', 'completed'];
+};
+
+const getWorkflowLabels = (type: string) => {
+    if (type === 'bulk') {
+        return ['Review', 'Quotation', 'Approved', 'Production', 'Done'];
+    }
+    return ['Review', 'Designing', 'Preview', 'Approved', 'Production', 'Done'];
+};
 
 // --- Whatsapp-style Voice Message Player ---
 const VoiceMessagePlayer = ({ src, isUser, durationText = "0:12" }: { src: string, isUser: boolean, durationText?: string }) => {
@@ -220,10 +231,16 @@ export default function DashboardRequests() {
     const openCheckout = (request?: any) => {
         const product = request?.productId;
         if (!product?._id) return;
+        
+        const isBulk = request?.requestType === 'bulk';
+        const finalPrice = isBulk && request?.bulkData?.quotedPrice ? request.bulkData.quotedPrice : product.price;
+        const finalQty = isBulk && request?.bulkData?.quantity ? request.bulkData.quantity : 1;
+
         setBuyNowItem({
             ...product,
-            quantity: 1,
-            categoryName: "Custom Request",
+            price: finalPrice,
+            quantity: finalQty,
+            categoryName: isBulk ? "Bulk Quotation" : "Custom Request",
             isCustom: true,
             customization: {
                 customRequestId: request._id,
@@ -544,6 +561,9 @@ export default function DashboardRequests() {
                                             )}
                                         </div>
                                         <div className="flex items-center gap-1.5 flex-wrap mt-auto">
+                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${req.requestType === 'bulk' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                                                {req.requestType === 'bulk' ? 'Bulk' : 'Custom'}
+                                            </span>
                                             {getStatusBadge(req.requestStatus)}
                                             {req.paymentStatus !== 'paid' && (
                                                 <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100">
@@ -599,10 +619,57 @@ export default function DashboardRequests() {
                         </div>
                         {/* Progress */}
                         <div className="msg-progress bg-[var(--bg)]/90 px-3 sm:px-5 pt-3 pb-3 border-b border-[var(--secondary)]/5 flex justify-center overflow-x-auto no-scrollbar">
-                            <div className="flex items-start justify-between w-full min-w-[380px] max-w-xl">{workflowLabels.map((step, idx) => { const currentStep = Math.max(0, workflowSteps.indexOf(selectedRequest.requestStatus)); const isActive = idx <= currentStep; const isConnectorActive = idx < currentStep; return (<div key={idx} className="relative flex w-14 shrink-0 flex-col items-center text-center"><div className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-black shadow-sm ${isActive ? 'bg-[var(--text)] text-[var(--bg)]' : 'bg-[var(--secondary)]/20 text-[var(--text)]/40'}`}>{isActive && idx === 0 ? <Check size={12}/> : (idx + 1)}</div><span className={`mt-1.5 block text-[8px] sm:text-[9px] font-black leading-none ${isActive ? 'text-[var(--text)]' : 'text-[var(--text)]/40'}`}>{step}</span>{idx < 5 && (<div className={`absolute left-1/2 top-3 h-0.5 w-full ${isConnectorActive ? 'bg-[var(--text)]' : 'bg-[var(--secondary)]/20'}`}></div>)}</div>); })}</div>
+                            {(() => {
+                                const steps = getWorkflowSteps(selectedRequest.requestType);
+                                const labels = getWorkflowLabels(selectedRequest.requestType);
+                                const currentStep = Math.max(0, steps.indexOf(selectedRequest.requestStatus));
+                                return (
+                                    <div className="flex items-start justify-between w-full min-w-[380px] max-w-xl">
+                                        {labels.map((step, idx) => {
+                                            const isActive = idx <= currentStep;
+                                            const isConnectorActive = idx < currentStep;
+                                            return (
+                                                <div key={idx} className="relative flex w-14 shrink-0 flex-col items-center text-center">
+                                                    <div className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-black shadow-sm ${isActive ? 'bg-[var(--text)] text-[var(--bg)]' : 'bg-[var(--secondary)]/20 text-[var(--text)]/40'}`}>
+                                                        {isActive && idx === 0 ? <Check size={12}/> : (idx + 1)}
+                                                    </div>
+                                                    <span className={`mt-1.5 block text-[8px] sm:text-[9px] font-black leading-none ${isActive ? 'text-[var(--text)]' : 'text-[var(--text)]/40'}`}>
+                                                        {step}
+                                                    </span>
+                                                    {idx < labels.length - 1 && (
+                                                        <div className={`absolute left-1/2 top-3 h-0.5 w-full ${isConnectorActive ? 'bg-[var(--text)]' : 'bg-[var(--secondary)]/20'}`}></div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                );
+                            })()}
                         </div>
                         {/* Payment Warning */}
-                        {selectedRequest.paymentStatus !== 'paid' && (<div className="msg-payment-bar bg-amber-50 border-b border-amber-200 px-3 sm:px-5 py-2.5"><div className="flex items-center justify-between gap-3"><div className="flex min-w-0 flex-1 items-center gap-2"><AlertCircle size={15} className="text-amber-700 shrink-0" /><span className="text-[11px] sm:text-xs font-black text-amber-900">Payment pending. Design starts after confirmation.</span></div><button onClick={() => openCheckout(selectedRequest)} className="h-8 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black px-3 rounded-lg shadow-md transition-colors shrink-0">Pay Now</button></div></div>)}
+                        {selectedRequest.paymentStatus !== 'paid' && (
+                            <div className="msg-payment-bar bg-amber-50 border-b border-amber-200 px-3 sm:px-5 py-2.5">
+                                <div className="flex items-center justify-between gap-3">
+                                    <div className="flex min-w-0 flex-1 items-center gap-2">
+                                        <AlertCircle size={15} className="text-amber-700 shrink-0" />
+                                        <span className="text-[11px] sm:text-xs font-black text-amber-900">
+                                            {selectedRequest.requestType === 'bulk' ? (
+                                                selectedRequest.bulkData?.quotedPrice ? (
+                                                    `Formal Quotation Received! Total: ₹${selectedRequest.bulkData.quotedTotal} for ${selectedRequest.bulkData.quantity} units (₹${selectedRequest.bulkData.quotedPrice}/unit). Please pay to start production.`
+                                                ) : (
+                                                    "Bulk Quotation requested. Our design & pricing team is calculating the best corporate quote for you."
+                                                )
+                                            ) : (
+                                                "Payment pending. Design starts after confirmation."
+                                            )}
+                                        </span>
+                                    </div>
+                                    {(selectedRequest.requestType !== 'bulk' || selectedRequest.bulkData?.quotedPrice) && (
+                                        <button onClick={() => openCheckout(selectedRequest)} className="h-8 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black px-3 rounded-lg shadow-md transition-colors shrink-0">Pay Now</button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                         {/* Messages */}
                         <div className="msg-messages px-3 pb-3 pt-3 sm:px-4 md:px-6 space-y-2.5 relative z-0">
                             <div className="flex justify-center my-3"><span className="bg-white/80 border border-[var(--secondary)]/10 text-[#667781] text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">Today</span></div>
