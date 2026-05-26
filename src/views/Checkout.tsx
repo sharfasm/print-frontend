@@ -19,7 +19,19 @@ const indianStates = [
 ];
 
 export default function Checkout() {
-    const { cart, cartTotal, addresses, addAddress, walletBalance, buyNowItem, setBuyNowItem, clearCart } = useShop();
+    const { 
+        cart, 
+        cartTotal, 
+        addresses, 
+        addAddress, 
+        walletBalance, 
+        buyNowItem, 
+        setBuyNowItem, 
+        clearCart,
+        appliedCoupon,
+        couponDiscount,
+        freeShipping
+    } = useShop();
     const { user } = useAuth();
     const navigate = useRouter();
 
@@ -144,7 +156,10 @@ export default function Checkout() {
                             email: formData.email
                         },
                         totalAmount: finalTotal,
-                        paymentMethod: formData.paymentMethod.toUpperCase()
+                        paymentMethod: formData.paymentMethod.toUpperCase(),
+                        couponCode: appliedCoupon ? appliedCoupon.code : null,
+                        couponDiscount: couponDiscount || 0,
+                        freeShipping: freeShipping || false,
                     };
                     const res = await api.post('/orders', orderData);
                     setPendingOrderId(res.data._id);
@@ -237,7 +252,7 @@ export default function Checkout() {
     };
 
     // Derived values
-    const finalTotal = checkoutTotal; // No shipping cost in this new flow based on the prompt
+    const finalTotal = Math.max(0, checkoutTotal - (couponDiscount || 0)); // Subtract coupon discount
 
     const steps = [
         { id: 1, name: 'Info', label: 'Customer' },
@@ -639,6 +654,12 @@ export default function Checkout() {
                                 <span>Subtotal</span>
                                 <span>₹{checkoutTotal}</span>
                             </div>
+                            {couponDiscount > 0 && (
+                                <div className="flex justify-between text-green-600 dark:text-green-400 font-bold">
+                                    <span>Discount ({appliedCoupon?.code})</span>
+                                    <span>- ₹{couponDiscount}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between opacity-80">
                                 <span>Shipping</span>
                                 <span>Free</span>

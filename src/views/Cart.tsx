@@ -7,9 +7,25 @@ import { useRouter } from "next/navigation";
 import { useShop } from '../context/ShopContext';
 import { resolveImage } from '../lib/imageUtils';
 
+import { useState } from 'react';
+import { Tag, X, HelpCircle, Truck } from 'lucide-react';
+
 export default function Cart() {
-    const { cart, removeFromCart, updateCartQuantity, cartTotal } = useShop();
+    const { 
+        cart, 
+        removeFromCart, 
+        updateCartQuantity, 
+        cartTotal,
+        appliedCoupon,
+        couponDiscount,
+        freeShipping,
+        couponError,
+        couponLoading,
+        applyCouponCode,
+        removeCoupon
+    } = useShop();
     const navigate = useRouter();
+    const [couponInput, setCouponInput] = useState('');
 
     if (cart.length === 0) {
         return (
@@ -100,24 +116,115 @@ export default function Cart() {
                     <div className="w-full lg:w-[400px]">
                         <div className="bg-[var(--secondary)]/5 rounded-[2rem] p-8 border border-[var(--secondary)]/10 sticky top-24">
                             <h3 className="text-2xl font-black mb-6">Order Summary</h3>
+
+                            {/* Free Shipping Progress */}
+                            {cart.length > 0 && (
+                                <div className="mb-6 bg-[var(--bg)] p-4 rounded-2xl border border-[var(--secondary)]/10">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Truck className="w-4 h-4 text-[var(--primary)] animate-pulse" />
+                                        <span className="text-xs font-black uppercase tracking-wider">
+                                            {freeShipping || cartTotal >= 999 
+                                                ? "Free Shipping Unlocked!" 
+                                                : `Add ₹${999 - cartTotal} more for Free Shipping`}
+                                        </span>
+                                    </div>
+                                    <div className="w-full bg-[var(--secondary)]/10 h-2 rounded-full overflow-hidden">
+                                        <div 
+                                            className="bg-[var(--primary)] h-full transition-all duration-500 ease-out"
+                                            style={{ width: `${freeShipping || cartTotal >= 999 ? 100 : Math.min(100, (cartTotal / 999) * 100)}%` }}
+                                        ></div>
+                                    </div>
+                                    <span className="text-[10px] opacity-60 font-medium mt-1.5 block">
+                                        Free shipping applies above ₹999 or via special coupons.
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Coupon Input Section */}
+                            <div className="mb-6">
+                                <label className="text-xs font-black uppercase tracking-wider mb-2 block">
+                                    Have a Promo Code?
+                                </label>
+                                {!appliedCoupon ? (
+                                    <div className="space-y-2">
+                                        <div className="flex gap-2">
+                                            <input 
+                                                type="text" 
+                                                placeholder="Enter coupon code" 
+                                                value={couponInput}
+                                                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                                                className="flex-1 bg-[var(--bg)] px-4 py-3 rounded-xl border border-[var(--secondary)]/20 focus:border-[var(--primary)]/50 focus:outline-none font-mono text-sm font-bold uppercase tracking-wider"
+                                            />
+                                            <button 
+                                                onClick={() => {
+                                                    if (couponInput.trim()) {
+                                                        applyCouponCode(couponInput.trim());
+                                                    }
+                                                }}
+                                                disabled={couponLoading || !couponInput.trim()}
+                                                className="bg-[var(--primary)] text-[var(--bg)] px-6 rounded-xl font-bold hover:opacity-90 active:scale-95 transition-all text-sm disabled:opacity-50"
+                                            >
+                                                {couponLoading ? "Applying..." : "Apply"}
+                                            </button>
+                                        </div>
+                                        {couponError && (
+                                            <p className="text-red-500 text-xs font-semibold flex items-center gap-1">
+                                                <span>⚠️</span> {couponError}
+                                            </p>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-between bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 p-3 rounded-xl">
+                                        <div className="flex items-center gap-2">
+                                            <Tag className="w-4 h-4 animate-bounce" />
+                                            <div>
+                                                <p className="font-mono text-xs font-black tracking-wider uppercase">
+                                                    {appliedCoupon.code}
+                                                </p>
+                                                <p className="text-[10px] font-medium opacity-80">
+                                                    ₹{couponDiscount} Saved
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button 
+                                            onClick={() => {
+                                                removeCoupon();
+                                                setCouponInput('');
+                                            }}
+                                            className="p-1 hover:bg-green-500/20 rounded-lg transition-colors"
+                                            title="Remove coupon"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                             
                             <div className="space-y-4 mb-6">
                                 <div className="flex justify-between opacity-80 font-medium">
                                     <span>Subtotal ({cart.reduce((a,c) => a + c.quantity, 0)} items)</span>
                                     <span>₹{cartTotal}</span>
                                 </div>
-                                <div className="flex justify-between text-[var(--primary)] font-medium">
+                                <div className="flex justify-between text-green-600 dark:text-green-400 font-medium">
                                     <span>Discount</span>
-                                    <span>- ₹0</span>
+                                    <span>- ₹{couponDiscount}</span>
                                 </div>
                                 <div className="flex justify-between opacity-80 font-medium">
                                     <span>Shipping</span>
-                                    <span>Calculated at checkout</span>
+                                    <span>
+                                        {freeShipping || cartTotal >= 999 ? (
+                                            <span className="text-green-600 dark:text-green-400 font-bold uppercase tracking-wider text-xs">
+                                                FREE
+                                            </span>
+                                        ) : (
+                                            "Calculated at checkout"
+                                        )}
+                                    </span>
                                 </div>
                                 <hr className="border-[var(--secondary)]/10 my-4" />
                                 <div className="flex justify-between text-2xl font-black">
                                     <span>Total</span>
-                                    <span className="text-[var(--primary)]">₹{cartTotal}</span>
+                                    <span className="text-[var(--primary)]">₹{Math.max(0, cartTotal - couponDiscount)}</span>
                                 </div>
                             </div>
 
