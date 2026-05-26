@@ -436,50 +436,7 @@ export default function ProductDetails() {
                             {product.shortDescription || `Premium custom-ready ${product.name.toLowerCase()} crafted for clean presentation, lasting quality, and everyday use.`}
                         </div>
 
-                        {/* Available Offers Section */}
-                        <div className="mb-8 p-6 rounded-3xl bg-[var(--secondary)]/5 border border-[var(--secondary)]/10 shadow-sm">
-                            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--primary)] mb-4 flex items-center gap-2">
-                                <Tag size={14} />
-                                <span>Available Offers</span>
-                            </h4>
-                            <div className="space-y-3.5">
-                                {/* Free shipping promo */}
-                                <div className="flex items-start gap-3 bg-[var(--bg)] p-3 rounded-2xl border border-[var(--secondary)]/10">
-                                    <div className="p-2 rounded-xl bg-green-500/10 text-green-600 mt-0.5">
-                                        <Truck size={16} />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-black">Free Shipping Offer</p>
-                                        <p className="text-xs opacity-75 font-medium">Free delivery on order value exceeding ₹999.</p>
-                                    </div>
-                                </div>
 
-                                {/* Dynamic coupons */}
-                                {activeCoupons.map((coupon) => (
-                                    <div key={coupon._id} className="flex items-center justify-between gap-4 bg-[var(--bg)] p-3 rounded-2xl border border-[var(--secondary)]/10">
-                                        <div className="flex items-start gap-3">
-                                            <div className="p-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] mt-0.5">
-                                                <Tag size={16} />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-black uppercase font-mono tracking-wider text-[var(--primary)]">
-                                                    {coupon.code}
-                                                </p>
-                                                <p className="text-xs opacity-75 font-medium leading-relaxed">
-                                                    {coupon.description || `${coupon.discountType === 'percentage' ? coupon.discountValue + '% OFF' : '₹' + coupon.discountValue + ' OFF'}`}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <button 
-                                            onClick={() => handleCopyCoupon(coupon.code)}
-                                            className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all tracking-wider ${copiedCoupon === coupon.code ? 'bg-green-600 text-white' : 'bg-[var(--primary)] text-[var(--bg)] hover:opacity-90 active:scale-95'}`}
-                                        >
-                                            {copiedCoupon === coupon.code ? "COPIED" : "COPY"}
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
 
                         {/* Customization Toggle */}
                         {customizationFields.length > 0 && (

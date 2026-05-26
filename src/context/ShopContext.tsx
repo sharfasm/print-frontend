@@ -330,7 +330,7 @@ export const ShopProvider = ({ children }) => {
         return true; 
     };
 
-    const applyCouponCode = async (code) => {
+    const applyCouponCode = async (code, customTotal?: number) => {
         if (!user) {
             triggerAuthGuard("Login to apply coupons");
             return;
@@ -338,7 +338,8 @@ export const ShopProvider = ({ children }) => {
         setCouponLoading(true);
         setCouponError(null);
         try {
-            const response = await api.post('/coupons/apply', { couponCode: code, cartTotal }, {
+            const total = customTotal !== undefined ? customTotal : cartTotal;
+            const response = await api.post('/coupons/apply', { couponCode: code, cartTotal: total }, {
                 validateStatus: (status) => status < 500
             });
             const data = response.data;
