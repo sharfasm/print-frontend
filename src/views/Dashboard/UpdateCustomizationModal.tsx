@@ -98,7 +98,7 @@ export default function UpdateCustomizationModal({ request, onClose, onUpdate }:
                             <div className="flex flex-wrap gap-2 mb-2">
                                 {existingReference.map((img, i) => (
                                     <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200">
-                                        <img src={img.startsWith('http') ? img : `http://localhost:5000/${img}`} className="w-full h-full object-cover" />
+                                        <img src={img.startsWith('http') ? img : `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/${img}`} className="w-full h-full object-cover" />
                                         <button type="button" onClick={() => setExistingReference(prev => prev.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 bg-black/60 text-white p-0.5 rounded-full hover:bg-red-500">
                                             <X size={10} />
                                         </button>
@@ -126,7 +126,7 @@ export default function UpdateCustomizationModal({ request, onClose, onUpdate }:
                             <div className="flex flex-wrap gap-2 mb-2">
                                 {existingCustomer.map((img, i) => (
                                     <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200">
-                                        <img src={img.startsWith('http') ? img : `http://localhost:5000/${img}`} className="w-full h-full object-cover" />
+                                        <img src={img.startsWith('http') ? img : `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/${img}`} className="w-full h-full object-cover" />
                                         <button type="button" onClick={() => setExistingCustomer(prev => prev.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 bg-black/60 text-white p-0.5 rounded-full hover:bg-red-500">
                                             <X size={10} />
                                         </button>

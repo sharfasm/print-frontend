@@ -104,7 +104,7 @@ export default function DashboardRequests() {
     useEffect(() => {
         setIsMounted(true);
         fetchRequests();
-        const newSocket = io("http://localhost:5000", { withCredentials: true });
+        const newSocket = io(process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000", { withCredentials: true });
         setSocket(newSocket);
 
         return () => {

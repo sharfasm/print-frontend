@@ -154,7 +154,7 @@ export default function ProductDetails() {
 
     useEffect(() => {
         fetchReviews();
-        const socket = io('http://localhost:5000', { withCredentials: true });
+        const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', { withCredentials: true });
         const refreshProductReviews = (payload) => {
             if (!payload?.productId || String(payload.productId) === String(id)) fetchReviews();
         };

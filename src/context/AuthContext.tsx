@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         if (user && user._id) {
             // Connect to backend socket server
-            socketRef.current = io('http://localhost:5000', {
+            socketRef.current = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
                 withCredentials: true,
             });
             
