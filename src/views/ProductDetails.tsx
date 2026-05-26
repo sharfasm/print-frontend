@@ -901,9 +901,12 @@ export default function ProductDetails() {
                                         </div>
                                         <div className="p-6">
                                             <div className="text-xs uppercase tracking-widest font-bold opacity-50 mb-1">{categoryName}</div>
-                                            <h3 className="text-lg font-bold group-hover:text-[var(--primary)] transition-colors mb-2 truncate">
+                                            <h3 className="text-lg font-bold group-hover:text-[var(--primary)] transition-colors mb-1 truncate">
                                                 {related.name}
                                             </h3>
+                                            <p className="mb-2 text-[11px] font-medium leading-snug text-[var(--text)] opacity-60 line-clamp-1">
+                                                {related.shortDescription || "Premium bespoke custom printing."}
+                                            </p>
                                             <div className="font-black text-lg">₹{related.price}</div>
                                         </div>
                                     </Link>

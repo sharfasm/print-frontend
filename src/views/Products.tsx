@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Footer from '../components/Footer';
 import Link from "next/link";
@@ -13,6 +13,7 @@ import api from '../lib/axios';
 import { 
   Filter, 
   ChevronDown, 
+  ChevronUp,
   Check, 
   X, 
   Star, 
@@ -65,8 +66,36 @@ export default function Products() {
     const [activeDropdown, setActiveDropdown] = useState(null); // 'category' | 'price' | 'useCase' | 'printStyle' | 'highlights' | null
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const [cartSuccessId, setCartSuccessId] = useState(null); // ID of product recently added to cart
+    
+    // Mobile filter accordion sections (all open by default)
+    const [mobileFilterSections, setMobileFilterSections] = useState({
+        categories: true,
+        price: true,
+        occasion: false,
+        printStyle: false,
+        highlights: false,
+    });
 
     const dropdownRef = useRef(null);
+    
+    // Toggle mobile filter accordion section
+    const toggleFilterSection = useCallback((section) => {
+        setMobileFilterSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
+    }, []);
+
+    // Active filter count for mobile badge
+    const activeFilterCount = [
+        selectedCategory ? 1 : 0,
+        selectedSubcategory ? 1 : 0,
+        (minPrice > 0 || maxPrice < maxPriceLimit) ? 1 : 0,
+        selectedUseCases.length,
+        selectedPrintStyles.length,
+        selectedHighlights.length,
+        searchQuery ? 1 : 0,
+    ].reduce((a, b) => a + b, 0);
 
     // Close dropdowns on click outside
     useEffect(() => {
@@ -312,30 +341,31 @@ export default function Products() {
         <div className="flex flex-col min-h-screen bg-[var(--bg)] text-[var(--text)] transition-colors duration-300">
             
             {/* 1. HERO BANNER */}
-            <div className="relative w-full h-[45vh] min-h-[350px] flex flex-col items-center justify-center pt-24 pb-8 overflow-hidden">
+            <div className="relative w-full h-[35vh] sm:h-[40vh] md:h-[45vh] min-h-[280px] sm:min-h-[320px] md:min-h-[350px] flex flex-col items-center justify-center pt-20 sm:pt-24 pb-6 sm:pb-8 overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <img 
                         src="https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop" 
                         alt={`${brandName} Products Header`} 
                         className="w-full h-full object-cover scale-105 filter brightness-45 contrast-105 transition-transform duration-10000 ease-out"
+                        loading="eager"
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/45 to-[var(--bg)] transition-colors duration-300" />
                 </div>
                 
-                <div className="relative z-10 text-center text-white space-y-4 px-4 max-w-4xl flex flex-col items-center mt-6">
+                <div className="relative z-10 text-center text-white space-y-3 sm:space-y-4 px-5 sm:px-6 max-w-4xl flex flex-col items-center mt-4 sm:mt-6">
                     <motion.div 
                         initial={{ opacity: 0, y: -20 }} 
                         animate={{ opacity: 1, y: 0 }} 
                         transition={{ duration: 0.8 }}
-                        className="flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-bold tracking-widest text-[#A7AA63] uppercase border border-white/10"
+                        className="flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] sm:text-xs font-bold tracking-widest text-[#A7AA63] uppercase border border-white/10"
                     >
-                        <Sparkles size={14} className="animate-pulse" /> Custom Premium Printing
+                        <Sparkles size={12} className="animate-pulse sm:w-3.5 sm:h-3.5" /> Custom Premium Printing
                     </motion.div>
                     <motion.h1 
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.8, delay: 0.1 }}
-                        className="text-4xl md:text-6xl lg:text-7xl font-serif font-black tracking-tight drop-shadow-xl uppercase"
+                        className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-serif font-black tracking-tight drop-shadow-xl uppercase leading-tight"
                     >
                         The Collection
                     </motion.h1>
@@ -343,7 +373,7 @@ export default function Products() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.8, delay: 0.3 }}
-                        className="text-base md:text-xl font-medium opacity-90 drop-shadow-lg tracking-wide max-w-2xl text-gray-200"
+                        className="text-xs sm:text-sm md:text-xl font-medium opacity-90 drop-shadow-lg tracking-wide max-w-2xl text-gray-200 leading-relaxed px-2"
                     >
                         Impeccable printing and bespoke craftsmanship tailored for corporate events, modern businesses, and life's special occasions.
                     </motion.p>
@@ -351,19 +381,19 @@ export default function Products() {
             </div>
 
             {/* 2. BREADCRUMBS & SEARCH */}
-            <div className="w-full max-w-[1400px] mx-auto px-6 md:px-10 lg:px-14 pt-8 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-20">
-                <nav className="text-xs font-semibold uppercase tracking-wider flex flex-wrap items-center gap-2 opacity-80">
-                    <Link href="/" className="hover:text-[var(--primary)] transition-colors">Home</Link>
+            <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-14 pt-6 sm:pt-8 pb-3 sm:pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 relative z-20">
+                <nav className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider flex flex-nowrap items-center gap-1.5 sm:gap-2 opacity-80 overflow-x-auto max-w-full no-scrollbar">
+                    <Link href="/" className="hover:text-[var(--primary)] transition-colors whitespace-nowrap touch-manipulation">Home</Link>
                     <span className="text-[var(--secondary)]">/</span>
-                    <button onClick={handleClearAllFilters} className="hover:text-[var(--primary)] transition-colors">Products</button>
+                    <button onClick={handleClearAllFilters} className="hover:text-[var(--primary)] transition-colors whitespace-nowrap touch-manipulation">Products</button>
                     {selectedCategory && (
                         <>
                             <span className="text-[var(--secondary)]">/</span>
-                            <span className={selectedSubcategory ? 'opacity-65' : 'text-[var(--primary)] font-bold'}>{selectedCategory.name}</span>
+                            <span className={`whitespace-nowrap ${selectedSubcategory ? 'opacity-65' : 'text-[var(--primary)] font-bold'}`}>{selectedCategory.name}</span>
                             {selectedSubcategory && (
                                 <>
                                     <span className="text-[var(--secondary)]">/</span>
-                                    <span className="text-[var(--primary)] font-bold">{selectedSubcategory.name}</span>
+                                    <span className="text-[var(--primary)] font-bold whitespace-nowrap">{selectedSubcategory.name}</span>
                                 </>
                             )}
                         </>
@@ -378,12 +408,12 @@ export default function Products() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search products..."
-                        className="w-full pl-10 pr-10 py-2 text-sm bg-[#A7AA63]/15 dark:bg-white/5 backdrop-blur-md border border-[var(--secondary)]/20 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all shadow-sm"
+                        className="w-full pl-10 pr-10 py-2.5 sm:py-2 text-sm bg-[#A7AA63]/15 dark:bg-white/5 backdrop-blur-md border border-[var(--secondary)]/20 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all shadow-sm min-h-[44px] touch-manipulation"
                     />
                     {searchQuery && (
                         <button 
                             onClick={() => setSearchQuery('')}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-gray-150 dark:hover:bg-white/10"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-gray-150 dark:hover:bg-white/10 touch-manipulation"
                         >
                             <X size={12} className="text-gray-400" />
                         </button>
@@ -391,10 +421,10 @@ export default function Products() {
                 </div>
             </div>
 
-            {/* 3. PREMIUM STICKY FILTER BAR (DESKTOP) */}
-            <div className="sticky top-[80px] z-30 w-full transition-all duration-300">
-                <div className="max-w-[1400px] mx-auto px-6 md:px-10 lg:px-14">
-                    <div className="bg-[#A7AA63]/20 dark:bg-[#121A1B]/80 backdrop-blur-2xl rounded-2xl p-4 flex items-center justify-between gap-4 border border-[var(--secondary)]/15 shadow-xl shadow-black/5 dark:shadow-none">
+            {/* 3. PREMIUM STICKY FILTER BAR (DESKTOP + MOBILE) */}
+            <div className="sticky top-[64px] sm:top-[72px] lg:top-[80px] z-30 w-full transition-all duration-300">
+                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-14">
+                    <div className="bg-[#A7AA63]/20 dark:bg-[#121A1B]/80 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 border border-[var(--secondary)]/15 shadow-xl shadow-black/5 dark:shadow-none">
                         
                         {/* Horizontal Desktop Filter Pills */}
                         <div className="hidden lg:flex items-center gap-3" ref={dropdownRef}>
@@ -702,27 +732,33 @@ export default function Products() {
                             </div>
                         </div>
 
-                        {/* Mobile Filter Toggle Buttons */}
-                        <div className="flex lg:hidden items-center gap-2 w-full sm:w-auto">
+                        {/* Mobile Filter Toggle Button with Badge */}
+                        <div className="flex lg:hidden items-center gap-2 flex-1 min-w-0">
                             <button 
                                 onClick={() => setIsMobileFilterOpen(true)}
-                                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--primary)] text-[var(--bg)] rounded-xl text-xs font-bold uppercase tracking-wider shadow-md active:scale-95 transition-transform cursor-pointer"
+                                className="relative flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--primary)] text-[var(--bg)] rounded-xl text-xs font-bold uppercase tracking-wider shadow-md active:scale-95 transition-transform cursor-pointer min-h-[44px] touch-manipulation"
                             >
-                                <Filter size={14} /> Filter Products
+                                <Filter size={14} /> 
+                                <span className="sm:inline">Filters</span>
+                                {activeFilterCount > 0 && (
+                                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-md animate-chip-bounce">
+                                        {activeFilterCount}
+                                    </span>
+                                )}
                             </button>
                         </div>
 
                         {/* Sorting Dropdown (Right Side, Desktop + Mobile) */}
-                        <div className="flex items-center gap-2.5">
-                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider hidden sm:inline">Sort by:</span>
+                        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                            <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider hidden sm:inline">Sort:</span>
                             <select 
                                 value={sortOption}
                                 onChange={(e) => setSortOption(e.target.value)}
-                                className="bg-transparent dark:text-[var(--text)] text-xs font-black border-b-2 border-[var(--primary)] px-2 py-1 outline-none min-w-[140px] cursor-pointer"
+                                className="bg-transparent dark:text-[var(--text)] text-[11px] sm:text-xs font-black border-b-2 border-[var(--primary)] px-1.5 sm:px-2 py-1 outline-none min-w-[100px] sm:min-w-[140px] cursor-pointer min-h-[44px] touch-manipulation"
                             >
                                 <option value="Popular">Popularity</option>
-                                <option value="PriceLowToHigh">Price: Low to High</option>
-                                <option value="PriceHighToLow">Price: High to Low</option>
+                                <option value="PriceLowToHigh">Price: Low → High</option>
+                                <option value="PriceHighToLow">Price: High → Low</option>
                                 <option value="Newest">New Arrivals</option>
                             </select>
                         </div>
@@ -732,19 +768,19 @@ export default function Products() {
             </div>
 
             {/* 4. ACTIVE FILTERS DISMISSAL BADGES */}
-            <div className="w-full max-w-[1400px] mx-auto px-6 md:px-10 lg:px-14 py-3">
+            <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-14 py-2 sm:py-3">
                 <AnimatePresence>
                     {activeFiltersList.length > 0 && (
                         <motion.div 
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="flex items-center flex-wrap gap-2 bg-white/40 dark:bg-white/5 backdrop-blur-md p-3 rounded-2xl border border-[var(--secondary)]/15 shadow-sm"
+                            className="flex items-center gap-2 bg-white/40 dark:bg-white/5 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-[var(--secondary)]/15 shadow-sm overflow-x-auto no-scrollbar"
                         >
-                            <span className="text-xs font-bold opacity-60 mr-1 flex items-center gap-1 uppercase">
-                                <Sliders size={12} /> Active tags:
+                            <span className="text-[10px] sm:text-xs font-bold opacity-60 mr-1 flex items-center gap-1 uppercase whitespace-nowrap shrink-0">
+                                <Sliders size={10} className="sm:w-3 sm:h-3" /> Active:
                             </span>
-                            <div className="flex flex-wrap gap-1.5 flex-grow">
+                            <div className="flex gap-1.5 flex-nowrap sm:flex-wrap overflow-x-auto no-scrollbar">
                                 {activeFiltersList.map((filter, idx) => (
                                     <motion.span 
                                         key={idx} 
@@ -752,23 +788,23 @@ export default function Products() {
                                         initial={{ scale: 0.9, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         exit={{ scale: 0.9, opacity: 0 }}
-                                        className="bg-[var(--primary)]/10 text-[var(--primary)] text-xs font-bold pl-3 pr-1.5 py-1.5 rounded-full flex items-center gap-1 shadow-sm border border-[var(--primary)]/15"
+                                        className="bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] sm:text-xs font-bold pl-2.5 sm:pl-3 pr-1 sm:pr-1.5 py-1 sm:py-1.5 rounded-full flex items-center gap-1 shadow-sm border border-[var(--primary)]/15 whitespace-nowrap shrink-0"
                                     >
                                         {filter.label}
                                         <button 
                                             onClick={() => handleDismissFilter(filter)}
-                                            className="p-0.5 hover:bg-[var(--primary)]/20 rounded-full transition-colors"
+                                            className="p-1 hover:bg-[var(--primary)]/20 rounded-full transition-colors touch-manipulation min-w-[28px] min-h-[28px] flex items-center justify-center"
                                         >
-                                            <X size={12} />
+                                            <X size={10} className="sm:w-3 sm:h-3" />
                                         </button>
                                     </motion.span>
                                 ))}
                             </div>
                             <button 
                                 onClick={handleClearAllFilters} 
-                                className="text-xs text-[var(--primary)] font-black hover:underline flex items-center gap-1 pl-4 border-l border-gray-300 dark:border-white/10"
+                                className="text-[10px] sm:text-xs text-[var(--primary)] font-black hover:underline flex items-center gap-1 pl-3 sm:pl-4 border-l border-gray-300 dark:border-white/10 whitespace-nowrap shrink-0 touch-manipulation min-h-[28px]"
                             >
-                                <RotateCcw size={12} /> Reset All
+                                <RotateCcw size={10} className="sm:w-3 sm:h-3" /> Reset
                             </button>
                         </motion.div>
                     )}
@@ -776,15 +812,15 @@ export default function Products() {
             </div>
 
             {/* 5. MAIN CONTENT LAYOUT */}
-            <main className="flex-grow w-full max-w-[1400px] mx-auto px-6 md:px-10 lg:px-14 py-6">
+            <main className="flex-grow w-full max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-14 py-4 sm:py-6">
                 
                 {loading ? (
-                    <div className="w-full flex flex-col items-center justify-center min-h-[400px]">
-                        <div className="animate-spin w-10 h-10 border-4 border-[var(--primary)] border-t-transparent rounded-full mb-4"></div>
-                        <p className="font-bold opacity-75 text-xs uppercase tracking-widest">Compiling Collection...</p>
+                    <div className="w-full flex flex-col items-center justify-center min-h-[300px] sm:min-h-[400px]">
+                        <div className="animate-spin w-8 h-8 sm:w-10 sm:h-10 border-4 border-[var(--primary)] border-t-transparent rounded-full mb-4"></div>
+                        <p className="font-bold opacity-75 text-[10px] sm:text-xs uppercase tracking-widest">Compiling Collection...</p>
                     </div>
                 ) : (
-                    <div className="flex flex-col lg:flex-row gap-8 items-start">
+                    <div className="flex flex-col lg:flex-row gap-5 sm:gap-6 lg:gap-8 items-start">
                         
                         {/* Left Side: Category Sidebar (Sticky) */}
                         <aside className="w-full lg:w-[280px] shrink-0 sticky top-[150px] bg-[#A7AA63]/25 dark:bg-[#121A1B]/60 p-6 rounded-[24px] border border-[var(--secondary)]/30 shadow-md hidden lg:block z-20">
@@ -1082,7 +1118,7 @@ export default function Products() {
                                                  )}
                                              </div>
 
-                                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                                             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                                                  {products.length === 0 ? (
                                                      <div className="col-span-full py-20 text-center bg-[#A7AA63]/12 dark:bg-[#121A1B]/40 rounded-2xl border border-[var(--secondary)]/15">
                                                          <p className="text-lg font-bold opacity-75">No products found in this category.</p>
@@ -1100,62 +1136,88 @@ export default function Products() {
                                                  ) : (
                                                      products.map((prod) => {
                                                          const isWish = isInWishlist(prod._id);
+                                                         
+                                                         // Determine single badge maximum
+                                                         let badgeText = null;
+                                                         if (prod.isBestSeller) {
+                                                             badgeText = "🔥 Best Seller";
+                                                         } else if (prod.isNewArrival) {
+                                                             badgeText = "🆕 New Arrival";
+                                                         }
+
                                                          return (
                                                              <Link 
                                                                  href={`/product/${prod._id}`} 
                                                                  key={prod._id} 
-                                                                 className="group bg-[#A7AA63]/12 dark:bg-[#121A1B]/45 rounded-2xl border border-[var(--secondary)]/20 shadow-md hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer relative"
+                                                                 className="group bg-[#A7AA63]/12 dark:bg-[#121A1B]/45 rounded-[24px] border border-[var(--secondary)]/15 hover:border-[var(--secondary)]/35 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden flex flex-col h-full cursor-pointer relative"
                                                              >
                                                                  {/* Image Wrapper */}
                                                                  <div className="relative aspect-square overflow-hidden bg-black/5 p-0">
                                                                      <img 
                                                                          src={resolveImage(prod.coverImage || prod.primaryImage || (prod.images && prod.images[0]))} 
                                                                          alt={prod.name} 
-                                                                         className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700" 
+                                                                         className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" 
                                                                      />
+                                                                     
+                                                                     {/* Cinematic Darken Hover Overlay */}
+                                                                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 z-10" />
+
+                                                                     {/* Premium Single Badge */}
+                                                                     {badgeText && (
+                                                                         <span className="absolute top-3 left-3 bg-white/95 dark:bg-black/90 text-black dark:text-white backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider z-20 shadow-sm border border-black/5 dark:border-white/10 flex items-center gap-1">
+                                                                             {badgeText}
+                                                                         </span>
+                                                                     )}
                                                                      
                                                                      {/* Wishlist Button */}
                                                                      <button 
                                                                          onClick={(e) => handleWishlistClick(e, prod)}
-                                                                         className={`absolute top-3 right-3 w-9 h-9 backdrop-blur-md rounded-full flex items-center justify-center shadow-md transition-all duration-300 z-10 group/wishlist
+                                                                         className={`absolute top-3 right-3 w-9 h-9 backdrop-blur-md rounded-full flex items-center justify-center shadow-md transition-all duration-300 z-20 group/wishlist
                                                                              ${isWish 
                                                                                  ? 'bg-red-500 text-white hover:bg-red-600' 
-                                                                                 : 'bg-white/90 text-gray-700 hover:bg-white hover:text-red-500'
+                                                                                 : 'bg-white/80 dark:bg-black/50 text-gray-700 dark:text-gray-300 hover:text-red-500 hover:bg-white'
                                                                              }
-                                                                             hover:scale-110 active:scale-90
+                                                                             hover:scale-105 active:scale-95
                                                                          `}
                                                                          title={isWish ? "Remove from Wishlist" : "Add to Wishlist"}
                                                                      >
                                                                          <Heart 
-                                                                             size={16} 
+                                                                             size={15} 
                                                                              fill={isWish ? "currentColor" : "none"} 
-                                                                             className={`transition-transform duration-300 ${isWish ? 'scale-110' : 'group-hover/wishlist:scale-110'}`} 
+                                                                             className={`transition-transform duration-300 ${isWish ? 'scale-105' : 'group-hover/wishlist:scale-105'}`} 
                                                                          />
                                                                      </button>
                                                                  </div>
                                                                  
                                                                  {/* Content */}
                                                                  <div className="p-4 flex flex-col flex-grow">
-                                                                     <div className="text-[10px] font-bold text-[var(--primary)] mb-1 uppercase tracking-widest">
-                                                                         {typeof prod.category === 'object' ? prod.category?.name : prod.category}
-                                                                     </div>
-                                                                     <h3 className="text-sm font-bold text-[var(--text)] mb-2 line-clamp-2 leading-tight group-hover:text-[var(--primary)] transition-colors">
+                                                                     <h3 className="text-sm font-bold text-[var(--text)] line-clamp-1 leading-tight group-hover:text-[var(--primary)] transition-colors">
                                                                          {prod.name}
                                                                      </h3>
+                                                                     <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--text)] opacity-60 line-clamp-1">
+                                                                         {prod.shortDescription || "Premium bespoke custom printing."}
+                                                                     </p>
                                                                      
                                                                      {/* Footer of Card */}
                                                                      <div className="mt-auto flex items-end justify-between gap-3 pt-3 border-t border-[var(--secondary)]/10">
                                                                          <div className="min-w-0">
-                                                                             <span className="text-base font-black text-[var(--text)]">₹{prod.price}</span>
-                                                                             <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--text)]/60 line-clamp-2">
-                                                                                 {prod.shortDescription || "Premium custom printing made with rich colors and lasting finishes."}
-                                                                             </p>
+                                                                             {/* Price Section */}
+                                                                             <div className="flex items-baseline gap-1.5">
+                                                                                 {prod.offerPrice && prod.offerPrice < prod.price ? (
+                                                                                     <>
+                                                                                         <span className="text-base font-black text-[var(--text)]">₹{prod.offerPrice}</span>
+                                                                                         <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 line-through">₹{prod.price}</span>
+                                                                                     </>
+                                                                                 ) : (
+                                                                                     <span className="text-base font-black text-[var(--text)]">₹{prod.price}</span>
+                                                                                 )}
+                                                                             </div>
                                                                              
                                                                              {/* Rating */}
                                                                              <div className="flex items-center gap-1 mt-1.5">
-                                                                                 <span className="text-[9px] font-bold bg-[var(--text)]/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                                                                                 <span className="text-[9px] font-bold bg-[color-mix(in_srgb,var(--text)_10%,transparent)] px-1.5 py-0.5 rounded flex items-center gap-1 text-[var(--text)]">
                                                                                      {prod.rating || "5.0"} 
-                                                                                     <Star size={10} className="fill-amber-500 stroke-amber-500" />
+                                                                                     <Star size={9} className="fill-amber-500 stroke-amber-500" />
                                                                                  </span>
                                                                              </div>
                                                                          </div>
@@ -1163,15 +1225,15 @@ export default function Products() {
                                                                          {/* Cart Button */}
                                                                          <button 
                                                                              onClick={(e) => handleCartClick(e, prod)}
-                                                                             className={`w-10 h-10 bg-[var(--primary)] text-white rounded-full flex items-center justify-center shadow-md transition-all duration-300 hover:scale-110 hover:shadow-lg active:scale-95 group/cart ${
-                                                                                 cartSuccessId === prod._id ? 'bg-emerald-600 scale-110' : 'hover:bg-opacity-90'
+                                                                             className={`w-9 h-9 bg-[var(--primary)] text-white rounded-full flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105 active:scale-95 group/cart ${
+                                                                                 cartSuccessId === prod._id ? 'bg-emerald-600 scale-105' : 'hover:bg-opacity-95'
                                                                              }`}
                                                                              title="Add to Cart"
                                                                          >
                                                                              {cartSuccessId === prod._id ? (
-                                                                                 <Check size={16} className="text-white" />
+                                                                                 <Check size={14} className="text-white" />
                                                                              ) : (
-                                                                                 <ShoppingBag size={16} className="text-white transition-transform duration-300 group-hover/cart:scale-110" />
+                                                                                 <ShoppingBag size={14} className="text-white transition-transform duration-300 group-hover/cart:scale-105" />
                                                                              )}
                                                                          </button>
                                                                      </div>

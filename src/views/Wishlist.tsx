@@ -76,9 +76,12 @@ export default function Wishlist() {
                                     {typeof item.category === 'object' ? item.category?.name : (item.categoryName || 'Product')}
                                 </span>
                                 <Link href={`/product/${item._id}`} className="block mb-auto">
-                                    <h3 className="text-lg font-bold line-clamp-2 hover:text-[var(--primary)] transition-colors">
+                                    <h3 className="text-lg font-bold line-clamp-1 hover:text-[var(--primary)] transition-colors">
                                         {item.name}
                                     </h3>
+                                    <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--text)] opacity-60 line-clamp-1">
+                                        {item.shortDescription || "Premium bespoke custom printing."}
+                                    </p>
                                 </Link>
                                 <div className="mt-4 flex flex-col gap-3">
                                     <span className="text-xl font-extrabold">₹{item.price}</span>

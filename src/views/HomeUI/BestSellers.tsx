@@ -158,11 +158,14 @@ export default function BestSellers() {
                                         {renderStars(product.rating || 5)}
                                     </div>
                                     
-                                    <div className="block mb-2">
-                                        <h3 className="text-lg font-bold group-hover:text-[var(--primary)] transition-colors line-clamp-2">
-                                            {product.name}
-                                        </h3>
-                                    </div>
+                                     <div className="block mb-2">
+                                         <h3 className="text-lg font-bold group-hover:text-[var(--primary)] transition-colors line-clamp-1">
+                                             {product.name}
+                                         </h3>
+                                         <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--text)] opacity-60 line-clamp-1">
+                                             {product.shortDescription || "Premium bespoke custom printing."}
+                                         </p>
+                                     </div>
 
                                     <div className="mt-auto pt-4 flex items-center justify-between">
                                         <div className="flex flex-col">
