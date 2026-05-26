@@ -338,7 +338,9 @@ export const ShopProvider = ({ children }) => {
         setCouponLoading(true);
         setCouponError(null);
         try {
-            const response = await api.post('/coupons/apply', { couponCode: code, cartTotal });
+            const response = await api.post('/coupons/apply', { couponCode: code, cartTotal }, {
+                validateStatus: (status) => status < 500
+            });
             const data = response.data;
             if (data.success) {
                 setAppliedCoupon({
@@ -353,7 +355,7 @@ export const ShopProvider = ({ children }) => {
                 setCouponError(data.message || "Failed to apply coupon");
                 removeCoupon();
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Apply coupon error:", error);
             setCouponError(error.response?.data?.message || "Invalid coupon code");
             removeCoupon();
@@ -377,6 +379,8 @@ export const ShopProvider = ({ children }) => {
                     const response = await api.post('/coupons/apply', { 
                         couponCode: appliedCoupon.code, 
                         cartTotal 
+                    }, {
+                        validateStatus: (status) => status < 500
                     });
                     const data = response.data;
                     if (data.success) {
@@ -387,6 +391,8 @@ export const ShopProvider = ({ children }) => {
                         } : null);
                         setCouponDiscount(data.discount);
                         setFreeShipping(data.freeShipping);
+                    } else {
+                        removeCoupon();
                     }
                 } catch (error) {
                     removeCoupon();
