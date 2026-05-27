@@ -5,6 +5,7 @@ import CategoryUI from "./HomeUI/CategoryUI"
 import BestSellers from "./HomeUI/BestSellers"
 import NewArrivals from "./HomeUI/NewArrivals"
 import SpecialOffers from "./HomeUI/SpecialOffers"
+import ExclusiveOffers from "./HomeUI/ExclusiveOffers"
 import FeaturedCollection from "./HomeUI/FeaturedCollection"
 import WhyChooseUs from "./HomeUI/WhyChooseUs"
 import OurStory from "./HomeUI/OurStory"
@@ -32,6 +33,8 @@ export default function Home(){
             <NewArrivals />
 
             <SpecialOffers />
+
+            <ExclusiveOffers />
 
             <FeaturedCollection />
 

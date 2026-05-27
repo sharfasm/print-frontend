@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, ChevronRight, MapPin, CreditCard, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, ChevronRight, MapPin, CreditCard, ShoppingBag, ArrowLeft, Tag } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
 import { resolveImage } from '../lib/imageUtils';
@@ -19,7 +19,24 @@ const indianStates = [
 ];
 
 export default function Checkout() {
-    const { cart, cartTotal, addresses, addAddress, walletBalance, buyNowItem, setBuyNowItem, clearCart } = useShop();
+    const { 
+        cart, 
+        cartTotal, 
+        addresses, 
+        addAddress, 
+        walletBalance, 
+        buyNowItem, 
+        setBuyNowItem, 
+        clearCart,
+        appliedCoupon,
+        couponDiscount,
+        freeShipping,
+        couponError,
+        couponLoading,
+        applyCouponCode,
+        removeCoupon
+    } = useShop();
+    const [couponInput, setCouponInput] = useState('');
     const { user } = useAuth();
     const navigate = useRouter();
 
@@ -144,7 +161,10 @@ export default function Checkout() {
                             email: formData.email
                         },
                         totalAmount: finalTotal,
-                        paymentMethod: formData.paymentMethod.toUpperCase()
+                        paymentMethod: formData.paymentMethod.toUpperCase(),
+                        couponCode: appliedCoupon ? appliedCoupon.code : null,
+                        couponDiscount: couponDiscount || 0,
+                        freeShipping: freeShipping || false,
                     };
                     const res = await api.post('/orders', orderData);
                     setPendingOrderId(res.data._id);
@@ -237,7 +257,7 @@ export default function Checkout() {
     };
 
     // Derived values
-    const finalTotal = checkoutTotal; // No shipping cost in this new flow based on the prompt
+    const finalTotal = Math.max(0, checkoutTotal - (couponDiscount || 0)); // Subtract coupon discount
 
     const steps = [
         { id: 1, name: 'Info', label: 'Customer' },
@@ -630,30 +650,95 @@ export default function Checkout() {
                                 </div>
                             ))}
                         </div>
-
+ 
                         <hr className="border-[var(--secondary)]/10 my-6" />
 
+                        {/* Coupon Code Selection & Input Section */}
+                        <div className="mb-6 bg-[var(--bg)] border border-[var(--secondary)]/15 p-4 rounded-2xl shadow-sm">
+                            <label className="text-[10px] font-black uppercase tracking-[0.15em] opacity-65 mb-2.5 block text-[var(--primary)]">
+                                Apply Coupon / Promo Code
+                            </label>
+                            {!appliedCoupon ? (
+                                <div className="space-y-2.5">
+                                    <div className="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            placeholder="ENTER PROMO CODE" 
+                                            value={couponInput}
+                                            onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                                            className="flex-1 bg-[var(--bg)] px-4 py-2.5 rounded-xl border border-[var(--secondary)]/20 focus:border-[var(--primary)]/50 focus:outline-none font-mono text-xs font-bold uppercase tracking-wider transition-all"
+                                        />
+                                        <button 
+                                            onClick={() => {
+                                                if (couponInput.trim()) {
+                                                    applyCouponCode(couponInput.trim(), checkoutTotal);
+                                                }
+                                            }}
+                                            disabled={couponLoading || !couponInput.trim()}
+                                            className="bg-[var(--primary)] text-[var(--bg)] px-4 rounded-xl font-bold hover:opacity-90 active:scale-95 transition-all text-xs disabled:opacity-50 uppercase tracking-widest shrink-0 cursor-pointer"
+                                        >
+                                            {couponLoading ? "Applying..." : "Apply"}
+                                        </button>
+                                    </div>
+                                    {couponError && (
+                                        <p className="text-red-500 text-xs font-semibold flex items-center gap-1 mt-2.5">
+                                            <span>⚠️</span> {couponError}
+                                        </p>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-between bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 p-3.5 rounded-xl">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-6.5 h-6.5 bg-green-500/20 rounded-full flex items-center justify-center">
+                                            <CheckCircle2 size={13} className="text-green-600 dark:text-green-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black uppercase font-mono tracking-wider">{appliedCoupon.code}</p>
+                                            <p className="text-[9px] opacity-75 font-bold uppercase tracking-wide">Discount Applied</p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={removeCoupon}
+                                        className="text-xs font-black text-red-500 hover:text-red-600 transition-colors uppercase tracking-wider ml-4 cursor-pointer"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        <hr className="border-[var(--secondary)]/10 my-6" />
+ 
                         {/* Totals */}
-                        <div className="space-y-3 text-sm font-medium">
+                        <div className="space-y-3.5 text-sm font-semibold">
                             <div className="flex justify-between opacity-80">
-                                <span>Subtotal</span>
-                                <span>₹{checkoutTotal}</span>
+                                <span className="text-gray-500">Subtotal</span>
+                                <span className="font-bold">₹{checkoutTotal}</span>
                             </div>
+                            {couponDiscount > 0 && (
+                                <div className="flex justify-between text-green-600 dark:text-green-400 font-bold bg-green-500/5 px-3 py-2 rounded-xl border border-green-500/10">
+                                    <span className="flex items-center gap-1.5 text-xs">
+                                        <Tag size={12} className="animate-pulse" />
+                                        Discount ({appliedCoupon?.code})
+                                    </span>
+                                    <span>- ₹{couponDiscount}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between opacity-80">
-                                <span>Shipping</span>
-                                <span>Free</span>
+                                <span className="text-gray-500">Shipping</span>
+                                <span className="text-emerald-600 font-bold">FREE</span>
                             </div>
-                            <div className="flex justify-between text-green-500 font-bold">
-                                <span>Taxes (Included)</span>
+                            <div className="flex justify-between text-green-500 font-semibold">
+                                <span className="text-gray-500">Taxes (Included)</span>
                                 <span>₹0</span>
                             </div>
                         </div>
-
-                        <hr className="border-[var(--secondary)]/10 my-4" />
-
-                        <div className="flex justify-between items-end">
-                            <span className="text-lg font-black">Total</span>
-                            <span className="text-2xl font-black text-[var(--primary)]">₹{finalTotal}</span>
+ 
+                        <hr className="border-[var(--secondary)]/10 my-5" />
+ 
+                        <div className="flex justify-between items-end bg-[var(--primary)]/5 p-4.5 rounded-2xl border border-[var(--primary)]/10">
+                            <span className="text-base font-black">Final Total</span>
+                            <span className="text-2xl font-black text-[var(--primary)] font-mono">₹{finalTotal}</span>
                         </div>
                     </div>
                 </div>

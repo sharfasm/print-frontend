@@ -33,6 +33,13 @@ export const ShopProvider = ({ children }) => {
     // Subtotals
     const [cartTotal, setCartTotal] = useState(0);
 
+    // Coupon State
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [couponDiscount, setCouponDiscount] = useState(0);
+    const [freeShipping, setFreeShipping] = useState(false);
+    const [couponError, setCouponError] = useState(null);
+    const [couponLoading, setCouponLoading] = useState(false);
+
     // Load brand info from backend
     useEffect(() => {
         const fetchBrandInfo = async () => {
@@ -323,6 +330,81 @@ export const ShopProvider = ({ children }) => {
         return true; 
     };
 
+    const applyCouponCode = async (code, customTotal?: number) => {
+        if (!user) {
+            triggerAuthGuard("Login to apply coupons");
+            return;
+        }
+        setCouponLoading(true);
+        setCouponError(null);
+        try {
+            const total = customTotal !== undefined ? customTotal : cartTotal;
+            const response = await api.post('/coupons/apply', { couponCode: code, cartTotal: total }, {
+                validateStatus: (status) => status < 500
+            });
+            const data = response.data;
+            if (data.success) {
+                setAppliedCoupon({
+                    code: data.code,
+                    discount: data.discount,
+                    freeShipping: data.freeShipping,
+                    couponId: data.couponId
+                });
+                setCouponDiscount(data.discount);
+                setFreeShipping(data.freeShipping);
+            } else {
+                setCouponError(data.message || "Failed to apply coupon");
+                removeCoupon();
+            }
+        } catch (error: any) {
+            console.error("Apply coupon error:", error);
+            setCouponError(error.response?.data?.message || "Invalid coupon code");
+            removeCoupon();
+        } finally {
+            setCouponLoading(false);
+        }
+    };
+
+    const removeCoupon = () => {
+        setAppliedCoupon(null);
+        setCouponDiscount(0);
+        setFreeShipping(false);
+        setCouponError(null);
+    };
+
+    // Re-validate coupon when cart total changes
+    useEffect(() => {
+        if (appliedCoupon && cartTotal > 0) {
+            const reapply = async () => {
+                try {
+                    const response = await api.post('/coupons/apply', { 
+                        couponCode: appliedCoupon.code, 
+                        cartTotal 
+                    }, {
+                        validateStatus: (status) => status < 500
+                    });
+                    const data = response.data;
+                    if (data.success) {
+                        setAppliedCoupon(prev => prev ? {
+                            ...prev,
+                            discount: data.discount,
+                            freeShipping: data.freeShipping
+                        } : null);
+                        setCouponDiscount(data.discount);
+                        setFreeShipping(data.freeShipping);
+                    } else {
+                        removeCoupon();
+                    }
+                } catch (error) {
+                    removeCoupon();
+                }
+            };
+            reapply();
+        } else if (cartTotal === 0) {
+            removeCoupon();
+        }
+    }, [cartTotal]);
+
     return (
         <ShopContext.Provider value={{
             cart,
@@ -354,7 +436,14 @@ export const ShopProvider = ({ children }) => {
             spendFromWallet,
             brandInfo,
             buyNowItem,
-            setBuyNowItem
+            setBuyNowItem,
+            appliedCoupon,
+            couponDiscount,
+            freeShipping,
+            couponError,
+            couponLoading,
+            applyCouponCode,
+            removeCoupon
         }}>
             {children}
         </ShopContext.Provider>

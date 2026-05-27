@@ -1118,7 +1118,7 @@ export default function Products() {
                                                  )}
                                              </div>
 
-                                             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                                             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                                                  {products.length === 0 ? (
                                                      <div className="col-span-full py-20 text-center bg-[#A7AA63]/12 dark:bg-[#121A1B]/40 rounded-2xl border border-[var(--secondary)]/15">
                                                          <p className="text-lg font-bold opacity-75">No products found in this category.</p>
@@ -1161,7 +1161,7 @@ export default function Products() {
                                                                      
                                                                      {/* Cinematic Darken Hover Overlay */}
                                                                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 z-10" />
-
+ 
                                                                      {/* Premium Single Badge */}
                                                                      {badgeText && (
                                                                          <span className="absolute top-3 left-3 bg-white/95 dark:bg-black/90 text-black dark:text-white backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider z-20 shadow-sm border border-black/5 dark:border-white/10 flex items-center gap-1">
@@ -1172,7 +1172,7 @@ export default function Products() {
                                                                      {/* Wishlist Button */}
                                                                      <button 
                                                                          onClick={(e) => handleWishlistClick(e, prod)}
-                                                                         className={`absolute top-3 right-3 w-9 h-9 backdrop-blur-md rounded-full flex items-center justify-center shadow-md transition-all duration-300 z-20 group/wishlist
+                                                                         className={`absolute top-3 right-3 w-11 h-11 sm:w-9 sm:h-9 backdrop-blur-md rounded-full flex items-center justify-center shadow-md transition-all duration-300 z-20 group/wishlist
                                                                              ${isWish 
                                                                                  ? 'bg-red-500 text-white hover:bg-red-600' 
                                                                                  : 'bg-white/80 dark:bg-black/50 text-gray-700 dark:text-gray-300 hover:text-red-500 hover:bg-white'
@@ -1190,11 +1190,11 @@ export default function Products() {
                                                                  </div>
                                                                  
                                                                  {/* Content */}
-                                                                 <div className="p-4 flex flex-col flex-grow">
-                                                                     <h3 className="text-sm font-bold text-[var(--text)] line-clamp-1 leading-tight group-hover:text-[var(--primary)] transition-colors">
+                                                                 <div className="p-3 sm:p-4 flex flex-col flex-grow">
+                                                                     <h3 className="text-xs sm:text-sm font-bold text-[var(--text)] line-clamp-2 leading-snug group-hover:text-[var(--primary)] transition-colors">
                                                                          {prod.name}
                                                                      </h3>
-                                                                     <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--text)] opacity-60 line-clamp-1">
+                                                                     <p className="mt-1 text-[10px] sm:text-[11px] font-medium leading-snug text-[var(--text)] opacity-60 line-clamp-1">
                                                                          {prod.shortDescription || "Premium bespoke custom printing."}
                                                                      </p>
                                                                      
@@ -1205,11 +1205,11 @@ export default function Products() {
                                                                              <div className="flex items-baseline gap-1.5">
                                                                                  {prod.offerPrice && prod.offerPrice < prod.price ? (
                                                                                      <>
-                                                                                         <span className="text-base font-black text-[var(--text)]">₹{prod.offerPrice}</span>
-                                                                                         <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 line-through">₹{prod.price}</span>
+                                                                                         <span className="text-sm sm:text-base font-black text-[var(--text)]">₹{prod.offerPrice}</span>
+                                                                                         <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 line-through">₹{prod.price}</span>
                                                                                      </>
                                                                                  ) : (
-                                                                                     <span className="text-base font-black text-[var(--text)]">₹{prod.price}</span>
+                                                                                     <span className="text-sm sm:text-base font-black text-[var(--text)]">₹{prod.price}</span>
                                                                                  )}
                                                                              </div>
                                                                              
@@ -1225,7 +1225,7 @@ export default function Products() {
                                                                          {/* Cart Button */}
                                                                          <button 
                                                                              onClick={(e) => handleCartClick(e, prod)}
-                                                                             className={`w-9 h-9 bg-[var(--primary)] text-white rounded-full flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105 active:scale-95 group/cart ${
+                                                                             className={`w-11 h-11 sm:w-9 sm:h-9 bg-[var(--primary)] text-white rounded-full flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105 active:scale-95 group/cart ${
                                                                                  cartSuccessId === prod._id ? 'bg-emerald-600 scale-105' : 'hover:bg-opacity-95'
                                                                              }`}
                                                                              title="Add to Cart"
@@ -1278,8 +1278,13 @@ export default function Products() {
                             transition={{ type: "spring", damping: 25, stiffness: 220 }}
                             className="fixed bottom-0 inset-x-0 z-50 bg-white dark:bg-[#121A1B] rounded-t-3xl max-h-[85vh] overflow-hidden flex flex-col border-t border-[var(--secondary)]/25 pb-safe"
                         >
+                            {/* Drag handle */}
+                            <div className="pt-3 pb-1 shrink-0">
+                                <div className="drawer-handle" />
+                            </div>
+
                             {/* Drawer header */}
-                            <div className="p-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                            <div className="px-5 py-3 border-b border-gray-100 dark:border-white/5 flex items-center justify-between shrink-0">
                                 <div className="flex items-center gap-1.5">
                                     <Sliders size={18} className="text-[var(--primary)]" />
                                     <h3 className="text-base font-bold uppercase tracking-wider text-[var(--text)]">Advanced Filters</h3>
@@ -1293,213 +1298,267 @@ export default function Products() {
                             </div>
 
                             {/* Scrollable Filters Content */}
-                            <div className="flex-1 overflow-y-auto p-5 space-y-6">
+                            <div className="flex-1 overflow-y-auto px-5 pb-6 space-y-4">
                                 
-                                {/* Section A: Category selection list */}
-                                <div className="space-y-3">
-                                    <label className="block text-xs font-black uppercase tracking-wider text-gray-400">Categories</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <button 
-                                            onClick={() => {
-                                                setSelectedCategory(null);
-                                                setSelectedSubcategory(null);
-                                                setShowAllProducts(false);
-                                            }}
-                                            className={`px-3 py-2 text-xs font-bold rounded-xl border text-center transition-all ${
-                                                !selectedCategory 
-                                                    ? 'bg-[var(--primary)] border-[var(--primary)] text-white' 
-                                                    : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5'
-                                            }`}
-                                        >
-                                            All Categories
-                                        </button>
-                                        {categories.map(cat => {
-                                            const isSelected = selectedCategory?._id === cat._id;
-                                            return (
+                                {/* Section A: Categories Accordion */}
+                                <div className="border-b border-gray-100 dark:border-white/5 pb-3">
+                                    <button 
+                                        onClick={() => toggleFilterSection('categories')}
+                                        className="filter-section-header w-full text-left py-3 flex items-center justify-between text-[var(--text)]"
+                                    >
+                                        <span className="text-xs font-black uppercase tracking-wider text-gray-500">Categories</span>
+                                        {mobileFilterSections.categories ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                    </button>
+                                    {mobileFilterSections.categories && (
+                                        <div className="space-y-4 pt-1 pb-2">
+                                            <div className="grid grid-cols-2 gap-2">
                                                 <button 
-                                                    key={cat._id}
                                                     onClick={() => {
-                                                        setSelectedCategory(cat);
+                                                        setSelectedCategory(null);
                                                         setSelectedSubcategory(null);
                                                         setShowAllProducts(false);
                                                     }}
-                                                    className={`px-3 py-2 text-xs font-bold rounded-xl border text-center transition-all ${
-                                                        isSelected 
-                                                            ? 'bg-[var(--primary)] border-[var(--primary)] text-white' 
+                                                    className={`px-3 py-2 text-xs font-bold rounded-xl border text-center transition-all min-h-[44px] touch-manipulation ${
+                                                        !selectedCategory 
+                                                            ? 'bg-[var(--primary)] border-[var(--primary)] text-white shadow-md' 
                                                             : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5'
                                                     }`}
                                                 >
-                                                    {cat.name}
+                                                    All Categories
                                                 </button>
-                                            );
-                                        })}
-                                    </div>
-                                    
-                                    {/* Subcategory sub-chips */}
-                                    {selectedCategory && subcategories.filter(s => (s.parentCategory?._id || s.parentCategory) === selectedCategory._id).length > 0 && (
-                                        <div className="pt-2">
-                                            <span className="block text-[10px] text-gray-400 font-bold uppercase mb-2">Subcategories:</span>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                <button 
-                                                    onClick={() => {
-                                                        setSelectedSubcategory(null);
-                                                        setShowAllProducts(true);
-                                                    }}
-                                                    className={`px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-all ${
-                                                        !selectedSubcategory && showAllProducts
-                                                            ? 'bg-[var(--primary)] border-[var(--primary)] text-white' 
-                                                            : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-500'
-                                                    }`}
-                                                >
-                                                    All Products
-                                                </button>
-                                                {subcategories.filter(s => (s.parentCategory?._id || s.parentCategory) === selectedCategory._id).map(sub => {
-                                                    const isSubSelected = selectedSubcategory?._id === sub._id;
+                                                {categories.map(cat => {
+                                                    const isSelected = selectedCategory?._id === cat._id;
                                                     return (
                                                         <button 
-                                                            key={sub._id}
-                                                            onClick={() => setSelectedSubcategory(sub)}
-                                                            className={`px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-all ${
-                                                                isSubSelected 
-                                                                    ? 'bg-[var(--primary)]/15 border-[var(--primary)] text-[var(--primary)]' 
-                                                                    : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-500'
+                                                            key={cat._id}
+                                                            onClick={() => {
+                                                                setSelectedCategory(cat);
+                                                                setSelectedSubcategory(null);
+                                                                setShowAllProducts(false);
+                                                            }}
+                                                            className={`relative flex items-center justify-between pl-3 pr-8 py-2 text-xs font-bold rounded-xl border transition-all min-h-[44px] touch-manipulation overflow-hidden ${
+                                                                isSelected 
+                                                                    ? 'bg-[var(--primary)] border-[var(--primary)] text-white shadow-md' 
+                                                                    : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5'
                                                             }`}
                                                         >
-                                                            {sub.name}
+                                                            <span className="relative z-10 truncate pr-1">{cat.name}</span>
+                                                            <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-20 pointer-events-none">
+                                                                <img src={resolveImage(cat.image)} className="w-full h-full object-cover" />
+                                                            </div>
+                                                            {isSelected && <Check size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-white z-10" />}
                                                         </button>
                                                     );
                                                 })}
+                                            </div>
+                                            
+                                            {/* Subcategories snap scroll chips row */}
+                                            {selectedCategory && subcategories.filter(s => (s.parentCategory?._id || s.parentCategory) === selectedCategory._id).length > 0 && (
+                                                <div className="pt-1">
+                                                    <span className="block text-[10px] text-gray-400 font-bold uppercase mb-2">Subcategories</span>
+                                                    <div className="flex overflow-x-auto gap-2 pb-2 mobile-snap-scroll">
+                                                        <button 
+                                                            onClick={() => {
+                                                                setSelectedSubcategory(null);
+                                                                setShowAllProducts(true);
+                                                            }}
+                                                            className={`px-4 py-2 rounded-full text-xs font-bold border transition-all shrink-0 min-h-[44px] flex items-center justify-center ${
+                                                                !selectedSubcategory && showAllProducts
+                                                                    ? 'bg-[var(--primary)] border-[var(--primary)] text-white' 
+                                                                    : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-500'
+                                                            }`}
+                                                        >
+                                                            All Products
+                                                        </button>
+                                                        {subcategories.filter(s => (s.parentCategory?._id || s.parentCategory) === selectedCategory._id).map(sub => {
+                                                            const isSubSelected = selectedSubcategory?._id === sub._id;
+                                                            return (
+                                                                <button 
+                                                                    key={sub._id}
+                                                                    onClick={() => setSelectedSubcategory(sub)}
+                                                                    className={`px-4 py-2 rounded-full text-xs font-bold border transition-all shrink-0 min-h-[44px] flex items-center justify-center ${
+                                                                        isSubSelected 
+                                                                            ? 'bg-[var(--primary)]/15 border-[var(--primary)] text-[var(--primary)] font-black' 
+                                                                            : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-500'
+                                                                    }`}
+                                                                >
+                                                                    {sub.name}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Section B: Budget Range */}
+                                <div className="border-b border-gray-100 dark:border-white/5 pb-3">
+                                    <button 
+                                        onClick={() => toggleFilterSection('price')}
+                                        className="filter-section-header w-full text-left py-3 flex items-center justify-between text-[var(--text)]"
+                                    >
+                                        <span className="text-xs font-black uppercase tracking-wider text-gray-500">Budget Range</span>
+                                        {mobileFilterSections.price ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                    </button>
+                                    {mobileFilterSections.price && (
+                                        <div className="space-y-4 pt-1 pb-3">
+                                            <div className="flex justify-between items-center text-xs font-black text-[var(--primary)]">
+                                                <span>₹0</span>
+                                                <span className="px-3 py-1 bg-[var(--primary)]/10 rounded-full">Max: ₹{maxPrice}</span>
+                                            </div>
+                                            <div className="px-1 py-1">
+                                                <input 
+                                                    type="range"
+                                                    min="0"
+                                                    max={maxPriceLimit}
+                                                    value={maxPrice}
+                                                    onChange={(e) => setMaxPrice(Number(e.target.value))}
+                                                    className="premium-range-slider"
+                                                />
                                             </div>
                                         </div>
                                     )}
                                 </div>
 
-                                {/* Section B: Price Slider */}
-                                <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-white/5">
-                                    <div className="flex justify-between items-center">
-                                        <label className="block text-xs font-black uppercase tracking-wider text-gray-400">Budget Range</label>
-                                        <span className="text-xs font-black text-[var(--primary)]">₹0 - ₹{maxPrice}</span>
-                                    </div>
-                                    <div className="px-1.5 py-2">
-                                        <input 
-                                            type="range"
-                                            min="0"
-                                            max={maxPriceLimit}
-                                            value={maxPrice}
-                                            onChange={(e) => setMaxPrice(Number(e.target.value))}
-                                            className="premium-range-slider"
-                                        />
-                                    </div>
+                                {/* Section C: Occasion */}
+                                <div className="border-b border-gray-100 dark:border-white/5 pb-3">
+                                    <button 
+                                        onClick={() => toggleFilterSection('occasion')}
+                                        className="filter-section-header w-full text-left py-3 flex items-center justify-between text-[var(--text)]"
+                                    >
+                                        <span className="text-xs font-black uppercase tracking-wider text-gray-500">Target Occasion</span>
+                                        {mobileFilterSections.occasion ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                    </button>
+                                    {mobileFilterSections.occasion && (
+                                        <div className="flex flex-wrap gap-2 pt-1 pb-2">
+                                            {availableUseCases.map((uc) => {
+                                                const isChecked = selectedUseCases.includes(uc);
+                                                return (
+                                                    <button
+                                                        key={uc}
+                                                        onClick={() => {
+                                                            if (isChecked) {
+                                                                setSelectedUseCases(prev => prev.filter(x => x !== uc));
+                                                            } else {
+                                                                setSelectedUseCases(prev => [...prev, uc]);
+                                                            }
+                                                        }}
+                                                        className={`px-3.5 py-2.5 rounded-full text-xs font-bold border transition-all min-h-[44px] flex items-center justify-center ${
+                                                            isChecked 
+                                                                ? 'bg-[var(--primary)]/15 border-[var(--primary)] text-[var(--primary)] font-black' 
+                                                                : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-600 dark:text-gray-300'
+                                                        }`}
+                                                    >
+                                                        {uc}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Section C: Occasions / Use Case checkboxes */}
-                                <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-white/5">
-                                    <label className="block text-xs font-black uppercase tracking-wider text-gray-400">Target Occasion</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {availableUseCases.map((uc) => {
-                                            const isChecked = selectedUseCases.includes(uc);
-                                            return (
-                                                <button
-                                                    key={uc}
-                                                    onClick={() => {
-                                                        if (isChecked) {
-                                                            setSelectedUseCases(prev => prev.filter(x => x !== uc));
-                                                        } else {
-                                                            setSelectedUseCases(prev => [...prev, uc]);
-                                                        }
-                                                    }}
-                                                    className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
-                                                        isChecked 
-                                                            ? 'bg-[var(--primary)]/15 border-[var(--primary)] text-[var(--primary)] font-black scale-102' 
-                                                            : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-600'
-                                                    }`}
-                                                >
-                                                    {uc}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
+                                {/* Section D: Print Technique */}
+                                <div className="border-b border-gray-100 dark:border-white/5 pb-3">
+                                    <button 
+                                        onClick={() => toggleFilterSection('printStyle')}
+                                        className="filter-section-header w-full text-left py-3 flex items-center justify-between text-[var(--text)]"
+                                    >
+                                        <span className="text-xs font-black uppercase tracking-wider text-gray-500">Print Technique</span>
+                                        {mobileFilterSections.printStyle ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                    </button>
+                                    {mobileFilterSections.printStyle && (
+                                        <div className="flex flex-wrap gap-2 pt-1 pb-2">
+                                            {availablePrintStyles.map((ps) => {
+                                                const isChecked = selectedPrintStyles.includes(ps);
+                                                return (
+                                                    <button
+                                                        key={ps}
+                                                        onClick={() => {
+                                                            if (isChecked) {
+                                                                setSelectedPrintStyles(prev => prev.filter(x => x !== ps));
+                                                            } else {
+                                                                setSelectedPrintStyles(prev => [...prev, ps]);
+                                                            }
+                                                        }}
+                                                        className={`px-3.5 py-2.5 rounded-full text-xs font-bold border transition-all min-h-[44px] flex items-center justify-center ${
+                                                            isChecked 
+                                                                ? 'bg-[var(--primary)]/15 border-[var(--primary)] text-[var(--primary)] font-black' 
+                                                                : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-600 dark:text-gray-300'
+                                                        }`}
+                                                    >
+                                                        {ps}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Section D: Print Styles checkboxes */}
-                                <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-white/5">
-                                    <label className="block text-xs font-black uppercase tracking-wider text-gray-400">Print Technique</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {availablePrintStyles.map((ps) => {
-                                            const isChecked = selectedPrintStyles.includes(ps);
-                                            return (
-                                                <button
-                                                    key={ps}
-                                                    onClick={() => {
-                                                        if (isChecked) {
-                                                            setSelectedPrintStyles(prev => prev.filter(x => x !== ps));
-                                                        } else {
-                                                            setSelectedPrintStyles(prev => [...prev, ps]);
-                                                        }
-                                                    }}
-                                                    className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
-                                                        isChecked 
-                                                            ? 'bg-[var(--primary)]/15 border-[var(--primary)] text-[var(--primary)] font-black scale-102' 
-                                                            : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-600'
-                                                    }`}
-                                                >
-                                                    {ps}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Section E: Highlights selection */}
-                                <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-white/5">
-                                    <label className="block text-xs font-black uppercase tracking-wider text-gray-400">Highlights</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {[
-                                            { id: 'featured', label: 'Featured' },
-                                            { id: 'bestSeller', label: 'Best Sellers' },
-                                            { id: 'newArrival', label: 'New Arrivals' },
-                                            { id: 'customizable', label: 'Customizable' },
-                                        ].map((hl) => {
-                                            const isChecked = selectedHighlights.includes(hl.id);
-                                            return (
-                                                <button
-                                                    key={hl.id}
-                                                    onClick={() => {
-                                                        if (isChecked) {
-                                                            setSelectedHighlights(prev => prev.filter(x => x !== hl.id));
-                                                        } else {
-                                                            setSelectedHighlights(prev => [...prev, hl.id]);
-                                                        }
-                                                    }}
-                                                    className={`px-3 py-2 text-xs font-bold rounded-xl border text-center transition-all ${
-                                                        isChecked 
-                                                            ? 'bg-[var(--primary)] border-[var(--primary)] text-white' 
-                                                            : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5'
-                                                    }`}
-                                                >
-                                                    {hl.label}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
+                                {/* Section E: Highlights */}
+                                <div className="border-b border-gray-100 dark:border-white/5 pb-3">
+                                    <button 
+                                        onClick={() => toggleFilterSection('highlights')}
+                                        className="filter-section-header w-full text-left py-3 flex items-center justify-between text-[var(--text)]"
+                                    >
+                                        <span className="text-xs font-black uppercase tracking-wider text-gray-500">Highlights</span>
+                                        {mobileFilterSections.highlights ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                    </button>
+                                    {mobileFilterSections.highlights && (
+                                        <div className="grid grid-cols-2 gap-2 pt-1 pb-2">
+                                            {[
+                                                { id: 'featured', label: 'Featured' },
+                                                { id: 'bestSeller', label: 'Best Sellers' },
+                                                { id: 'newArrival', label: 'New Arrivals' },
+                                                { id: 'customizable', label: 'Customizable' },
+                                            ].map((hl) => {
+                                                const isChecked = selectedHighlights.includes(hl.id);
+                                                return (
+                                                    <button
+                                                        key={hl.id}
+                                                        onClick={() => {
+                                                            if (isChecked) {
+                                                                setSelectedHighlights(prev => prev.filter(x => x !== hl.id));
+                                                            } else {
+                                                                setSelectedHighlights(prev => [...prev, hl.id]);
+                                                            }
+                                                        }}
+                                                        className={`px-3 py-2 text-xs font-bold rounded-xl border text-center transition-all min-h-[44px] ${
+                                                            isChecked 
+                                                                ? 'bg-[var(--primary)] border-[var(--primary)] text-white shadow-md font-black' 
+                                                                : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5'
+                                                        }`}
+                                                    >
+                                                        {hl.label}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
 
                             </div>
 
                             {/* Sticky Drawer Actions */}
-                            <div className="p-4 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-black/20 flex gap-3">
-                                <button 
-                                    onClick={handleClearAllFilters}
-                                    className="flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl border border-gray-300 text-gray-500 bg-white hover:bg-gray-50 active:scale-98 transition-transform cursor-pointer"
-                                >
-                                    Reset All
-                                </button>
-                                <button 
-                                    onClick={() => setIsMobileFilterOpen(false)}
-                                    className="flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl bg-[var(--primary)] text-[var(--bg)] shadow-md active:scale-98 transition-transform cursor-pointer"
-                                >
-                                    Apply Filters
-                                </button>
+                            <div className="p-4 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-black/25 flex flex-col gap-2 shrink-0">
+                                <div className="text-center text-[11px] font-black text-gray-500 uppercase tracking-widest">
+                                    {products.length} {products.length === 1 ? 'Bespoke Result' : 'Bespoke Results'} Found
+                                </div>
+                                <div className="flex gap-3">
+                                    <button 
+                                        onClick={handleClearAllFilters}
+                                        className="flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl border border-gray-350 text-gray-500 bg-white hover:bg-gray-50 active:scale-98 transition-transform cursor-pointer min-h-[48px]"
+                                    >
+                                        Reset All
+                                    </button>
+                                    <button 
+                                        onClick={() => setIsMobileFilterOpen(false)}
+                                        className="flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl bg-[var(--primary)] text-[var(--bg)] shadow-md active:scale-98 transition-transform cursor-pointer min-h-[48px]"
+                                    >
+                                        Apply Filters
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     </>

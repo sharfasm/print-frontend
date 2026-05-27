@@ -10,9 +10,9 @@ import config from '../brand/config';
 import { resolveImage } from '../lib/imageUtils';
 import { useForm, FormProvider } from 'react-hook-form';
 import { DynamicFormRenderer } from '../components/DynamicFormRenderer';
-import { ChevronDown, ChevronUp, Edit3 } from 'lucide-react';
-import CustomizationModal from '../components/CustomizationModal';
+import { ChevronDown, ChevronUp, Edit3, Tag, Truck, Copy, Check } from 'lucide-react';
 import api from '../lib/axios';
+import CustomizationModal from '../components/CustomizationModal';
 import { io } from 'socket.io-client';
 
 export default function ProductDetails() {
@@ -50,6 +50,8 @@ export default function ProductDetails() {
     const actionTypeRef = useRef('cart');
     
     const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+    const [activeCoupons, setActiveCoupons] = useState([]);
+    const [copiedCoupon, setCopiedCoupon] = useState(null);
     const [reviews, setReviews] = useState([]);
     const [reviewStats, setReviewStats] = useState({ total: 0, averageRating: 0 });
     const [reviewRating, setReviewRating] = useState(5);
@@ -58,6 +60,24 @@ export default function ProductDetails() {
     const [reviewSubmitting, setReviewSubmitting] = useState(false);
     
     const sliderRef = useRef(null);
+
+    useEffect(() => {
+        const fetchActiveCoupons = async () => {
+            try {
+                const response = await api.get('/coupons/active');
+                setActiveCoupons(response.data);
+            } catch (error) {
+                console.error("Error fetching active coupons:", error);
+            }
+        };
+        fetchActiveCoupons();
+    }, []);
+
+    const handleCopyCoupon = (code) => {
+        navigator.clipboard.writeText(code);
+        setCopiedCoupon(code);
+        setTimeout(() => setCopiedCoupon(null), 2000);
+    };
 
     const scroll = (direction) => {
         if (sliderRef.current) {
@@ -154,7 +174,7 @@ export default function ProductDetails() {
 
     useEffect(() => {
         fetchReviews();
-        const socket = io('http://localhost:5000', { withCredentials: true });
+        const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', { withCredentials: true });
         const refreshProductReviews = (payload) => {
             if (!payload?.productId || String(payload.productId) === String(id)) fetchReviews();
         };
@@ -415,6 +435,7 @@ export default function ProductDetails() {
                         <div className="text-base opacity-75 leading-relaxed mb-8 whitespace-pre-line">
                             {product.shortDescription || `Premium custom-ready ${product.name.toLowerCase()} crafted for clean presentation, lasting quality, and everyday use.`}
                         </div>
+
 
 
                         {/* Customization Toggle */}
