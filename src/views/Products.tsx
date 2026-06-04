@@ -330,6 +330,7 @@ ScrollSentinel.displayName = 'ScrollSentinel';
 export default function Products() {
     const searchParams = useSearchParams();
     const categoryIdFromUrl = searchParams.get('categoryId');
+    const subcategoryIdFromUrl = searchParams.get('subcategoryId');
     const navigate = useRouter();
     const { addToCart, toggleWishlist, isInWishlist, brandInfo } = useShop();
     const brandName = brandInfo?.name || config.brand;
@@ -343,6 +344,32 @@ export default function Products() {
     const [selectedSubcategory, setSelectedSubcategory] = useState(null);
     const [showAllProducts, setShowAllProducts] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [defaultBanner, setDefaultBanner] = useState(null);
+
+    const activeBanner = useMemo(() => {
+        if (selectedSubcategory && (selectedSubcategory.bannerMedia || selectedSubcategory.bannerHeading || selectedSubcategory.bannerSubtitle)) {
+            return {
+                bannerType: selectedSubcategory.bannerType || selectedCategory?.bannerType || defaultBanner?.bannerType || "image",
+                bannerMedia: selectedSubcategory.bannerMedia || selectedCategory?.bannerMedia || defaultBanner?.bannerMedia || "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop",
+                bannerHeading: selectedSubcategory.bannerHeading || selectedSubcategory.name,
+                bannerSubtitle: selectedSubcategory.bannerSubtitle || selectedSubcategory.description || ""
+            };
+        }
+        if (selectedCategory && (selectedCategory.bannerMedia || selectedCategory.bannerHeading || selectedCategory.bannerSubtitle)) {
+            return {
+                bannerType: selectedCategory.bannerType || defaultBanner?.bannerType || "image",
+                bannerMedia: selectedCategory.bannerMedia || defaultBanner?.bannerMedia || "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop",
+                bannerHeading: selectedCategory.bannerHeading || selectedCategory.name,
+                bannerSubtitle: selectedCategory.bannerSubtitle || ""
+            };
+        }
+        return {
+            bannerType: defaultBanner?.bannerType || "image",
+            bannerMedia: defaultBanner?.bannerMedia || "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop",
+            bannerHeading: defaultBanner?.bannerHeading || "The Collection",
+            bannerSubtitle: defaultBanner?.bannerSubtitle || "Impeccable printing and bespoke craftsmanship tailored for corporate events, modern businesses, and life's special occasions."
+        };
+    }, [selectedSubcategory, selectedCategory, defaultBanner]);
 
     // Infinite Scroll State
     const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE);
@@ -434,12 +461,6 @@ export default function Products() {
             try {
                 const res = await api.get('/category');
                 setCategories(res.data);
-                if (categoryIdFromUrl) {
-                    const catToSelect = res.data.find(c => String(c._id) === String(categoryIdFromUrl));
-                    if (catToSelect) {
-                        setSelectedCategory(catToSelect);
-                    }
-                }
             } catch (error) {
                 console.error("Error fetching categories:", error);
             }
@@ -486,13 +507,47 @@ export default function Products() {
             }
         };
 
+        const loadDefaultBanner = async () => {
+            try {
+                const res = await api.get('/products-settings');
+                setDefaultBanner(res.data);
+            } catch (error) {
+                console.error("Error loading default banner:", error);
+            }
+        };
+
         const init = async () => {
             setLoading(true);
-            await Promise.allSettled([loadCategories(), loadSubcategories(), fetchMetadata()]);
+            await Promise.allSettled([loadCategories(), loadSubcategories(), fetchMetadata(), loadDefaultBanner()]);
             setLoading(false);
         };
         init();
-    }, [categoryIdFromUrl]);
+    }, []);
+
+    // Sync state with URL parameters
+    useEffect(() => {
+        const searchFromUrl = searchParams.get('search') || '';
+        setSearchQuery(searchFromUrl);
+
+        if (categories.length > 0) {
+            let catToSelect = null;
+            if (categoryIdFromUrl) {
+                catToSelect = categories.find(c => String(c._id) === String(categoryIdFromUrl)) || null;
+            }
+            setSelectedCategory(catToSelect);
+
+            if (subcategories.length > 0) {
+                let subToSelect = null;
+                if (catToSelect && subcategoryIdFromUrl) {
+                    subToSelect = subcategories.find(s => String(s._id) === String(subcategoryIdFromUrl)) || null;
+                }
+                setSelectedSubcategory(subToSelect);
+                if (subToSelect) {
+                    setShowAllProducts(false);
+                }
+            }
+        }
+    }, [categoryIdFromUrl, subcategoryIdFromUrl, searchParams, categories, subcategories]);
 
     // ===== FETCH PRODUCTS =====
     // KEY CHANGE: Always fetch products when a category is selected (no early return for subcategory cards)
@@ -586,8 +641,8 @@ export default function Products() {
     if (searchQuery) activeFiltersList.push({ type: 'search', label: `"${searchQuery}"` });
 
     const handleDismissFilter = (filter) => {
-        if (filter.type === 'category') { setSelectedCategory(null); setSelectedSubcategory(null); }
-        if (filter.type === 'subcategory') { setSelectedSubcategory(null); }
+        if (filter.type === 'category') { setSelectedCategory(null); setSelectedSubcategory(null); setShowAllProducts(false); }
+        if (filter.type === 'subcategory') { setSelectedSubcategory(null); setShowAllProducts(false); }
         if (filter.type === 'price') { setMinPrice(0); setMaxPrice(maxPriceLimit); }
         if (filter.type === 'useCase') { setSelectedUseCases(prev => prev.filter(x => x !== filter.label)); }
         if (filter.type === 'printStyle') { setSelectedPrintStyles(prev => prev.filter(x => x !== filter.label)); }
@@ -635,43 +690,57 @@ export default function Products() {
         <div className="flex flex-col min-h-screen bg-[var(--bg)] text-[var(--text)] transition-colors duration-300">
             
             {/* ========== 1. HERO BANNER ========== */}
-            <div className="relative w-full h-[35vh] sm:h-[40vh] md:h-[45vh] min-h-[280px] sm:min-h-[320px] md:min-h-[350px] flex flex-col items-center justify-center pt-20 sm:pt-24 pb-6 sm:pb-8 overflow-hidden">
-                <div className="absolute inset-0 z-0">
-                    <img 
-                        src="https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop" 
-                        alt={`${brandName} Products Header`} 
-                        className="w-full h-full object-cover scale-105 filter brightness-45 contrast-105 transition-transform duration-10000 ease-out"
-                        loading="eager"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/45 to-[var(--bg)] transition-colors duration-300" />
-                </div>
-                
-                <div className="relative z-10 text-center text-white space-y-3 sm:space-y-4 px-5 sm:px-6 max-w-4xl flex flex-col items-center mt-4 sm:mt-6">
-                    <motion.div 
-                        initial={{ opacity: 0, y: -20 }} 
-                        animate={{ opacity: 1, y: 0 }} 
-                        transition={{ duration: 0.8 }}
-                        className="flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] sm:text-xs font-bold tracking-widest text-[#A7AA63] uppercase border border-white/10"
-                    >
-                        <Sparkles size={12} className="animate-pulse sm:w-3.5 sm:h-3.5" /> Custom Premium Printing
-                    </motion.div>
-                    <motion.h1 
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8, delay: 0.1 }}
-                        className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-serif font-black tracking-tight drop-shadow-xl uppercase leading-tight"
-                    >
-                        The Collection
-                    </motion.h1>
-                    <motion.p 
+            <div data-hero-sentinel className="relative w-full h-[35vh] sm:h-[40vh] md:h-[45vh] min-h-[280px] sm:min-h-[320px] md:min-h-[350px] flex flex-col items-center justify-center pt-20 sm:pt-24 pb-6 sm:pb-8 overflow-hidden">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeBanner.bannerMedia}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ duration: 0.8, delay: 0.3 }}
-                        className="text-xs sm:text-sm md:text-xl font-medium opacity-90 drop-shadow-lg tracking-wide max-w-2xl text-gray-200 leading-relaxed px-2"
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="absolute inset-0 z-0"
                     >
-                        Impeccable printing and bespoke craftsmanship tailored for corporate events, modern businesses, and life's special occasions.
-                    </motion.p>
-                </div>
+                        {activeBanner.bannerType === "video" ? (
+                            <video
+                                src={resolveImage(activeBanner.bannerMedia)!}
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                                className="w-full h-full object-cover scale-105 filter brightness-45 contrast-105"
+                            />
+                        ) : (
+                            <img 
+                                src={resolveImage(activeBanner.bannerMedia)!} 
+                                alt={`${brandName} Products Header`} 
+                                className="w-full h-full object-cover scale-105 filter brightness-45 contrast-105"
+                                loading="eager"
+                            />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/45 to-[var(--bg)] transition-colors duration-300" />
+                    </motion.div>
+                </AnimatePresence>
+
+                <AnimatePresence mode="wait">
+                    <motion.div 
+                        key={`${activeBanner.bannerHeading}-${activeBanner.bannerSubtitle}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="relative z-10 text-center text-white space-y-3 sm:space-y-4 px-5 sm:px-6 max-w-4xl flex flex-col items-center mt-4 sm:mt-6"
+                    >
+                        <div className="flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] sm:text-xs font-bold tracking-widest text-[#A7AA63] uppercase border border-white/10">
+                            <Sparkles size={12} className="animate-pulse sm:w-3.5 sm:h-3.5" /> Custom Premium Printing
+                        </div>
+                        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-serif font-black tracking-tight drop-shadow-xl uppercase leading-tight">
+                            {activeBanner.bannerHeading}
+                        </h1>
+                        <p className="text-xs sm:text-sm md:text-xl font-medium opacity-90 drop-shadow-lg tracking-wide max-w-2xl text-gray-200 leading-relaxed px-2">
+                            {activeBanner.bannerSubtitle}
+                        </p>
+                    </motion.div>
+                </AnimatePresence>
             </div>
 
             {/* ========== 2. BREADCRUMBS & SEARCH ========== */}
@@ -742,7 +811,7 @@ export default function Products() {
                                             className="absolute left-0 mt-2 w-64 bg-[#fbfbf6] dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3"
                                         >
                                             <button 
-                                                onClick={() => { setSelectedCategory(null); setSelectedSubcategory(null); setActiveDropdown(null); }}
+                                                onClick={() => { setSelectedCategory(null); setSelectedSubcategory(null); setShowAllProducts(false); setActiveDropdown(null); }}
                                                 className={`w-full text-left text-xs font-semibold px-2 py-1.5 rounded-lg flex items-center justify-between ${!selectedCategory ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}
                                             >
                                                 <span>All Categories</span>
@@ -754,7 +823,7 @@ export default function Products() {
                                                     return (
                                                         <div key={cat._id} className="space-y-1">
                                                             <button 
-                                                                onClick={() => { setSelectedCategory(cat); setSelectedSubcategory(null); }}
+                                                                onClick={() => { setSelectedCategory(cat); setSelectedSubcategory(null); setShowAllProducts(false); }}
                                                                 className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isCatSelected ? 'bg-[var(--primary)]/15 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}
                                                             >
                                                                 <span>{cat.name}</span>
@@ -765,7 +834,7 @@ export default function Products() {
                                                                     {subcategories.filter(s => (s.parentCategory?._id || s.parentCategory) === cat._id).map(sub => {
                                                                         const isSubSelected = selectedSubcategory?._id === sub._id;
                                                                         return (
-                                                                            <button key={sub._id} onClick={() => setSelectedSubcategory(sub)}
+                                                                            <button key={sub._id} onClick={() => { setSelectedSubcategory(sub); setShowAllProducts(false); }}
                                                                                 className={`w-full text-left text-[11px] font-semibold px-2 py-1 rounded-md flex items-center justify-between ${isSubSelected ? 'bg-[var(--primary)]/20 text-[var(--primary)] font-bold' : 'text-gray-500 hover:text-[var(--primary)] hover:bg-gray-50 dark:hover:bg-white/5'}`}
                                                                             >
                                                                                 <span>{sub.name}</span>
@@ -1033,104 +1102,39 @@ export default function Products() {
                             
                             {/* ===== NO CATEGORY SELECTED: Show Category Browsing Cards ===== */}
                             {!selectedCategory ? (
-                                <div className="space-y-6">
-                                    <div className="border-b border-[var(--secondary)]/15 pb-3">
-                                        <h2 className="text-xl sm:text-2xl font-serif font-black uppercase tracking-tight">Browse Collections</h2>
-                                        <p className="text-[10px] sm:text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Select a category to unlock our tailored filters</p>
-                                    </div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
-                                        {categories.map((cat) => (
-                                            <motion.div key={cat._id} whileHover={{ y: -4 }}
-                                                onClick={() => { setSelectedCategory(cat); setSelectedSubcategory(null); setShowAllProducts(false); }}
-                                                className="group cursor-pointer relative rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 bg-[#A7AA63]/12 dark:bg-[#121A1B]/40 aspect-[4/5] flex items-end border border-[var(--secondary)]/15">
-                                                <img src={resolveImage(cat.image)} alt={cat.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-108" loading="lazy" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
-                                                <div className="relative z-10 p-4 sm:p-6 w-full space-y-0.5">
-                                                    <span className="text-[8px] sm:text-[10px] font-bold text-[#A7AA63] uppercase tracking-widest">Premium</span>
-                                                    <h3 className="text-white text-sm sm:text-xl font-bold tracking-wide">{cat.name}</h3>
-                                                    <div className="flex items-center gap-1 text-[10px] sm:text-xs font-bold text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        Explore &rarr;
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : (
-                                /* =====================================================
-                                   CATEGORY SELECTED: FLIPKART-STYLE UNIFIED HIERARCHY
-                                   1. Category Title + Back
-                                   2. Horizontal Subcategory Chips
-                                   3. 3-Column Subcategory Cards
-                                   4. 2-Column Products Grid (Infinite Scroll)
-                                ===================================================== */
-                                <div className="space-y-4 sm:space-y-5">
-
-                                    {/* ─── SECTION 1: CATEGORY HEADER ─── */}
-                                    <div className="flex items-center justify-between gap-3">
-                                        <div className="flex items-center gap-2.5 min-w-0">
-                                            <button onClick={() => { setSelectedCategory(null); setSelectedSubcategory(null); setShowAllProducts(false); }}
-                                                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-white/10 border border-[var(--secondary)]/15 flex items-center justify-center shadow-sm hover:bg-[var(--primary)] hover:text-white hover:border-[var(--primary)] transition-all active:scale-90 shrink-0 touch-manipulation">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                                            </button>
-                                            <div className="min-w-0">
-                                                <h2 className="text-lg sm:text-2xl font-serif font-black uppercase tracking-tight text-[var(--text)] truncate">
-                                                    {selectedCategory.name}
-                                                </h2>
-                                                <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                    {selectedSubcategory ? selectedSubcategory.name : 'Select a style to browse custom products'}
-                                                </p>
-                                            </div>
+                                <div className="space-y-10">
+                                    {/* Browse Collections */}
+                                    <div className="space-y-4">
+                                        <div className="border-b border-[var(--secondary)]/15 pb-3">
+                                            <h2 className="text-xl sm:text-2xl font-serif font-black uppercase tracking-tight">Browse Collections</h2>
+                                            <p className="text-[10px] sm:text-[11px] text-gray-500 font-bold uppercase tracking-widest mt-1">Select a category to unlock our tailored filters</p>
                                         </div>
-                                        <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap shrink-0">
-                                            {products.length} items
-                                        </span>
-                                    </div>
-
-                                    {/* ─── SECTION 2: HORIZONTAL SUBCATEGORY CHIPS ─── */}
-                                    {categorySubs.length > 0 && (
-                                        <div className="relative -mx-3 sm:-mx-0">
-                                            <div ref={chipsScrollRef} className="flex gap-2 overflow-x-auto px-3 sm:px-0 pb-1 no-scrollbar scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
-                                                {/* All chip */}
-                                                <button
-                                                    onClick={() => { setSelectedSubcategory(null); setShowAllProducts(false); }}
-                                                    className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
-                                                        !selectedSubcategory
-                                                            ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
-                                                            : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
-                                                    }`}
+                                        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+                                            {categories.map((cat) => (
+                                                <motion.div key={cat._id} whileHover={{ y: -4 }}
+                                                    onClick={() => { setSelectedCategory(cat); setSelectedSubcategory(null); setShowAllProducts(false); }}
+                                                    className="group cursor-pointer relative rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 bg-[#A7AA63]/12 dark:bg-[#121A1B]/40 aspect-[4/5] flex items-end border border-[var(--secondary)]/15"
                                                 >
-                                                    All
-                                                </button>
-                                                {categorySubs.map((sub) => {
-                                                    const isActive = selectedSubcategory?._id === sub._id;
-                                                    return (
-                                                        <button
-                                                            key={sub._id}
-                                                            onClick={() => { setSelectedSubcategory(sub); setShowAllProducts(false); }}
-                                                            className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
-                                                                isActive
-                                                                    ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
-                                                                    : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
-                                                            }`}
-                                                        >
-                                                            {sub.name}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
+                                                    <img src={resolveImage(cat.image)} alt={cat.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-108" loading="lazy" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
+                                                    <div className="relative z-10 p-4 sm:p-6 w-full space-y-0.5">
+                                                        <span className="text-[8px] sm:text-[10px] font-bold text-[#A7AA63] uppercase tracking-widest">Premium</span>
+                                                        <h3 className="text-white text-sm sm:text-xl font-bold tracking-wide">{cat.name}</h3>
+                                                        <div className="flex items-center gap-1 text-[10px] sm:text-xs font-bold text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            Explore &rarr;
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            ))}
                                         </div>
-                                    )}
+                                    </div>
 
-
-
-                                    {/* ─── SECTION 4: PRODUCTS GRID (2-col mobile, infinite scroll) ─── */}
-                                    <div>
-                                        {/* Section divider */}
+                                    {/* Products Grid */}
+                                    <div className="space-y-4">
                                         <div className="flex items-center gap-3 mb-3 pt-1">
                                             <div className="h-px flex-grow bg-[var(--secondary)]/15" />
                                             <span className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest shrink-0">
-                                                {selectedSubcategory ? selectedSubcategory.name : 'All'} Products
+                                                All Products
                                             </span>
                                             <div className="h-px flex-grow bg-[var(--secondary)]/15" />
                                         </div>
@@ -1142,10 +1146,6 @@ export default function Products() {
                                         ) : visibleProducts.length === 0 ? (
                                             <div className="py-16 text-center bg-white dark:bg-[#1a2526] rounded-2xl border border-[var(--secondary)]/10">
                                                 <p className="text-sm font-bold opacity-60">No products found.</p>
-                                                <button onClick={() => { setSelectedSubcategory(null); }}
-                                                    className="mt-3 px-5 py-2 bg-[var(--primary)] text-[var(--bg)] rounded-full text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer">
-                                                    View All Products
-                                                </button>
                                             </div>
                                         ) : (
                                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -1164,7 +1164,6 @@ export default function Products() {
                                             </div>
                                         )}
                                         
-                                        {/* End indicator */}
                                         {visibleProducts.length > 0 && !hasMoreProducts && products.length > PRODUCTS_PER_PAGE && (
                                             <div className="text-center py-4">
                                                 <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Showing all {products.length} products</p>
@@ -1172,7 +1171,244 @@ export default function Products() {
                                         )}
                                     </div>
                                 </div>
-                            )}
+                            ) : (() => {
+                                const showSubcategoryCards = categorySubs.length > 0 && !selectedSubcategory && !showAllProducts;
+
+                                if (showSubcategoryCards) {
+                                    return (
+                                        <div className="space-y-4 sm:space-y-5">
+                                            {/* Header */}
+                                            <div className="flex items-center justify-between gap-3">
+                                                <div className="flex items-center gap-2.5 min-w-0">
+                                                    <button onClick={() => { setSelectedCategory(null); setSelectedSubcategory(null); setShowAllProducts(false); }}
+                                                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-white/10 border border-[var(--secondary)]/15 flex items-center justify-center shadow-sm hover:bg-[var(--primary)] hover:text-white hover:border-[var(--primary)] transition-all active:scale-90 shrink-0 touch-manipulation">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                                                    </button>
+                                                    <div className="min-w-0">
+                                                        <h2 className="text-lg sm:text-2xl font-serif font-black uppercase tracking-tight text-[var(--text)] truncate">
+                                                            {selectedCategory.name}
+                                                        </h2>
+                                                        <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                            Select a style to browse custom products
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap shrink-0">
+                                                    {categorySubs.length} styles
+                                                </span>
+                                            </div>
+
+                                            {/* Horizontal subcategory chips */}
+                                            {categorySubs.length > 0 && (
+                                                <div className="relative -mx-3 sm:-mx-0">
+                                                    <div ref={chipsScrollRef} className="flex gap-2 overflow-x-auto px-3 sm:px-0 pb-1 no-scrollbar scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
+                                                        {/* All chip */}
+                                                        <button
+                                                            onClick={() => { setSelectedSubcategory(null); setShowAllProducts(true); }}
+                                                            className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
+                                                                showAllProducts && !selectedSubcategory
+                                                                    ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
+                                                                    : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
+                                                            }`}
+                                                        >
+                                                            All Products
+                                                        </button>
+                                                        {categorySubs.map((sub) => {
+                                                            const isActive = selectedSubcategory?._id === sub._id;
+                                                            return (
+                                                                <button
+                                                                    key={sub._id}
+                                                                    onClick={() => { setSelectedSubcategory(sub); setShowAllProducts(false); }}
+                                                                    className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
+                                                                        isActive
+                                                                            ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
+                                                                            : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
+                                                                    }`}
+                                                                >
+                                                                    {sub.name}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Subcategory Grid Cards */}
+                                            <div className="flex overflow-x-auto snap-x snap-mandatory lg:grid lg:grid-cols-3 xl:grid-cols-4 lg:gap-8 gap-6 pb-6 lg:pb-0 scroll-smooth custom-scrollbar lg:overflow-x-visible pt-2">
+                                                {categorySubs.map((sub) => {
+                                                    const subProductCount = allProducts.filter(p => {
+                                                        const pSubId = typeof p.subcategory === 'object' ? p.subcategory?._id : p.subcategory;
+                                                        return String(pSubId) === String(sub._id);
+                                                    }).length;
+                                                    return (
+                                                        <div 
+                                                            key={sub._id}
+                                                            onClick={() => {
+                                                                setSelectedSubcategory(sub);
+                                                                setShowAllProducts(false);
+                                                            }}
+                                                            className="group cursor-pointer flex-shrink-0 w-[280px] sm:w-[320px] lg:w-auto snap-start flex flex-col"
+                                                        >
+                                                            {/* Image wrapper */}
+                                                            <div className={`relative overflow-hidden rounded-2xl aspect-[4/5] bg-[#A7AA63]/10 border transition-all duration-300 border-[var(--secondary)]/15 group-hover:border-[var(--secondary)]/40 shadow-md group-hover:shadow-xl`}>
+                                                                {sub.image ? (
+                                                                    <img 
+                                                                        src={resolveImage(sub.image)} 
+                                                                        alt={sub.name} 
+                                                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108" 
+                                                                    />
+                                                                ) : (
+                                                                    <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--secondary)]/10" />
+                                                                )}
+                                                                
+                                                                {/* Hover overlay with smooth gradient fade */}
+                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 text-white">
+                                                                    <h4 className="text-xl font-bold tracking-wide transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 delay-75">{sub.name}</h4>
+                                                                    <p className="text-[11px] font-bold text-[#A7AA63] uppercase tracking-wider mt-0.5 transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 delay-100">
+                                                                        {subProductCount} {subProductCount === 1 ? 'Product' : 'Products'}
+                                                                    </p>
+                                                                    {sub.description && (
+                                                                        <p className="text-xs text-gray-300 line-clamp-3 mt-2 font-medium leading-relaxed transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 delay-150">
+                                                                            {sub.description}
+                                                                        </p>
+                                                                    )}
+                                                                    <div className="flex items-center gap-1 mt-4 text-xs font-bold text-[#A7AA63] hover:text-white transition-colors transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 delay-200 group/explore">
+                                                                        <span>Explore</span> &rarr;
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Outer text details */}
+                                                            <div className="mt-4 flex flex-col items-start">
+                                                                <h3 className="text-lg font-serif font-black tracking-tight text-[var(--text)] group-hover:text-[var(--primary)] transition-colors leading-tight">
+                                                                    {sub.name}
+                                                                </h3>
+                                                                <div className="mt-1 flex items-center gap-1 text-[11px] font-bold text-gray-400 dark:text-gray-500 group-hover:text-[var(--primary)] transition-colors group/explore-link">
+                                                                    <span>Explore</span>
+                                                                    <span className="transition-transform group-hover/explore-link:translate-x-1">&rarr;</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    );
+                                } else {
+                                    return (
+                                        <div className="space-y-4 sm:space-y-5">
+                                            {/* Category Header */}
+                                            <div className="flex items-center justify-between gap-3">
+                                                <div className="flex items-center gap-2.5 min-w-0">
+                                                    <button onClick={() => { 
+                                                        if (selectedSubcategory) {
+                                                            setSelectedSubcategory(null);
+                                                            setShowAllProducts(false);
+                                                        } else if (showAllProducts) {
+                                                            setShowAllProducts(false);
+                                                        }
+                                                    }}
+                                                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-white/10 border border-[var(--secondary)]/15 flex items-center justify-center shadow-sm hover:bg-[var(--primary)] hover:text-white hover:border-[var(--primary)] transition-all active:scale-90 shrink-0 touch-manipulation">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                                                    </button>
+                                                    <div className="min-w-0">
+                                                        <h2 className="text-lg sm:text-2xl font-serif font-black uppercase tracking-tight text-[var(--text)] truncate">
+                                                            {selectedCategory.name}
+                                                        </h2>
+                                                        <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                            {selectedSubcategory ? selectedSubcategory.name : 'All Products'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap shrink-0">
+                                                    {products.length} items
+                                                </span>
+                                            </div>
+
+                                            {/* Horizontal subcategory chips */}
+                                            {categorySubs.length > 0 && (
+                                                <div className="relative -mx-3 sm:-mx-0">
+                                                    <div ref={chipsScrollRef} className="flex gap-2 overflow-x-auto px-3 sm:px-0 pb-1 no-scrollbar scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
+                                                        {/* All chip */}
+                                                        <button
+                                                            onClick={() => { setSelectedSubcategory(null); setShowAllProducts(true); }}
+                                                            className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
+                                                                showAllProducts && !selectedSubcategory
+                                                                    ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
+                                                                    : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
+                                                            }`}
+                                                        >
+                                                            All Products
+                                                        </button>
+                                                        {categorySubs.map((sub) => {
+                                                            const isActive = selectedSubcategory?._id === sub._id;
+                                                            return (
+                                                                <button
+                                                                    key={sub._id}
+                                                                    onClick={() => { setSelectedSubcategory(sub); setShowAllProducts(false); }}
+                                                                    className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
+                                                                        isActive
+                                                                            ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
+                                                                            : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
+                                                                    }`}
+                                                                >
+                                                                    {sub.name}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Products Grid */}
+                                            <div>
+                                                <div className="flex items-center gap-3 mb-3 pt-1">
+                                                    <div className="h-px flex-grow bg-[var(--secondary)]/15" />
+                                                    <span className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest shrink-0">
+                                                        {selectedSubcategory ? selectedSubcategory.name : 'All'} Products
+                                                    </span>
+                                                    <div className="h-px flex-grow bg-[var(--secondary)]/15" />
+                                                </div>
+
+                                                {loading ? (
+                                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                                        {[...Array(PRODUCTS_PER_PAGE)].map((_, i) => <SkeletonProductCard key={i} index={i} />)}
+                                                    </div>
+                                                ) : visibleProducts.length === 0 ? (
+                                                    <div className="py-16 text-center bg-white dark:bg-[#1a2526] rounded-2xl border border-[var(--secondary)]/10">
+                                                        <p className="text-sm font-bold opacity-60">No products found.</p>
+                                                        <button onClick={() => { setSelectedSubcategory(null); setShowAllProducts(true); }}
+                                                            className="mt-3 px-5 py-2 bg-[var(--primary)] text-[var(--bg)] rounded-full text-xs font-bold shadow-md hover:opacity-90 transition-all cursor-pointer">
+                                                            View All Products
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                                        {visibleProducts.map((prod, index) => (
+                                                            <ProductCard
+                                                                key={prod._id}
+                                                                prod={prod}
+                                                                index={index}
+                                                                isWish={isInWishlist(prod._id)}
+                                                                cartSuccessId={cartSuccessId}
+                                                                onWishlistClick={handleWishlistClick}
+                                                                onCartClick={handleCartClick}
+                                                            />
+                                                        ))}
+                                                        <ScrollSentinel onVisible={loadMoreProducts} hasMore={hasMoreProducts} isLoading={isLoadingMore} />
+                                                    </div>
+                                                )}
+                                                
+                                                {visibleProducts.length > 0 && !hasMoreProducts && products.length > PRODUCTS_PER_PAGE && (
+                                                    <div className="text-center py-4">
+                                                        <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Showing all {products.length} products</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                            })()}
                         </div>
                     </div>
                 )}
@@ -1234,14 +1470,14 @@ export default function Products() {
                                                 <div className="pt-1">
                                                     <span className="block text-[10px] text-gray-400 font-bold uppercase mb-2">Subcategories</span>
                                                     <div className="flex overflow-x-auto gap-2 pb-2 mobile-snap-scroll">
-                                                        <button onClick={() => { setSelectedSubcategory(null); setShowAllProducts(false); }}
-                                                            className={`px-4 py-2 rounded-full text-xs font-bold border transition-all shrink-0 min-h-[44px] flex items-center justify-center ${!selectedSubcategory ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-500'}`}>
+                                                        <button onClick={() => { setSelectedSubcategory(null); setShowAllProducts(true); }}
+                                                            className={`px-4 py-2 rounded-full text-xs font-bold border transition-all shrink-0 min-h-[44px] flex items-center justify-center ${(!selectedSubcategory && showAllProducts) ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-500'}`}>
                                                             All
                                                         </button>
                                                         {categorySubs.map(sub => {
                                                             const isSubSelected = selectedSubcategory?._id === sub._id;
                                                             return (
-                                                                <button key={sub._id} onClick={() => setSelectedSubcategory(sub)}
+                                                                <button key={sub._id} onClick={() => { setSelectedSubcategory(sub); setShowAllProducts(false); }}
                                                                     className={`px-4 py-2 rounded-full text-xs font-bold border transition-all shrink-0 min-h-[44px] flex items-center justify-center ${isSubSelected ? 'bg-[var(--primary)]/15 border-[var(--primary)] text-[var(--primary)] font-black' : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 text-gray-500'}`}>
                                                                     {sub.name}
                                                                 </button>

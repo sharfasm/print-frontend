@@ -481,8 +481,12 @@ export default function DashboardRequests() {
             <div className={`msg-sidebar ${selectedRequest ? 'is-hidden-mobile' : ''}`}>
                 {/* Sidebar Header */}
                 <div className="px-4 sm:px-5 pb-4 border-b border-[var(--secondary)]/10 bg-[var(--bg)] shrink-0" style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}>
-                    <button onClick={() => router.push('/dashboard')} className="flex items-center gap-1 text-[var(--text)]/50 hover:text-[var(--primary)] transition-colors text-[10px] font-black uppercase tracking-widest mb-3 w-fit">
-                        <ChevronLeft size={14} strokeWidth={3} /> Back to Dashboard
+                    <button 
+                        onClick={() => router.push('/dashboard')} 
+                        className="group flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--bg)] hover:bg-[var(--primary)] text-[var(--text)]/80 hover:text-[var(--bg)] border border-[var(--secondary)]/20 hover:border-[var(--primary)] transition-all duration-300 text-[10px] font-black uppercase tracking-widest mb-4 w-fit shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(80,80,57,0.12)] active:scale-95"
+                    >
+                        <ChevronLeft size={12} strokeWidth={3.5} className="text-[var(--primary)] group-hover:text-[var(--bg)] transition-colors transition-transform group-hover:-translate-x-0.5" /> 
+                        <span>Back to Dashboard</span>
                     </button>
                     <div className="flex items-end justify-between gap-3">
                         <div className="flex flex-col gap-1">
