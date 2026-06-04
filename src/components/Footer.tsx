@@ -2,16 +2,16 @@
 "use client";
 import React from 'react';
 import Link from "next/link";
-;
+import config from '../brand/config';
 import { useShop } from '../context/ShopContext';
 
 const Footer = () => {
     const { brandInfo } = useShop();
 
-    const brandName = brandInfo?.name || "Printing";
+    const brandName = brandInfo?.name || config.brand;
     const brandTagline = brandInfo?.tagline || "Quality Printing for Modern Lifestyles";
     const brandDesc = brandInfo?.description || "Your premium destination for high-quality custom printing.";
-    const brandEmail = brandInfo?.email || "support@printing.com";
+    const brandEmail = brandInfo?.email || "support@printvoz.com";
     const brandPhone = brandInfo?.phone || "+91 98765 43210";
     const brandAddress = brandInfo?.address || "123, Print Street, Koduvally, Kerala, India";
     const brandSocials = brandInfo?.socials || {};

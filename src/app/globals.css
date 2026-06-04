@@ -476,3 +476,128 @@ html.lenis body {
         touch-action: manipulation;
     }
 }
+
+/* --- NAVBAR DRAWER ANIMATIONS --- */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutLeft {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+.animate-slide-in-left {
+    animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-out-left {
+    animation: slideOutLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* --- NAVBAR TOOLTIP --- */
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(4px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}
+
+.animate-tooltip {
+    animation: tooltipFadeIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* --- SEARCH BAR REVEAL --- */
+@keyframes searchReveal {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 60px;
+        padding-top: 8px;
+        padding-bottom: 12px;
+    }
+}
+
+@keyframes searchHide {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 60px;
+        padding-top: 8px;
+        padding-bottom: 12px;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-8px);
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+.animate-search-reveal {
+    animation: searchReveal 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-search-hide {
+    animation: searchHide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* --- DRAWER SCROLLBAR --- */
+.drawer-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(128, 128, 128, 0.25) transparent;
+}
+
+.drawer-scrollbar::-webkit-scrollbar {
+    width: 3px;
+}
+
+.drawer-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.drawer-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(128, 128, 128, 0.25);
+    border-radius: 10px;
+}
+
+/* --- ACCORDION CHEVRON --- */
+.chevron-rotate {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chevron-rotate.open {
+    transform: rotate(180deg);
+}
+
+/* Reduced motion overrides for new animations */
+@media (prefers-reduced-motion: reduce) {
+    .animate-slide-in-left,
+    .animate-slide-out-left,
+    .animate-tooltip,
+    .animate-search-reveal,
+    .animate-search-hide {
+        animation: none !important;
+    }
+}

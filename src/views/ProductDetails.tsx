@@ -345,15 +345,33 @@ export default function ProductDetails() {
                 
                 {/* Breakcrumb Section */}
                 <div className="mb-8 flex items-center justify-between">
-                    <div className="text-sm flex items-center gap-3 opacity-80 font-medium whitespace-nowrap overflow-x-auto pb-2 sm:pb-0">
+                    <div className="text-sm flex items-center gap-2 opacity-80 font-medium whitespace-nowrap overflow-x-auto pb-2 sm:pb-0 no-scrollbar" style={{ WebkitOverflowScrolling: 'touch' }}>
                         <Link href="/" className="hover:text-[var(--primary)] transition-colors">Home</Link>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        <span className="text-gray-400 dark:text-gray-600 px-1 font-bold">›</span>
                         <Link href="/products" className="hover:text-[var(--primary)] transition-colors">Products</Link>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                        <Link href={`/products?categoryId=${typeof product?.category === 'object' ? product?.category?._id : product?.category}`} className="hover:text-[var(--primary)] transition-colors font-medium">
-                            {categoryName}
-                        </Link>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        {product?.category && (
+                            <>
+                                <span className="text-gray-400 dark:text-gray-600 px-1 font-bold">›</span>
+                                <Link 
+                                    href={`/products?categoryId=${product.category?._id || product.category}`} 
+                                    className="hover:text-[var(--primary)] transition-colors font-medium"
+                                >
+                                    {categoryName}
+                                </Link>
+                            </>
+                        )}
+                        {(product?.subcategory || subcategoryData) && (
+                            <>
+                                <span className="text-gray-400 dark:text-gray-600 px-1 font-bold">›</span>
+                                <Link 
+                                    href={`/products?categoryId=${product.category?._id || product.category}&subcategoryId=${product.subcategory?._id || (typeof product.subcategory === 'string' ? product.subcategory : null) || subcategoryData?._id}`} 
+                                    className="hover:text-[var(--primary)] transition-colors font-medium"
+                                >
+                                    {product.subcategory?.name || subcategoryData?.name || 'Subcategory'}
+                                </Link>
+                            </>
+                        )}
+                        <span className="text-gray-400 dark:text-gray-600 px-1 font-bold">›</span>
                         <span className="text-[var(--text)] font-semibold truncate max-w-[200px] sm:max-w-none">{product.name}</span>
                     </div>
                 </div>
