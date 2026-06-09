@@ -67,7 +67,7 @@ export default function Cart() {
                         <div className="flex flex-col gap-6">
                             {cart.map((item) => (
                                 <div key={item._id} className="group flex flex-col sm:flex-row items-center gap-6 bg-[var(--bg)] border border-[var(--secondary)]/10 p-4 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300">
-                                    <Link href={`/product/${item._id}`} className="shrink-0 relative h-32 w-32 md:h-40 md:w-40 bg-[var(--secondary)]/5 rounded-2xl overflow-hidden block">
+                                    <Link href={`/product/${item.slug || item._id}`} className="shrink-0 relative h-32 w-32 md:h-40 md:w-40 bg-[var(--secondary)]/5 rounded-2xl overflow-hidden block">
                                         <img src={resolveImage(item.image)} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
                                     </Link>
                                     

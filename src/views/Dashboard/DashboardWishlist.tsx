@@ -40,7 +40,7 @@ export default function DashboardWishlist() {
                     {wishlist.map(item => (
                         <div key={item._id} className="group flex flex-col bg-[var(--bg)] border border-[var(--secondary)]/10 rounded-[2rem] p-5 shadow-sm hover:shadow-xl transition-all duration-300">
                             <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[var(--secondary)]/5 mb-5 shrink-0 block">
-                                <Link href={`/product/${item._id}`}>
+                                <Link href={`/product/${item.slug || item._id}`}>
                                     <img src={resolveImage(item.image)} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
                                 </Link>
                                 <button 
@@ -55,7 +55,7 @@ export default function DashboardWishlist() {
 
                             <div className="flex flex-col flex-1 px-2 pb-2">
                                 <span className="text-[10px] font-black text-[var(--primary)] opacity-80 uppercase tracking-widest mb-1">{typeof item.category === 'object' ? item.category?.name : (item.categoryName || 'Product')}</span>
-                                <Link href={`/product/${item._id}`} className="block mb-3">
+                                <Link href={`/product/${item.slug || item._id}`} className="block mb-3">
                                     <h3 className="text-lg font-black line-clamp-1 group-hover:text-[var(--primary)] transition-colors">{item.name}</h3>
                                 </Link>
                                 <div className="text-2xl font-black mb-6 mt-auto text-[var(--primary)]">₹{item.price}</div>

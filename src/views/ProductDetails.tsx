@@ -14,9 +14,12 @@ import { ChevronDown, ChevronUp, Edit3, Tag, Truck, Copy, Check } from 'lucide-r
 import api from '../lib/axios';
 import CustomizationModal from '../components/CustomizationModal';
 import { io } from 'socket.io-client';
+import ProductFAQ from '../components/product/ProductFAQ';
+import RelatedCategories from '../components/product/RelatedCategories';
 
 export default function ProductDetails() {
-    const { id } = useParams();
+    const params = useParams();
+    const slug = params.slug || params.id;
     const navigate = useRouter();
     const { addToCart, triggerAuthGuard, setBuyNowItem } = useShop();
     const { isLoggedIn } = useAuth();
@@ -88,10 +91,14 @@ export default function ProductDetails() {
 
     useEffect(() => {
         const fetchProductDetails = async () => {
+            if (!slug) return;
             setLoading(true);
             try {
-                // Fetch Product
-                const response = await fetch(`${config.api}/products/${id}`);
+                // Fetch Product via SEO endpoint
+                let response = await fetch(`${config.api}/seo/product/${slug}`);
+                if (!response.ok) {
+                    response = await fetch(`${config.api}/products/${slug}`);
+                }
                 if (response.ok) {
                     const data = await response.json();
                     setProduct(data);
@@ -110,31 +117,32 @@ export default function ProductDetails() {
                         }
                     }
 
-                    // Fetch Related Products (same category)
-                    const relatedRes = await fetch(`${config.api}/products`);
-                    if (relatedRes.ok) {
-                        const allProducts = await relatedRes.json();
-                        const related = allProducts
-                            .filter(p => (p.category === data.category || (p.category?._id && p.category._id === data.category)) && p._id !== data._id)
-                            .slice(0, 10);
-                        setRelatedProducts(related);
-                    }
+                    // Set Related Products from populated SEO list
+                    setRelatedProducts(data.relatedProducts || []);
 
                     // Fetch Subcategory for custom fields
                     const subId = data.subcategory?._id || data.subcategory;
                     if (subId) {
-                        const subRes = await fetch(`${config.api}/subcategory`);
-                        if (subRes.ok) {
-                            const allSubs = await subRes.json();
-                            const sub = allSubs.find(s => s._id === subId);
-                            if (sub) {
-                                setSubcategoryData(sub);
-                                // Merge subcategory fields + product extra fields
-                                const merged = [
-                                    ...(sub.customFields || []),
-                                    ...(data.extraFields || [])
-                                ].sort((a, b) => (a.order || 0) - (b.order || 0));
-                                setCustomizationFields(merged);
+                        if (data.subcategory && typeof data.subcategory === 'object') {
+                            setSubcategoryData(data.subcategory);
+                            const merged = [
+                                ...(data.subcategory.customFields || []),
+                                ...(data.extraFields || [])
+                            ].sort((a, b) => (a.order || 0) - (b.order || 0));
+                            setCustomizationFields(merged);
+                        } else {
+                            const subRes = await fetch(`${config.api}/subcategory`);
+                            if (subRes.ok) {
+                                const allSubs = await subRes.json();
+                                const sub = allSubs.find(s => s._id === subId);
+                                if (sub) {
+                                    setSubcategoryData(sub);
+                                    const merged = [
+                                        ...(sub.customFields || []),
+                                        ...(data.extraFields || [])
+                                    ].sort((a, b) => (a.order || 0) - (b.order || 0));
+                                    setCustomizationFields(merged);
+                                }
                             }
                         }
                     } else if (data.extraFields && data.extraFields.length > 0) {
@@ -157,11 +165,12 @@ export default function ProductDetails() {
         window.scrollTo(0, 0);
         setQuantity(1);
         setActiveTab('description');
-    }, [id]);
+    }, [slug]);
 
     const fetchReviews = async () => {
+        if (!product?._id) return;
         try {
-            const response = await fetch(`${config.api}/reviews/product/${id}`);
+            const response = await fetch(`${config.api}/reviews/product/${product._id}`);
             if (response.ok) {
                 const data = await response.json();
                 setReviews(data.reviews || []);
@@ -173,16 +182,17 @@ export default function ProductDetails() {
     };
 
     useEffect(() => {
+        if (!product?._id) return;
         fetchReviews();
         const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', { withCredentials: true });
         const refreshProductReviews = (payload) => {
-            if (!payload?.productId || String(payload.productId) === String(id)) fetchReviews();
+            if (!payload?.productId || String(payload.productId) === String(product._id)) fetchReviews();
         };
         socket.on('review-created', refreshProductReviews);
         socket.on('review-updated', refreshProductReviews);
         socket.on('review-deleted', refreshProductReviews);
         return () => socket.disconnect();
-    }, [id]);
+    }, [product?._id]);
 
     if (loading) {
         return (
@@ -276,7 +286,7 @@ export default function ProductDetails() {
             reviewData.append("message", reviewMessage);
             reviewData.append("reviewType", "product");
             reviewImages.forEach((file) => reviewData.append("reviewImages", file));
-            await api.post(`/reviews/product/${id}`, reviewData, {
+            await api.post(`/reviews/product/${product._id}`, reviewData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             setReviewMessage("");
@@ -309,7 +319,7 @@ export default function ProductDetails() {
         setIsSubmittingBulk(true);
         try {
             const res = await api.post('/customization/create', {
-                productId: id,
+                productId: product._id,
                 requestType: 'bulk',
                 bulkQuantity,
                 bulkPhone,
@@ -928,7 +938,7 @@ export default function ProductDetails() {
                                 {relatedProducts.map((related, index) => (
                                     <Link 
                                         key={related._id} 
-                                        href={`/product/${related._id}`}
+                                        href={`/product/${related.slug || related._id}`}
                                         className="w-64 sm:w-72 flex-shrink-0 flex flex-col bg-[var(--bg)] rounded-3xl overflow-hidden border border-[var(--secondary)]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                                     >
                                         <div className="relative aspect-[4/5] overflow-hidden bg-[var(--secondary)]/5 p-4">
@@ -964,6 +974,10 @@ export default function ProductDetails() {
                         </div>
                     </div>
                 )}
+
+                {/* Printvoz Phase 2 SEO Sections */}
+                <ProductFAQ faqs={product.faqs} />
+                <RelatedCategories categories={product.relatedCategories} />
 
             </main>
 
