@@ -847,14 +847,12 @@ const Navbar = () => {
                                                                                             <div className="w-3 h-3 border-2 border-[var(--primary)]/40 border-t-transparent rounded-full animate-spin" />
                                                                                             Loading...
                                                                                         </div>
-                                                                                    ) : prods.length === 0 ? (
-                                                                                        <p className="px-3 py-1.5 text-[11px] text-[var(--text)]/45 italic">No products yet</p>
                                                                                     ) : (
                                                                                         <>
                                                                                             {prods.slice(0, 10).map(prod => (
                                                                                                 <Link
                                                                                                     key={prod._id}
-                                                                                                    href={`/product/${prod._id}`}
+                                                                                                    href={`/product/${prod.slug || prod._id}`}
                                                                                                     onClick={closeDrawer}
                                                                                                     className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl hover:bg-[var(--secondary)]/8 hover:text-[var(--primary)] transition-all touch-manipulation text-left"
                                                                                                 >

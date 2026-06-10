@@ -97,7 +97,7 @@ export default function NewArrivals() {
                     <div className="flex w-max animate-scroll-new gap-8">
                         {[...products, ...products].map((product, idx) => (
                             <Link 
-                                href={`/product/${product._id}`} 
+                                href={`/product/${product.slug || product._id}`} 
                                 key={`${product._id}-${idx}`} 
                                 className="w-[260px] sm:w-[300px] flex-shrink-0 group relative flex flex-col"
                             >

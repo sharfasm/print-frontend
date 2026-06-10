@@ -1,17 +1,21 @@
-// @ts-nocheck
-"use client";
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import config from '../brand/config';
 import { useShop } from '../context/ShopContext';
 import api from '../lib/axios';
 import { resolveImage } from '../lib/imageUtils';
 
-const HeroSection = () => {
+interface HeroSectionProps {
+    initialSettings?: any;
+}
+
+const HeroSection = ({ initialSettings }: HeroSectionProps) => {
     const { brandInfo } = useShop();
     const brandName = brandInfo?.name || config.brand;
-    const [settings, setSettings] = useState(null);
+    const [settings, setSettings] = useState(initialSettings || null);
 
     useEffect(() => {
+        if (initialSettings) return;
         const fetchSettings = async () => {
             try {
                 const { data } = await api.get('/home-settings');
@@ -21,7 +25,7 @@ const HeroSection = () => {
             }
         };
         fetchSettings();
-    }, []);
+    }, [initialSettings]);
 
     const bannerMedia = settings?.bannerMedia;
     const bannerType = settings?.bannerType || 'image';
@@ -41,10 +45,14 @@ const HeroSection = () => {
                         className="w-full h-full object-cover opacity-80" 
                     />
                 ) : (
-                    <img 
+                    <Image 
                         src={bannerMedia ? resolveImage(bannerMedia) : "https://plus.unsplash.com/premium_photo-1672883551901-caa4758abba7?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"} 
-                        alt="Hero" 
-                        className="w-full h-full object-cover opacity-80" 
+                        alt="Hero Banner" 
+                        fill
+                        priority
+                        unoptimized
+                        sizes="100vw"
+                        className="object-cover opacity-80" 
                     />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60"></div>

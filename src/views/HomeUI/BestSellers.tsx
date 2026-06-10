@@ -117,7 +117,7 @@ export default function BestSellers() {
                     <div className="flex w-max animate-scroll-best gap-8">
                         {[...products, ...products].map((product, idx) => (
                             <Link 
-                                href={`/product/${product._id}`} 
+                                href={`/product/${product.slug || product._id}`} 
                                 key={`${product._id}-${idx}`} 
                                 className="w-[260px] sm:w-[300px] flex-shrink-0 group flex flex-col bg-[var(--bg)] rounded-2xl overflow-hidden border border-[var(--secondary)]/10 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                             >

@@ -53,7 +53,7 @@ export default function Wishlist() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {wishlist.map((item) => (
                         <div key={item._id} className="group relative flex flex-col w-full max-w-[300px] mx-auto sm:max-w-none">
-                            <Link href={`/product/${item._id}`} className="block relative aspect-[4/5] overflow-hidden rounded-2xl bg-[var(--secondary)]/5 mb-4 group-hover:shadow-xl transition-all duration-300">
+                            <Link href={`/product/${item.slug || item._id}`} className="block relative aspect-[4/5] overflow-hidden rounded-2xl bg-[var(--secondary)]/5 mb-4 group-hover:shadow-xl transition-all duration-300">
                                 <img 
                                     src={resolveImage(item.image)} 
                                     alt={item.name}
@@ -75,7 +75,7 @@ export default function Wishlist() {
                                 <span className="text-xs font-medium text-[var(--primary)] opacity-80 uppercase tracking-widest mb-1 block">
                                     {typeof item.category === 'object' ? item.category?.name : (item.categoryName || 'Product')}
                                 </span>
-                                <Link href={`/product/${item._id}`} className="block mb-auto">
+                                <Link href={`/product/${item.slug || item._id}`} className="block mb-auto">
                                     <h3 className="text-lg font-bold line-clamp-1 hover:text-[var(--primary)] transition-colors">
                                         {item.name}
                                     </h3>

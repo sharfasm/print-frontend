@@ -1,0 +1,1162 @@
+{
+  "C:\\shalu programing\\Print Cloud\\Admin\\eslint.config.mjs": {
+    "mtime": 1777540671.2854671,
+    "ast_hash": "dfa1f5f6a7037bf39dc510f30b180002",
+    "semantic_hash": "dfa1f5f6a7037bf39dc510f30b180002"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\next-env.d.ts": {
+    "mtime": 1780830691.9332964,
+    "ast_hash": "29f60a376e12bf72b67d4994fcc84214",
+    "semantic_hash": "29f60a376e12bf72b67d4994fcc84214"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\next.config.ts": {
+    "mtime": 1777875558.1857626,
+    "ast_hash": "7fb4ac7d8f93f2cb188a6577f33f59a1",
+    "semantic_hash": "7fb4ac7d8f93f2cb188a6577f33f59a1"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\package.json": {
+    "mtime": 1777986231.6912963,
+    "ast_hash": "28755d411e2a1b943e8c7e67f5f98e97",
+    "semantic_hash": "28755d411e2a1b943e8c7e67f5f98e97"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\postcss.config.mjs": {
+    "mtime": 1777540671.3207667,
+    "ast_hash": "239f3ebf717465dc636818a1a619398d",
+    "semantic_hash": "239f3ebf717465dc636818a1a619398d"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\banners\\categories\\page.tsx": {
+    "mtime": 1780544448.003939,
+    "ast_hash": "9e157a5699a37e0592a5fe4a3559080d",
+    "semantic_hash": "9e157a5699a37e0592a5fe4a3559080d"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\banners\\home\\page.tsx": {
+    "mtime": 1780544341.7121272,
+    "ast_hash": "7baf9eac93e2b4b366b83e55cfd6c41b",
+    "semantic_hash": "7baf9eac93e2b4b366b83e55cfd6c41b"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\banners\\page.tsx": {
+    "mtime": 1780544294.9766266,
+    "ast_hash": "4001529d38fe34ef2bd9d140558e95be",
+    "semantic_hash": "4001529d38fe34ef2bd9d140558e95be"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\banners\\products\\page.tsx": {
+    "mtime": 1780544384.380325,
+    "ast_hash": "864e211c1e75b5d174ac61c69cc651d3",
+    "semantic_hash": "864e211c1e75b5d174ac61c69cc651d3"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\banners\\subcategories\\page.tsx": {
+    "mtime": 1780544505.1338444,
+    "ast_hash": "89ba7e87b44464cdaea3664c1fb33f1f",
+    "semantic_hash": "89ba7e87b44464cdaea3664c1fb33f1f"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\blog\\create\\page.tsx": {
+    "mtime": 1780692365.1904173,
+    "ast_hash": "89603c8f85aff9d07a7d3d8860e8039f",
+    "semantic_hash": "89603c8f85aff9d07a7d3d8860e8039f"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\blog\\edit\\[id]\\page.tsx": {
+    "mtime": 1780692379.3242984,
+    "ast_hash": "5defd52ce14e8d4e6cb7cff84954a505",
+    "semantic_hash": "5defd52ce14e8d4e6cb7cff84954a505"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\blog\\page.tsx": {
+    "mtime": 1780692352.8426993,
+    "ast_hash": "e37be2c1faab0a0f9dd0a4bd630b3165",
+    "semantic_hash": "e37be2c1faab0a0f9dd0a4bd630b3165"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\categories\\page.tsx": {
+    "mtime": 1778669110.7458882,
+    "ast_hash": "98a611ee8d6d6ac6dcde2461ace5fd82",
+    "semantic_hash": "98a611ee8d6d6ac6dcde2461ace5fd82"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\category\\page.tsx": {
+    "mtime": 1780688971.3735456,
+    "ast_hash": "64fe5a8843827d0102244727a79bbd50",
+    "semantic_hash": "64fe5a8843827d0102244727a79bbd50"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\coupons\\page.tsx": {
+    "mtime": 1779795105.7584224,
+    "ast_hash": "c6062bcc3b0ae5a3139ed5b23eb59328",
+    "semantic_hash": "c6062bcc3b0ae5a3139ed5b23eb59328"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\customizations\\[id]\\page.tsx": {
+    "mtime": 1779779830.2960896,
+    "ast_hash": "3284b624f0b4103e24df43b84ad8ab10",
+    "semantic_hash": "3284b624f0b4103e24df43b84ad8ab10"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\customizations\\layout.tsx": {
+    "mtime": 1779779820.1481159,
+    "ast_hash": "22cce7c3e9ca15025b896e3260e25c78",
+    "semantic_hash": "22cce7c3e9ca15025b896e3260e25c78"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\customizations\\page.tsx": {
+    "mtime": 1779442876.5730758,
+    "ast_hash": "0754d0c75e0e538200744f6243d29bbc",
+    "semantic_hash": "0754d0c75e0e538200744f6243d29bbc"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\delivery\\[id]\\page.tsx": {
+    "mtime": 1779779800.336198,
+    "ast_hash": "1ca822d06e2f7bf6d20fcf16386e2e64",
+    "semantic_hash": "1ca822d06e2f7bf6d20fcf16386e2e64"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\delivery\\page.tsx": {
+    "mtime": 1779779809.7206495,
+    "ast_hash": "8b774ff5446da53e1098d74b10867611",
+    "semantic_hash": "8b774ff5446da53e1098d74b10867611"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\designs\\page.tsx": {
+    "mtime": 1778669110.868182,
+    "ast_hash": "383a9207eabcd948ce3e284c5bcc6442",
+    "semantic_hash": "383a9207eabcd948ce3e284c5bcc6442"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\gallery\\page.tsx": {
+    "mtime": 1778669110.8790224,
+    "ast_hash": "199d4be792dcbbb334b4678c131087fe",
+    "semantic_hash": "199d4be792dcbbb334b4678c131087fe"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\layout.tsx": {
+    "mtime": 1778669111.034685,
+    "ast_hash": "5c08dd97958b3e3067a20f402ec78bcb",
+    "semantic_hash": "5c08dd97958b3e3067a20f402ec78bcb"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\login\\page.tsx": {
+    "mtime": 1778669110.8853102,
+    "ast_hash": "efbaa1522013b07a77282b2a2d678366",
+    "semantic_hash": "efbaa1522013b07a77282b2a2d678366"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\orders\\[id]\\page.tsx": {
+    "mtime": 1779779781.4895458,
+    "ast_hash": "7c22b485a698a912d89d4f0c5dece5c5",
+    "semantic_hash": "7c22b485a698a912d89d4f0c5dece5c5"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\orders\\page.tsx": {
+    "mtime": 1779779791.6426208,
+    "ast_hash": "12800b701816d83dfaa37484632a7751",
+    "semantic_hash": "12800b701816d83dfaa37484632a7751"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\page.tsx": {
+    "mtime": 1778669111.0415306,
+    "ast_hash": "bcc67c7765fcaae5337eb0bd71c7837d",
+    "semantic_hash": "bcc67c7765fcaae5337eb0bd71c7837d"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\payments\\[id]\\page.tsx": {
+    "mtime": 1779779765.0589309,
+    "ast_hash": "fa02cd8f1e6763c789dd48dca289aeaf",
+    "semantic_hash": "fa02cd8f1e6763c789dd48dca289aeaf"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\payments\\page.tsx": {
+    "mtime": 1779779773.6167688,
+    "ast_hash": "33f8f01832183861d3db06aaf720de99",
+    "semantic_hash": "33f8f01832183861d3db06aaf720de99"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\product\\[id]\\page.tsx": {
+    "mtime": 1780688910.0345016,
+    "ast_hash": "7506c6046ba82a1df8b73c7ba68473e7",
+    "semantic_hash": "7506c6046ba82a1df8b73c7ba68473e7"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\product\\page.tsx": {
+    "mtime": 1778669110.945905,
+    "ast_hash": "33fef97a300cfe65039dc5be48043369",
+    "semantic_hash": "33fef97a300cfe65039dc5be48043369"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\products-settings\\page.tsx": {
+    "mtime": 1780479436.7536037,
+    "ast_hash": "d8638a89896ea36e4f6f8a422bdd5807",
+    "semantic_hash": "d8638a89896ea36e4f6f8a422bdd5807"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\reviews\\page.tsx": {
+    "mtime": 1779779748.0346696,
+    "ast_hash": "0c3fb58f4560393701fa13c91de70b90",
+    "semantic_hash": "0c3fb58f4560393701fa13c91de70b90"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\subcategory\\page.tsx": {
+    "mtime": 1780479393.9976354,
+    "ast_hash": "6f4983aea24144cb9ed61be09e76d7b5",
+    "semantic_hash": "6f4983aea24144cb9ed61be09e76d7b5"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\users\\[id]\\page.tsx": {
+    "mtime": 1779779730.734892,
+    "ast_hash": "4426387d25901a01bf807d851bf208d8",
+    "semantic_hash": "4426387d25901a01bf807d851bf208d8"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\app\\users\\page.tsx": {
+    "mtime": 1779779739.262539,
+    "ast_hash": "419c82fe072c3918238e0df9c8710911",
+    "semantic_hash": "419c82fe072c3918238e0df9c8710911"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\components\\AppShell.tsx": {
+    "mtime": 1780692343.4626782,
+    "ast_hash": "3bfe5169ebbad239ea5d38c63d52e8d5",
+    "semantic_hash": "3bfe5169ebbad239ea5d38c63d52e8d5"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\components\\FieldBuilder.tsx": {
+    "mtime": 1778669111.0623653,
+    "ast_hash": "9cf15ddc9c67324fe5ec434fa4be78a2",
+    "semantic_hash": "9cf15ddc9c67324fe5ec434fa4be78a2"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\components\\Modal.tsx": {
+    "mtime": 1779795105.7624202,
+    "ast_hash": "3e5bb4937bbd3e989cde373eb4a11229",
+    "semantic_hash": "3e5bb4937bbd3e989cde373eb4a11229"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\components\\Providers.tsx": {
+    "mtime": 1778669111.071637,
+    "ast_hash": "829e7d5ff8f8cd1a9a5b875134c1e18c",
+    "semantic_hash": "829e7d5ff8f8cd1a9a5b875134c1e18c"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\components\\VoiceRecorder.tsx": {
+    "mtime": 1779442876.5807178,
+    "ast_hash": "b932b0e44437e6918e67a37f7a0d3fd2",
+    "semantic_hash": "b932b0e44437e6918e67a37f7a0d3fd2"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\context\\AuthContext.tsx": {
+    "mtime": 1778669111.0853763,
+    "ast_hash": "d3ac69b2a717d64122c5ac5e130c5a3d",
+    "semantic_hash": "d3ac69b2a717d64122c5ac5e130c5a3d"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\lib\\axios.ts": {
+    "mtime": 1779779711.1362715,
+    "ast_hash": "2a1bd5a57569d2f33defc06659c0e56c",
+    "semantic_hash": "2a1bd5a57569d2f33defc06659c0e56c"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\src\\lib\\imageUtils.ts": {
+    "mtime": 1779779721.731156,
+    "ast_hash": "a9ffb6cb9884442aebab871ef048cee6",
+    "semantic_hash": "a9ffb6cb9884442aebab871ef048cee6"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\tsconfig.json": {
+    "mtime": 1777540671.3278594,
+    "ast_hash": "ee17fd1c97c735e9f3564e3f5251f125",
+    "semantic_hash": "ee17fd1c97c735e9f3564e3f5251f125"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\config\\db.js": {
+    "mtime": 1777441043.1907709,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\addressController.js": {
+    "mtime": 1778086643.606154,
+    "ast_hash": "c5e0dc03cf75f3fddf81c021ce26a4e4",
+    "semantic_hash": "c5e0dc03cf75f3fddf81c021ce26a4e4"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\adminController.js": {
+    "mtime": 1779442843.2535217,
+    "ast_hash": "68224f112d6c4f2f8b5099ecd0274ac4",
+    "semantic_hash": "68224f112d6c4f2f8b5099ecd0274ac4"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\authController.js": {
+    "mtime": 1777983727.5457551,
+    "ast_hash": "fef5420a6e285ba911f9602e76048525",
+    "semantic_hash": "fef5420a6e285ba911f9602e76048525"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\blogController.js": {
+    "mtime": 1780691961.7581577,
+    "ast_hash": "f26717b6d0b7c85bd4c00e139d5bd879",
+    "semantic_hash": "f26717b6d0b7c85bd4c00e139d5bd879"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\cartController.js": {
+    "mtime": 1778933257.3975716,
+    "ast_hash": "47a610ba311bc43836c2c1c598afa899",
+    "semantic_hash": "47a610ba311bc43836c2c1c598afa899"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\categoryController.js": {
+    "mtime": 1780688503.1466374,
+    "ast_hash": "4fa3a5b16877c21edd01f54802b147ee",
+    "semantic_hash": "4fa3a5b16877c21edd01f54802b147ee"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\couponController.js": {
+    "mtime": 1779790754.136703,
+    "ast_hash": "c653e5946f03bb71da8e677255f03880",
+    "semantic_hash": "c653e5946f03bb71da8e677255f03880"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\customizationController.js": {
+    "mtime": 1779442843.2555192,
+    "ast_hash": "0e76292d8dee61a1a7d441f8cee75a17",
+    "semantic_hash": "0e76292d8dee61a1a7d441f8cee75a17"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\homeSettingsController.js": {
+    "mtime": 1780544172.223562,
+    "ast_hash": "20441cd63e04285b0a157cd87ef448d3",
+    "semantic_hash": "20441cd63e04285b0a157cd87ef448d3"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\orderController.js": {
+    "mtime": 1779790783.8338592,
+    "ast_hash": "00b0e1e246d66138fafa1951a35c8475",
+    "semantic_hash": "00b0e1e246d66138fafa1951a35c8475"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\productController.js": {
+    "mtime": 1780688613.1922166,
+    "ast_hash": "ddabbbb7d9c448f7ae815ed97061e428",
+    "semantic_hash": "ddabbbb7d9c448f7ae815ed97061e428"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\productsSettingsController.js": {
+    "mtime": 1780479307.9197078,
+    "ast_hash": "366f048950deffb88c25bb2b064c6ded",
+    "semantic_hash": "366f048950deffb88c25bb2b064c6ded"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\reviewController.js": {
+    "mtime": 1778650289.568871,
+    "ast_hash": "48eb903a895c35d85c2ac77d4c863464",
+    "semantic_hash": "48eb903a895c35d85c2ac77d4c863464"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\subcategoryController.js": {
+    "mtime": 1780478908.9416492,
+    "ast_hash": "5063d033b3c73176926b6362ae8cc1fb",
+    "semantic_hash": "5063d033b3c73176926b6362ae8cc1fb"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\userDashboardController.js": {
+    "mtime": 1778061900.9449253,
+    "ast_hash": "99a09e020b29992eb94386c8377530cd",
+    "semantic_hash": "99a09e020b29992eb94386c8377530cd"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\controllers\\wishlistController.js": {
+    "mtime": 1778060986.649565,
+    "ast_hash": "ea28f0d7c13ecd58552c271253bcd429",
+    "semantic_hash": "ea28f0d7c13ecd58552c271253bcd429"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\middleware\\authMiddleware.js": {
+    "mtime": 1777629156.2832086,
+    "ast_hash": "e1a415d09959fb6f28e8e3f8eaa6e6c7",
+    "semantic_hash": "e1a415d09959fb6f28e8e3f8eaa6e6c7"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\middleware\\cacheMiddleware.js": {
+    "mtime": 1780742276.5460186,
+    "ast_hash": "c553ef98bf84214dbc3777960a3d92a8",
+    "semantic_hash": "c553ef98bf84214dbc3777960a3d92a8"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\middleware\\uploadMiddleware.js": {
+    "mtime": 1777877094.418141,
+    "ast_hash": "fea25333201e7ceae0b918680ca46375",
+    "semantic_hash": "fea25333201e7ceae0b918680ca46375"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\middleware\\validationMiddleware.js": {
+    "mtime": 1777539349.2961447,
+    "ast_hash": "a0527eab187788f38846211b1aecab8f",
+    "semantic_hash": "a0527eab187788f38846211b1aecab8f"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\Address.js": {
+    "mtime": 1778086588.3367786,
+    "ast_hash": "81caa8712f07e2e88566b8233eceafb0",
+    "semantic_hash": "81caa8712f07e2e88566b8233eceafb0"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\Blog.js": {
+    "mtime": 1780724097.2426152,
+    "ast_hash": "5d67cafb2c2028ea02777e156603754d",
+    "semantic_hash": "5d67cafb2c2028ea02777e156603754d"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\Cart.js": {
+    "mtime": 1778933257.4067698,
+    "ast_hash": "6dfc4e97e551f8375ca161f6f6effe8d",
+    "semantic_hash": "6dfc4e97e551f8375ca161f6f6effe8d"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\Category.js": {
+    "mtime": 1780724119.9426806,
+    "ast_hash": "b61081a3531c488361e5e6d6a3715891",
+    "semantic_hash": "b61081a3531c488361e5e6d6a3715891"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\Coupon.js": {
+    "mtime": 1779790741.2944777,
+    "ast_hash": "f8a34385c1500ff84906a533c7c11429",
+    "semantic_hash": "f8a34385c1500ff84906a533c7c11429"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\CouponUsage.js": {
+    "mtime": 1779790746.3125596,
+    "ast_hash": "c3f07d1f34577ea7475a280997322d95",
+    "semantic_hash": "c3f07d1f34577ea7475a280997322d95"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\CustomRequest.js": {
+    "mtime": 1779442843.2593324,
+    "ast_hash": "bacc319441f5947597d6eba4e388f1dc",
+    "semantic_hash": "bacc319441f5947597d6eba4e388f1dc"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\HomeSettings.js": {
+    "mtime": 1780544169.6898756,
+    "ast_hash": "5709591b9e536826e20150239681d761",
+    "semantic_hash": "5709591b9e536826e20150239681d761"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\Order.js": {
+    "mtime": 1779790776.7951047,
+    "ast_hash": "89c7e7314119efb1e79a9418a0ebb720",
+    "semantic_hash": "89c7e7314119efb1e79a9418a0ebb720"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\Product.js": {
+    "mtime": 1780724113.1413593,
+    "ast_hash": "7c055217b0df04ef644602c5c106d55d",
+    "semantic_hash": "7c055217b0df04ef644602c5c106d55d"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\ProductsSettings.js": {
+    "mtime": 1780478889.754488,
+    "ast_hash": "fc99b239ba2d387d08467b7b8b2c901a",
+    "semantic_hash": "fc99b239ba2d387d08467b7b8b2c901a"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\Review.js": {
+    "mtime": 1778650006.6786635,
+    "ast_hash": "acbc26934a89ff9bad05df2e14918879",
+    "semantic_hash": "acbc26934a89ff9bad05df2e14918879"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\Subcategory.js": {
+    "mtime": 1780724129.2445514,
+    "ast_hash": "8d4dd067590015dab31b161f2320ddd9",
+    "semantic_hash": "8d4dd067590015dab31b161f2320ddd9"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\User.js": {
+    "mtime": 1777986248.9399395,
+    "ast_hash": "d3e258ced0c306415da9765630e46978",
+    "semantic_hash": "d3e258ced0c306415da9765630e46978"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\models\\Wishlist.js": {
+    "mtime": 1778060942.451084,
+    "ast_hash": "83806f4e425e5fd70d71b8a3ac3e3bbe",
+    "semantic_hash": "83806f4e425e5fd70d71b8a3ac3e3bbe"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\package.json": {
+    "mtime": 1777986232.787267,
+    "ast_hash": "61a9ab705bbd4bff2f8f3e96f6e6e8f5",
+    "semantic_hash": "61a9ab705bbd4bff2f8f3e96f6e6e8f5"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\query_blogs.js": {
+    "mtime": 1780724478.4169579,
+    "ast_hash": "359efd416347be82bf1da38eb9a2a4b2",
+    "semantic_hash": "359efd416347be82bf1da38eb9a2a4b2"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\addressRoutes.js": {
+    "mtime": 1778061038.5802903,
+    "ast_hash": "aa05db3fd9106439814bfd864d9d70a5",
+    "semantic_hash": "aa05db3fd9106439814bfd864d9d70a5"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\adminRoutes.js": {
+    "mtime": 1778933257.4339242,
+    "ast_hash": "232bf3c6e353a327d661b5698c9b11f0",
+    "semantic_hash": "232bf3c6e353a327d661b5698c9b11f0"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\authRoutes.js": {
+    "mtime": 1777981933.4357553,
+    "ast_hash": "e3ddac4e761b19c17736c530bca6d6c7",
+    "semantic_hash": "e3ddac4e761b19c17736c530bca6d6c7"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\blogRoutes.js": {
+    "mtime": 1780742302.0756078,
+    "ast_hash": "c3403e10fdfcbe9f75bd3701b0153fb4",
+    "semantic_hash": "c3403e10fdfcbe9f75bd3701b0153fb4"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\cartRoutes.js": {
+    "mtime": 1778061034.5344696,
+    "ast_hash": "d8495fd2962cb5f4198185bedceab377",
+    "semantic_hash": "d8495fd2962cb5f4198185bedceab377"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\categoryRoutes.js": {
+    "mtime": 1780742292.8287673,
+    "ast_hash": "da9c8f31ec0ccd032e981809f5c72d5e",
+    "semantic_hash": "da9c8f31ec0ccd032e981809f5c72d5e"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\couponRoutes.js": {
+    "mtime": 1779790758.5893526,
+    "ast_hash": "c668dd67ed299b1ee5fdf819497087d1",
+    "semantic_hash": "c668dd67ed299b1ee5fdf819497087d1"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\customizationRoutes.js": {
+    "mtime": 1779442843.262387,
+    "ast_hash": "007155a478e5bc4840d942498a463435",
+    "semantic_hash": "007155a478e5bc4840d942498a463435"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\homeSettingsRoutes.js": {
+    "mtime": 1780742342.5931468,
+    "ast_hash": "b64e52ebefc0ad6b8541b30f10874c31",
+    "semantic_hash": "b64e52ebefc0ad6b8541b30f10874c31"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\orderRoutes.js": {
+    "mtime": 1778061061.6476836,
+    "ast_hash": "7564b2319f6a54d7d0ea65b2c045caf3",
+    "semantic_hash": "7564b2319f6a54d7d0ea65b2c045caf3"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\productRoutes.js": {
+    "mtime": 1780742284.649351,
+    "ast_hash": "d949cd252bbfa3248f840a6febeb7ad6",
+    "semantic_hash": "d949cd252bbfa3248f840a6febeb7ad6"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\productsSettingsRoutes.js": {
+    "mtime": 1780742348.833247,
+    "ast_hash": "faa54d0ab62f55a48fb9710c1c5d85b6",
+    "semantic_hash": "faa54d0ab62f55a48fb9710c1c5d85b6"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\reviewRoutes.js": {
+    "mtime": 1778650433.261061,
+    "ast_hash": "c2be5c1dc5338c879aadd3af4666e736",
+    "semantic_hash": "c2be5c1dc5338c879aadd3af4666e736"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\seoRoutes.js": {
+    "mtime": 1780742332.4733613,
+    "ast_hash": "755e1be2071c1064a7a7b22ba250c466",
+    "semantic_hash": "755e1be2071c1064a7a7b22ba250c466"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\subcategoryRoutes.js": {
+    "mtime": 1780678960.9007578,
+    "ast_hash": "9bc21131223d7238f136c71bc6b76386",
+    "semantic_hash": "9bc21131223d7238f136c71bc6b76386"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\userRoutes.js": {
+    "mtime": 1778061040.593646,
+    "ast_hash": "5d821807df49cb0c9fa1a5e171bcd9ae",
+    "semantic_hash": "5d821807df49cb0c9fa1a5e171bcd9ae"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\routes\\wishlistRoutes.js": {
+    "mtime": 1778061036.5476377,
+    "ast_hash": "eff710e80602476e575ee2b7ad3b8b76",
+    "semantic_hash": "eff710e80602476e575ee2b7ad3b8b76"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\scripts\\generateSlugs.js": {
+    "mtime": 1780678937.091033,
+    "ast_hash": "51aa45a79ca49897398f6ec2d3b44900",
+    "semantic_hash": "51aa45a79ca49897398f6ec2d3b44900"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\seedCoupons.js": {
+    "mtime": 1779790789.280635,
+    "ast_hash": "f5f1febba0012733cfd6975d894560d8",
+    "semantic_hash": "f5f1febba0012733cfd6975d894560d8"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\server.js": {
+    "mtime": 1780732493.9682968,
+    "ast_hash": "1f06aa9c57999b6c4e42965bdbae0ad9",
+    "semantic_hash": "1f06aa9c57999b6c4e42965bdbae0ad9"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\utils\\cloudinary.js": {
+    "mtime": 1779780549.4364963,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\shalu programing\\Print Cloud\\backend\\utils\\generateToken.js": {
+    "mtime": 1776943635.7075899,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\shalu programing\\Print Cloud\\detect_setup.ps1": {
+    "mtime": 1780986908.5446863,
+    "ast_hash": "fad017bcfd032e9abbbd13602f3da05b",
+    "semantic_hash": "fad017bcfd032e9abbbd13602f3da05b"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\eslint.config.js": {
+    "mtime": 1778669353.24763,
+    "ast_hash": "c15fd0f45c689a8b77c8ff6fe6fada9b",
+    "semantic_hash": "c15fd0f45c689a8b77c8ff6fe6fada9b"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\next-env.d.ts": {
+    "mtime": 1780985631.2869897,
+    "ast_hash": "29f60a376e12bf72b67d4994fcc84214",
+    "semantic_hash": "29f60a376e12bf72b67d4994fcc84214"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\next.config.mjs": {
+    "mtime": 1780894872.1822083,
+    "ast_hash": "ffe96a1a822700888c66822580ce7a5a",
+    "semantic_hash": "ffe96a1a822700888c66822580ce7a5a"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\package.json": {
+    "mtime": 1780987803.246092,
+    "ast_hash": "4879fe18c8283c5f32b2d5aab1789af2",
+    "semantic_hash": "4879fe18c8283c5f32b2d5aab1789af2"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\postcss.config.js": {
+    "mtime": 1778669353.253848,
+    "ast_hash": "ac96fa81e8dd4224012bce81068fe169",
+    "semantic_hash": "ac96fa81e8dd4224012bce81068fe169"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\skills-lock.json": {
+    "mtime": 1778759247.127519,
+    "ast_hash": "a024b9ebbe0d3a251f90d4c31b487991",
+    "semantic_hash": "a024b9ebbe0d3a251f90d4c31b487991"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\about\\page.tsx": {
+    "mtime": 1780678555.5420542,
+    "ast_hash": "d32383619b2cfeec958ff23fe5c90288",
+    "semantic_hash": "d32383619b2cfeec958ff23fe5c90288"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\blog\\[slug]\\page.tsx": {
+    "mtime": 1780724564.0890653,
+    "ast_hash": "7e59b69cb5204ad655d54930c0b8021f",
+    "semantic_hash": "7e59b69cb5204ad655d54930c0b8021f"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\blog\\page.tsx": {
+    "mtime": 1780692292.4535892,
+    "ast_hash": "078aa9e8f319d7ce9d1d42be8245cfc9",
+    "semantic_hash": "078aa9e8f319d7ce9d1d42be8245cfc9"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\cart\\page.tsx": {
+    "mtime": 1778669352.4397554,
+    "ast_hash": "04dcdd9e27fa2215d26b9971779bc709",
+    "semantic_hash": "04dcdd9e27fa2215d26b9971779bc709"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\category\\[category]\\[subcategory]\\page.tsx": {
+    "mtime": 1780688835.5899873,
+    "ast_hash": "9a72867bde74eb904639e91e3f234f5f",
+    "semantic_hash": "9a72867bde74eb904639e91e3f234f5f"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\category\\[category]\\page.tsx": {
+    "mtime": 1780688829.665261,
+    "ast_hash": "f647bc7b2ad7f6503a697685cd6cbb83",
+    "semantic_hash": "f647bc7b2ad7f6503a697685cd6cbb83"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\checkout\\page.tsx": {
+    "mtime": 1778669352.4428022,
+    "ast_hash": "1cde8e1f465e43a488a9202c617477d8",
+    "semantic_hash": "1cde8e1f465e43a488a9202c617477d8"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\contact\\page.tsx": {
+    "mtime": 1780678564.9771762,
+    "ast_hash": "3426a7ca04b00fc3792b6196444e9ddb",
+    "semantic_hash": "3426a7ca04b00fc3792b6196444e9ddb"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\dashboard\\addresses\\page.tsx": {
+    "mtime": 1778669352.4753077,
+    "ast_hash": "04132ef0aefd5d3fae678f21a78c8a9d",
+    "semantic_hash": "04132ef0aefd5d3fae678f21a78c8a9d"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\dashboard\\cart\\page.tsx": {
+    "mtime": 1778669352.477306,
+    "ast_hash": "6b0d3f8c573ff6bdc516484cc8abf7d9",
+    "semantic_hash": "6b0d3f8c573ff6bdc516484cc8abf7d9"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\dashboard\\delivery-tracking\\page.tsx": {
+    "mtime": 1778669352.4805782,
+    "ast_hash": "a3399001976f72d4b420368c9605309e",
+    "semantic_hash": "a3399001976f72d4b420368c9605309e"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\dashboard\\layout.tsx": {
+    "mtime": 1778669352.497319,
+    "ast_hash": "790463cdde881dda5a96aa5aba16318b",
+    "semantic_hash": "790463cdde881dda5a96aa5aba16318b"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\dashboard\\orders\\page.tsx": {
+    "mtime": 1778669352.4836085,
+    "ast_hash": "8cc392f359b0e9b6b2a1d6c7e9d5048b",
+    "semantic_hash": "8cc392f359b0e9b6b2a1d6c7e9d5048b"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\dashboard\\page.tsx": {
+    "mtime": 1778669352.4994054,
+    "ast_hash": "edc29f13a40169a31e9989a9db8f3b97",
+    "semantic_hash": "edc29f13a40169a31e9989a9db8f3b97"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\dashboard\\requests\\page.tsx": {
+    "mtime": 1778669352.4847631,
+    "ast_hash": "92084e3fef2539aa80617801f05756eb",
+    "semantic_hash": "92084e3fef2539aa80617801f05756eb"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\dashboard\\settings\\page.tsx": {
+    "mtime": 1778669352.4890172,
+    "ast_hash": "2f24085fa18ef0bdb4640cea64c6c677",
+    "semantic_hash": "2f24085fa18ef0bdb4640cea64c6c677"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\dashboard\\wishlist\\page.tsx": {
+    "mtime": 1778669352.4937873,
+    "ast_hash": "261d50f9a5594e1bd56146b0b4e806b4",
+    "semantic_hash": "261d50f9a5594e1bd56146b0b4e806b4"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\faq\\page.tsx": {
+    "mtime": 1780678594.1786215,
+    "ast_hash": "5b4e5b390fc71638648b600da3d5d4ec",
+    "semantic_hash": "5b4e5b390fc71638648b600da3d5d4ec"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\layout.tsx": {
+    "mtime": 1780673367.867868,
+    "ast_hash": "71f119ae2b894eb1f90a040791d81b0b",
+    "semantic_hash": "71f119ae2b894eb1f90a040791d81b0b"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\login\\page.tsx": {
+    "mtime": 1778669352.5029178,
+    "ast_hash": "cf633c3b23112319178c4a51c8a37445",
+    "semantic_hash": "cf633c3b23112319178c4a51c8a37445"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\manifest.ts": {
+    "mtime": 1780673207.0196092,
+    "ast_hash": "92887055efbedc9269a0ea2456e2486e",
+    "semantic_hash": "92887055efbedc9269a0ea2456e2486e"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\order-confirmation\\page.tsx": {
+    "mtime": 1778669352.5050378,
+    "ast_hash": "f73575e451bbe2de50ee4ab1ecbdede6",
+    "semantic_hash": "f73575e451bbe2de50ee4ab1ecbdede6"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\page.tsx": {
+    "mtime": 1780742381.4116108,
+    "ast_hash": "b458f68582196867172488f249f7f3aa",
+    "semantic_hash": "b458f68582196867172488f249f7f3aa"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\printing-service-calicut\\page.tsx": {
+    "mtime": 1780692263.6602592,
+    "ast_hash": "869327db2e15a73645cd9695a33f253f",
+    "semantic_hash": "869327db2e15a73645cd9695a33f253f"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\printing-service-kannur\\page.tsx": {
+    "mtime": 1780692278.8054664,
+    "ast_hash": "acbdf3fa49b1d6cf751cb47149cecca0",
+    "semantic_hash": "acbdf3fa49b1d6cf751cb47149cecca0"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\printing-service-kochi\\page.tsx": {
+    "mtime": 1780692240.3330998,
+    "ast_hash": "88d72b5c45ac0c07da10e2daa70aebd3",
+    "semantic_hash": "88d72b5c45ac0c07da10e2daa70aebd3"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\printing-service-thrissur\\page.tsx": {
+    "mtime": 1780692252.368946,
+    "ast_hash": "eaa4a2244c1ea626c81f43b4b3bcabd9",
+    "semantic_hash": "eaa4a2244c1ea626c81f43b4b3bcabd9"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\printing-service-trivandrum\\page.tsx": {
+    "mtime": 1780692274.2015245,
+    "ast_hash": "496784b86970930e70b9c1bc7bf75851",
+    "semantic_hash": "496784b86970930e70b9c1bc7bf75851"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\privacy-policy\\page.tsx": {
+    "mtime": 1780679113.3057444,
+    "ast_hash": "3fbc24a48171392ca9e3dc51ed8d4f49",
+    "semantic_hash": "3fbc24a48171392ca9e3dc51ed8d4f49"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\product\\[slug]\\page.tsx": {
+    "mtime": 1780673417.4776342,
+    "ast_hash": "ed530cb6fda77f06e0c85301d522e947",
+    "semantic_hash": "ed530cb6fda77f06e0c85301d522e947"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\products\\page.tsx": {
+    "mtime": 1780678575.3097713,
+    "ast_hash": "c373dead2cde7b2ea62890266fde71b9",
+    "semantic_hash": "c373dead2cde7b2ea62890266fde71b9"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\refund-policy\\page.tsx": {
+    "mtime": 1780679125.285339,
+    "ast_hash": "a7fdfc6fc6ed1b04ee762bb396dd3a0d",
+    "semantic_hash": "a7fdfc6fc6ed1b04ee762bb396dd3a0d"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\register\\page.tsx": {
+    "mtime": 1778669352.5181096,
+    "ast_hash": "513ad7033cda8e22cc5a0ce71f133890",
+    "semantic_hash": "513ad7033cda8e22cc5a0ce71f133890"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\robots.ts": {
+    "mtime": 1780673165.903268,
+    "ast_hash": "3026bd83059c7e4fa0959c4731c9dd55",
+    "semantic_hash": "3026bd83059c7e4fa0959c4731c9dd55"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\shipping-policy\\page.tsx": {
+    "mtime": 1780679130.834,
+    "ast_hash": "869a66faf597d0fa48e48072473a359a",
+    "semantic_hash": "869a66faf597d0fa48e48072473a359a"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\sitemap.ts": {
+    "mtime": 1780692327.4444203,
+    "ast_hash": "b78a3ddd7112930351b6e5f057098a14",
+    "semantic_hash": "b78a3ddd7112930351b6e5f057098a14"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\terms-and-conditions\\page.tsx": {
+    "mtime": 1780679119.5336025,
+    "ast_hash": "b750eba6acfadfa0bac96a1e0d1a010a",
+    "semantic_hash": "b750eba6acfadfa0bac96a1e0d1a010a"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\app\\wishlist\\page.tsx": {
+    "mtime": 1778669352.5202415,
+    "ast_hash": "7a972e4e39724c5fbbf31b6f01edf3e6",
+    "semantic_hash": "7a972e4e39724c5fbbf31b6f01edf3e6"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\brand\\config.js": {
+    "mtime": 1780894881.7933383,
+    "ast_hash": "c4160ec5a06d023af0d01f9c12dda3ff",
+    "semantic_hash": "c4160ec5a06d023af0d01f9c12dda3ff"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\AuthModal.tsx": {
+    "mtime": 1778669352.5370936,
+    "ast_hash": "6af882b681cc860b2d7c182d4a5c2d23",
+    "semantic_hash": "6af882b681cc860b2d7c182d4a5c2d23"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\AuthNotification.tsx": {
+    "mtime": 1778669352.540107,
+    "ast_hash": "2fac03acd1d5a48a9c68caef032f2be9",
+    "semantic_hash": "2fac03acd1d5a48a9c68caef032f2be9"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\CategoryCards.tsx": {
+    "mtime": 1778669352.5665376,
+    "ast_hash": "0465d052ae310384bdff20c3bfe5666d",
+    "semantic_hash": "0465d052ae310384bdff20c3bfe5666d"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\CustomizationModal.tsx": {
+    "mtime": 1779442822.8282595,
+    "ast_hash": "70e30a6de10ed6e1be53f76cd22af2f0",
+    "semantic_hash": "70e30a6de10ed6e1be53f76cd22af2f0"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\DynamicFormRenderer.tsx": {
+    "mtime": 1779442822.8282595,
+    "ast_hash": "8985d4c5c02c8d11561acb726065e29e",
+    "semantic_hash": "8985d4c5c02c8d11561acb726065e29e"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\Footer.tsx": {
+    "mtime": 1780573598.9741185,
+    "ast_hash": "020b943db11ece5c88472d813270441f",
+    "semantic_hash": "020b943db11ece5c88472d813270441f"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\HeroSection.tsx": {
+    "mtime": 1780784637.6466541,
+    "ast_hash": "6ddcc641e8e930b241f9cae9644f495e",
+    "semantic_hash": "6ddcc641e8e930b241f9cae9644f495e"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\InfiniteProducts.tsx": {
+    "mtime": 1778669352.6435897,
+    "ast_hash": "f7d5910eecc11687edda8a23d2b6d6ab",
+    "semantic_hash": "f7d5910eecc11687edda8a23d2b6d6ab"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\LogoLoop.tsx": {
+    "mtime": 1778669352.6596231,
+    "ast_hash": "8b0b18e54c2ddde584b41351fc54fb46",
+    "semantic_hash": "8b0b18e54c2ddde584b41351fc54fb46"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\Navbar.tsx": {
+    "mtime": 1780902944.8244781,
+    "ast_hash": "08f1e5f6b606ef7254d4f6415bea4523",
+    "semantic_hash": "08f1e5f6b606ef7254d4f6415bea4523"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\PageLoader.tsx": {
+    "mtime": 1778669352.670362,
+    "ast_hash": "35f03605242024ce075faefad3a890ff",
+    "semantic_hash": "35f03605242024ce075faefad3a890ff"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\ProductCard.tsx": {
+    "mtime": 1780784637.620145,
+    "ast_hash": "9b9b1de86b08be232ea8a58088238a15",
+    "semantic_hash": "9b9b1de86b08be232ea8a58088238a15"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\Providers.tsx": {
+    "mtime": 1780743155.4569738,
+    "ast_hash": "9dd330576115b788b65d80135918c8a7",
+    "semantic_hash": "9dd330576115b788b65d80135918c8a7"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\RouteTransition.tsx": {
+    "mtime": 1778669352.6946938,
+    "ast_hash": "6d58cb959a39224b2ad9a8945c55b73e",
+    "semantic_hash": "6d58cb959a39224b2ad9a8945c55b73e"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\ScrollStack.tsx": {
+    "mtime": 1778669352.7055874,
+    "ast_hash": "3f4568adaca821f7953b4b4e137df3b1",
+    "semantic_hash": "3f4568adaca821f7953b4b4e137df3b1"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\VoiceRecorder.tsx": {
+    "mtime": 1779442822.8307137,
+    "ast_hash": "0b743cdd2d3a9ab070bb622b7969cbec",
+    "semantic_hash": "0b743cdd2d3a9ab070bb622b7969cbec"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\category\\CategoryFAQ.tsx": {
+    "mtime": 1780688787.1755729,
+    "ast_hash": "15bd60fab3643a1c53c6445e7ddaa5d4",
+    "semantic_hash": "15bd60fab3643a1c53c6445e7ddaa5d4"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\category\\CategorySEOContent.tsx": {
+    "mtime": 1780895113.9942567,
+    "ast_hash": "fd19784ffe8d652efbf5801ec8e07b82",
+    "semantic_hash": "fd19784ffe8d652efbf5801ec8e07b82"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\category\\RelatedCategories.tsx": {
+    "mtime": 1780895355.151917,
+    "ast_hash": "e0b5f87330d146e8cb4be617fc4bb6cb",
+    "semantic_hash": "e0b5f87330d146e8cb4be617fc4bb6cb"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\product\\ProductFAQ.tsx": {
+    "mtime": 1780688709.2658808,
+    "ast_hash": "63de021c63536efae9b9274d4d693248",
+    "semantic_hash": "63de021c63536efae9b9274d4d693248"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\product\\ProductSEOContent.tsx": {
+    "mtime": 1780688693.7476346,
+    "ast_hash": "2ff854d24cd9544d1b72acd302543a18",
+    "semantic_hash": "2ff854d24cd9544d1b72acd302543a18"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\product\\RelatedCategories.tsx": {
+    "mtime": 1780895360.5301974,
+    "ast_hash": "c57114a66d27933aa7113bd46ac2c63b",
+    "semantic_hash": "c57114a66d27933aa7113bd46ac2c63b"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\product\\RelatedProducts.tsx": {
+    "mtime": 1780688749.307171,
+    "ast_hash": "d4041f7f61e3d343b697a6e7ae8729ad",
+    "semantic_hash": "d4041f7f61e3d343b697a6e7ae8729ad"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\seo\\Breadcrumbs.tsx": {
+    "mtime": 1780673347.7242718,
+    "ast_hash": "a117a31d29a1427a4f3616e7002f00c7",
+    "semantic_hash": "a117a31d29a1427a4f3616e7002f00c7"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\seo\\JsonLd.tsx": {
+    "mtime": 1780673333.6695786,
+    "ast_hash": "209322b2fabb38945bd5263a08624d57",
+    "semantic_hash": "209322b2fabb38945bd5263a08624d57"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\seo\\LocationPage.tsx": {
+    "mtime": 1780692227.2114918,
+    "ast_hash": "1bb871b5bbb4e0b29205ed5b5ec1536a",
+    "semantic_hash": "1bb871b5bbb4e0b29205ed5b5ec1536a"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\seo\\LocationProductGrid.tsx": {
+    "mtime": 1780692214.641524,
+    "ast_hash": "0fe1b69b319fa2f1b9ff72d6a18b466d",
+    "semantic_hash": "0fe1b69b319fa2f1b9ff72d6a18b466d"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\workspace\\ChatBubble.tsx": {
+    "mtime": 1779179607.528099,
+    "ast_hash": "37fbb8152de0ba5b904a3410cb5fd6d9",
+    "semantic_hash": "37fbb8152de0ba5b904a3410cb5fd6d9"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\workspace\\ChatHeader.tsx": {
+    "mtime": 1779179607.5287855,
+    "ast_hash": "2b9f266bb424899ce358a8cdff566bca",
+    "semantic_hash": "2b9f266bb424899ce358a8cdff566bca"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\components\\workspace\\RequestList.tsx": {
+    "mtime": 1779179607.5298247,
+    "ast_hash": "716b94ac8b05e781cf4f9962794229cb",
+    "semantic_hash": "716b94ac8b05e781cf4f9962794229cb"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\context\\AuthContext.tsx": {
+    "mtime": 1779776340.3216102,
+    "ast_hash": "076df9ba910ce7b713908cfc5e94c164",
+    "semantic_hash": "076df9ba910ce7b713908cfc5e94c164"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\context\\ShopContext.tsx": {
+    "mtime": 1779796162.9618974,
+    "ast_hash": "21c38b49ed5b0406ee84197d95709f49",
+    "semantic_hash": "21c38b49ed5b0406ee84197d95709f49"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\lib\\axios.ts": {
+    "mtime": 1779863269.6967874,
+    "ast_hash": "5af36498275151a6ffd169818728a5a5",
+    "semantic_hash": "5af36498275151a6ffd169818728a5a5"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\lib\\imageUtils.ts": {
+    "mtime": 1780894868.011298,
+    "ast_hash": "cd3d407bbec1a8116bcf01c9e127f444",
+    "semantic_hash": "cd3d407bbec1a8116bcf01c9e127f444"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\lib\\seo\\constants.ts": {
+    "mtime": 1780673230.5333204,
+    "ast_hash": "ea2544d447ed73e62bcb445f0b7ab844",
+    "semantic_hash": "ea2544d447ed73e62bcb445f0b7ab844"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\lib\\seo\\internalLinks.ts": {
+    "mtime": 1780688677.615277,
+    "ast_hash": "802c6e0bdfe1c6f023902b1b6f5f1255",
+    "semantic_hash": "802c6e0bdfe1c6f023902b1b6f5f1255"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\lib\\seo\\metadata.ts": {
+    "mtime": 1780673262.3662822,
+    "ast_hash": "887ca1d03872f7674bfbe576195b6ad5",
+    "semantic_hash": "887ca1d03872f7674bfbe576195b6ad5"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\lib\\seo\\schemas.ts": {
+    "mtime": 1780688661.0143225,
+    "ast_hash": "d311ef9e7fd7d9f53559c42623667894",
+    "semantic_hash": "d311ef9e7fd7d9f53559c42623667894"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\About.tsx": {
+    "mtime": 1778669353.0804112,
+    "ast_hash": "a20e4557e6f2b7569fd35e133f6bcf51",
+    "semantic_hash": "a20e4557e6f2b7569fd35e133f6bcf51"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Cart.tsx": {
+    "mtime": 1780681111.592253,
+    "ast_hash": "258533b9a13155ca806b0af7b99212c1",
+    "semantic_hash": "258533b9a13155ca806b0af7b99212c1"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Checkout.tsx": {
+    "mtime": 1779796222.886434,
+    "ast_hash": "85a167d011d5a7c98e75e7e3f74f026a",
+    "semantic_hash": "85a167d011d5a7c98e75e7e3f74f026a"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Contact.tsx": {
+    "mtime": 1778669353.1361377,
+    "ast_hash": "8d0b84c2274a68bd23a102e0ac0e4f0a",
+    "semantic_hash": "8d0b84c2274a68bd23a102e0ac0e4f0a"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Dashboard\\Addresses.tsx": {
+    "mtime": 1778669352.8070772,
+    "ast_hash": "114200fde785ced2a4e3f451ae015f28",
+    "semantic_hash": "114200fde785ced2a4e3f451ae015f28"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Dashboard\\DashboardCart.tsx": {
+    "mtime": 1780681104.1402147,
+    "ast_hash": "0f061cdb4eea5b4a0701b8f2c4d0169a",
+    "semantic_hash": "0f061cdb4eea5b4a0701b8f2c4d0169a"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Dashboard\\DashboardLayout.tsx": {
+    "mtime": 1779787828.680045,
+    "ast_hash": "4579d2bbf8a9ab5762edb9cfc897e232",
+    "semantic_hash": "4579d2bbf8a9ab5762edb9cfc897e232"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Dashboard\\DashboardRequests.tsx": {
+    "mtime": 1780573598.9817245,
+    "ast_hash": "e11c4da82c1ef5056d6343b31f970949",
+    "semantic_hash": "e11c4da82c1ef5056d6343b31f970949"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Dashboard\\DashboardWishlist.tsx": {
+    "mtime": 1780681095.9923375,
+    "ast_hash": "63cf1e753c04774ae358eefcf6fd50ed",
+    "semantic_hash": "63cf1e753c04774ae358eefcf6fd50ed"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Dashboard\\DeliveryTracking.tsx": {
+    "mtime": 1778669352.8909566,
+    "ast_hash": "d311e52b112a8aad36ab9f136e255f1b",
+    "semantic_hash": "d311e52b112a8aad36ab9f136e255f1b"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Dashboard\\Orders.tsx": {
+    "mtime": 1778669352.8981793,
+    "ast_hash": "2ef0dc57f2445cfdb84d3d706b1baf2d",
+    "semantic_hash": "2ef0dc57f2445cfdb84d3d706b1baf2d"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Dashboard\\Overview.tsx": {
+    "mtime": 1778669352.9031389,
+    "ast_hash": "352c8e8866e2acc05eadd17643e5386d",
+    "semantic_hash": "352c8e8866e2acc05eadd17643e5386d"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Dashboard\\Settings.tsx": {
+    "mtime": 1778669352.9132278,
+    "ast_hash": "fed60412cead1371270d0cadd0b2ef40",
+    "semantic_hash": "fed60412cead1371270d0cadd0b2ef40"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Dashboard\\UpdateCustomizationModal.tsx": {
+    "mtime": 1779776354.460608,
+    "ast_hash": "8f23fa40663952155f2107a57c1d594c",
+    "semantic_hash": "8f23fa40663952155f2107a57c1d594c"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Home.tsx": {
+    "mtime": 1780742391.6818602,
+    "ast_hash": "e019408c867281ba3180c5ca330c55e9",
+    "semantic_hash": "e019408c867281ba3180c5ca330c55e9"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\AllProducts.tsx": {
+    "mtime": 1780681088.7938926,
+    "ast_hash": "fe36848413c848c2deeca1de8ac49d90",
+    "semantic_hash": "fe36848413c848c2deeca1de8ac49d90"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\BestSellers.tsx": {
+    "mtime": 1780681081.591205,
+    "ast_hash": "0c8d2c5bf98737a204ec680871e36eff",
+    "semantic_hash": "0c8d2c5bf98737a204ec680871e36eff"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\CategoryUI.tsx": {
+    "mtime": 1779442822.8389854,
+    "ast_hash": "2d464ab99b531321ae5b19a30a199046",
+    "semantic_hash": "2d464ab99b531321ae5b19a30a199046"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\CustomerReviews.tsx": {
+    "mtime": 1779442822.839987,
+    "ast_hash": "40843bdbf7b942753bf52c60b09eab76",
+    "semantic_hash": "40843bdbf7b942753bf52c60b09eab76"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\ExclusiveOffers.tsx": {
+    "mtime": 1779791131.8004434,
+    "ast_hash": "63bf6d099095eae0c44841585ba234df",
+    "semantic_hash": "63bf6d099095eae0c44841585ba234df"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\FAQ.tsx": {
+    "mtime": 1779442822.8415616,
+    "ast_hash": "94d75f2935db634d485d1be3f92ea2c2",
+    "semantic_hash": "94d75f2935db634d485d1be3f92ea2c2"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\FeaturedCollection.tsx": {
+    "mtime": 1779442822.8415616,
+    "ast_hash": "f33b4447a7749f73458dd9d360bc88b7",
+    "semantic_hash": "f33b4447a7749f73458dd9d360bc88b7"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\LogoLoopHome.tsx": {
+    "mtime": 1778669353.0449214,
+    "ast_hash": "817427e2737281d2df4c92837f51ec11",
+    "semantic_hash": "817427e2737281d2df4c92837f51ec11"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\NewArrivals.tsx": {
+    "mtime": 1780681072.251526,
+    "ast_hash": "eb909bde4a98078c0b06e9618c425996",
+    "semantic_hash": "eb909bde4a98078c0b06e9618c425996"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\Newsletter.tsx": {
+    "mtime": 1779442822.8435693,
+    "ast_hash": "ebeae37765ce2372490758e80bf659a2",
+    "semantic_hash": "ebeae37765ce2372490758e80bf659a2"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\OurStory.tsx": {
+    "mtime": 1779442822.84457,
+    "ast_hash": "29a39adc531029b940375b63d6b14a65",
+    "semantic_hash": "29a39adc531029b940375b63d6b14a65"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\SpecialOffers.tsx": {
+    "mtime": 1779442822.84457,
+    "ast_hash": "ca9aab58cc98285059c9998c53e21901",
+    "semantic_hash": "ca9aab58cc98285059c9998c53e21901"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\HomeUI\\WhyChooseUs.tsx": {
+    "mtime": 1779442822.8458538,
+    "ast_hash": "b96fbed7a4cd5fde3be7668f05a71fce",
+    "semantic_hash": "b96fbed7a4cd5fde3be7668f05a71fce"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Login.tsx": {
+    "mtime": 1778669353.1478813,
+    "ast_hash": "f516ff1bcae655e27ae75489041c7f24",
+    "semantic_hash": "f516ff1bcae655e27ae75489041c7f24"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\OrderConfirmation.tsx": {
+    "mtime": 1778669353.1544077,
+    "ast_hash": "c3df1928b61fcc25398f7ee53ad71631",
+    "semantic_hash": "c3df1928b61fcc25398f7ee53ad71631"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\ProductDetails.tsx": {
+    "mtime": 1780690969.2549098,
+    "ast_hash": "7d66d2d0c99da9f6e04c4a8b5ceccdcb",
+    "semantic_hash": "7d66d2d0c99da9f6e04c4a8b5ceccdcb"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Products.tsx": {
+    "mtime": 1780930621.662154,
+    "ast_hash": "ae8d8433fc1b13ed1c4a07a87715ef96",
+    "semantic_hash": "ae8d8433fc1b13ed1c4a07a87715ef96"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Register.tsx": {
+    "mtime": 1778669353.2398612,
+    "ast_hash": "7df2a8f58cdcb3dce4f2bc0c418e22bd",
+    "semantic_hash": "7df2a8f58cdcb3dce4f2bc0c418e22bd"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\src\\views\\Wishlist.tsx": {
+    "mtime": 1780681051.4004548,
+    "ast_hash": "e2a0ff1e250d6de2ca756dbcce41790f",
+    "semantic_hash": "e2a0ff1e250d6de2ca756dbcce41790f"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\tailwind.config.js": {
+    "mtime": 1779179607.5345886,
+    "ast_hash": "f2e92cdfbafd4e42fc6e9ebe804a4a03",
+    "semantic_hash": "f2e92cdfbafd4e42fc6e9ebe804a4a03"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\tsconfig.json": {
+    "mtime": 1780290236.354442,
+    "ast_hash": "6cbba9036a98f334050b349f7430ac6a",
+    "semantic_hash": "6cbba9036a98f334050b349f7430ac6a"
+  },
+  "C:\\shalu programing\\Print Cloud\\graphify_detect.py": {
+    "mtime": 1780986935.395142,
+    "ast_hash": "b9039b246350a67b9d9ab10daa8efdaf",
+    "semantic_hash": "b9039b246350a67b9d9ab10daa8efdaf"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\AGENTS.md": {
+    "mtime": 1777540671.258818,
+    "ast_hash": "9e09241799026ac05be315a2f0b50055",
+    "semantic_hash": "9e09241799026ac05be315a2f0b50055"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\CLAUDE.md": {
+    "mtime": 1777540671.268952,
+    "ast_hash": "5c27369b226fcf2be8a6cfe52224e767",
+    "semantic_hash": "5c27369b226fcf2be8a6cfe52224e767"
+  },
+  "C:\\shalu programing\\Print Cloud\\Admin\\README.md": {
+    "mtime": 1777540671.2761648,
+    "ast_hash": "f15aaa42d5d299d091b1171097ea56ad",
+    "semantic_hash": "f15aaa42d5d299d091b1171097ea56ad"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\README.md": {
+    "mtime": 1772704726.983348,
+    "ast_hash": "3f01850e9fce601d04d6dba39204c1d8",
+    "semantic_hash": "3f01850e9fce601d04d6dba39204c1d8"
+  },
+  "C:\\shalu programing\\Print Cloud\\frontend\\lint.txt": {
+    "mtime": 1772953556.3684235,
+    "ast_hash": "1702e685b0cd8cf3c545a7930472bf10",
+    "semantic_hash": "1702e685b0cd8cf3c545a7930472bf10"
+  }
+}

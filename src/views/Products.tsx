@@ -7,7 +7,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import config from '../brand/config';
 import CategoryUI from './HomeUI/CategoryUI';
+import ProductCard from '../components/ProductCard';
 import { useShop } from '../context/ShopContext';
+import CategorySEOContent from '../components/category/CategorySEOContent';
+import CategoryFAQ from '../components/category/CategoryFAQ';
+import RelatedCategories from '../components/category/RelatedCategories';
 import { resolveImage } from '../lib/imageUtils';
 import api from '../lib/axios';
 import { 
@@ -131,156 +135,7 @@ const SubcategoryCard = memo(({ sub, isSelected, productCount, onClick }: any) =
 ));
 SubcategoryCard.displayName = 'SubcategoryCard';
 
-// ============================================================
-// PRODUCT CARD (FLIPKART/AMAZON PREMIUM MOBILE STYLE)
-// ============================================================
-const ProductCard = memo(({ 
-  prod, 
-  index, 
-  isWish, 
-  cartSuccessId,
-  onWishlistClick, 
-  onCartClick 
-}: any) => {
-  // Badge logic
-  let badgeText = null;
-  let badgeIcon = null;
-  let badgeClass = '';
-  if (prod.isBestSeller) {
-    badgeText = "Best Seller";
-    badgeIcon = <Flame size={9} className="shrink-0" />;
-    badgeClass = 'bg-gradient-to-r from-orange-500 to-red-500 text-white';
-  } else if (prod.isNewArrival) {
-    badgeText = "New";
-    badgeIcon = <Sparkles size={9} className="shrink-0" />;
-    badgeClass = 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white';
-  } else if (prod.isFeatured) {
-    badgeText = "Trending";
-    badgeIcon = <TrendingUp size={9} className="shrink-0" />;
-    badgeClass = 'bg-gradient-to-r from-purple-500 to-pink-500 text-white';
-  } else if (prod.customizable) {
-    badgeText = "Custom";
-    badgeIcon = <Palette size={9} className="shrink-0" />;
-    badgeClass = 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white';
-  }
-
-  const hasDiscount = prod.offerPrice && prod.offerPrice < prod.price;
-  const discountPercent = hasDiscount ? Math.round(((prod.price - prod.offerPrice) / prod.price) * 100) : 0;
-  const displayPrice = hasDiscount ? prod.offerPrice : prod.price;
-  const imageUrl = resolveImage(prod.coverImage || prod.primaryImage || (prod.images && prod.images[0]));
-
-  return (
-    <Link 
-      href={`/product/${prod._id}`}
-      className="animate-product-enter group bg-white dark:bg-[#1a2526] rounded-2xl border border-[var(--secondary)]/10 hover:border-[var(--secondary)]/25 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ease-out overflow-hidden flex flex-col h-full cursor-pointer relative"
-      style={{ animationDelay: `${(index % PRODUCTS_PER_PAGE) * 50}ms` }}
-    >
-      {/* ===== IMAGE ===== */}
-      <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-[#121A1B]">
-        <img 
-          src={imageUrl}
-          alt={prod.name}
-          loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-        />
-        
-        {/* Subtle bottom gradient */}
-        <div className="absolute inset-x-0 bottom-0 h-10 product-image-overlay pointer-events-none" />
-        
-        {/* Desktop hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none hidden sm:block" />
-
-        {/* Badge */}
-        {badgeText && (
-          <span className={`absolute top-1.5 left-1.5 ${badgeClass} px-1.5 py-0.5 rounded-md text-[8px] sm:text-[9px] font-bold uppercase tracking-wide z-20 shadow-sm flex items-center gap-0.5`}>
-            {badgeIcon}
-            {badgeText}
-          </span>
-        )}
-
-        {/* Discount badge */}
-        {hasDiscount && discountPercent > 0 && (
-          <span className="absolute top-1.5 right-9 sm:right-9 discount-badge px-1.5 py-0.5 rounded-md text-[8px] sm:text-[9px] z-20 shadow-sm">
-            {discountPercent}% OFF
-          </span>
-        )}
-        
-        {/* Wishlist */}
-        <button 
-          onClick={(e) => onWishlistClick(e, prod)}
-          className={`absolute top-1.5 right-1.5 w-7 h-7 sm:w-8 sm:h-8 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm transition-all duration-200 z-20
-            ${isWish 
-              ? 'bg-red-500 text-white hover:bg-red-600' 
-              : 'bg-white/90 dark:bg-black/50 text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-white'
-            }
-            active:scale-90
-          `}
-          title={isWish ? "Remove from Wishlist" : "Add to Wishlist"}
-        >
-          <Heart size={13} fill={isWish ? "currentColor" : "none"} strokeWidth={2.5} />
-        </button>
-      </div>
-      
-      {/* ===== CONTENT ===== */}
-      <div className="p-2 sm:p-2.5 flex flex-col flex-grow">
-        {/* Product Name */}
-        <h3 className="text-[10px] sm:text-[11px] font-semibold text-[var(--text)] line-clamp-2 leading-tight group-hover:text-[var(--primary)] transition-colors">
-          {prod.name}
-        </h3>
-        
-        {/* Price Section */}
-        <div className="mt-1 flex items-baseline gap-1 flex-wrap">
-          <span className="text-[13px] sm:text-sm font-extrabold text-[var(--text)]">
-            ₹{displayPrice}
-          </span>
-          {hasDiscount && (
-            <>
-              <span className="text-[9px] sm:text-[10px] font-medium text-gray-400 line-through">
-                ₹{prod.price}
-              </span>
-              <span className="text-[8px] sm:text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
-                {discountPercent}% off
-              </span>
-            </>
-          )}
-        </div>
-
-        {/* Trust Badge */}
-        <div className="mt-1">
-          <span className="trust-badge inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[7px] sm:text-[8px] font-bold">
-            <ShieldCheck size={8} className="shrink-0" />
-            Assured
-          </span>
-        </div>
-        
-        {/* Bottom: Rating + Cart */}
-        <div className="mt-auto flex items-end justify-between gap-1.5 pt-1.5 border-t border-[var(--secondary)]/5 mt-1.5">
-          <span className="inline-flex items-center gap-0.5 bg-emerald-600 text-white px-1.5 py-0.5 rounded text-[8px] sm:text-[9px] font-bold">
-            {prod.rating || "4.5"}
-            <Star size={7} className="fill-white stroke-white" />
-          </span>
-          
-          <button 
-            onClick={(e) => onCartClick(e, prod)}
-            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-sm transition-all duration-200 active:scale-90 ${
-              cartSuccessId === prod._id 
-                ? 'bg-emerald-600 text-white scale-105' 
-                : 'bg-[var(--primary)] text-white hover:opacity-90'
-            }`}
-            title="Add to Cart"
-          >
-            {cartSuccessId === prod._id ? (
-              <Check size={12} className="text-white" />
-            ) : (
-              <ShoppingBag size={11} className="text-white" />
-            )}
-          </button>
-        </div>
-      </div>
-    </Link>
-  );
-});
-ProductCard.displayName = 'ProductCard';
+// ProductCard imported from components
 
 // ============================================================
 // INFINITE SCROLL SENTINEL
@@ -327,7 +182,7 @@ ScrollSentinel.displayName = 'ScrollSentinel';
 // ============================================================
 // MAIN PRODUCTS COMPONENT
 // ============================================================
-export default function Products() {
+export default function Products({ initialCategory, initialSubcategory, initialSeoData }: { initialCategory?: any, initialSubcategory?: any, initialSeoData?: any } = {}) {
     const searchParams = useSearchParams();
     const categoryIdFromUrl = searchParams.get('categoryId');
     const subcategoryIdFromUrl = searchParams.get('subcategoryId');
@@ -340,11 +195,41 @@ export default function Products() {
     const [subcategories, setSubcategories] = useState([]);
     const [products, setProducts] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(initialCategory || null);
+    const [selectedSubcategory, setSelectedSubcategory] = useState(initialSubcategory || null);
     const [showAllProducts, setShowAllProducts] = useState(false);
     const [loading, setLoading] = useState(true);
     const [defaultBanner, setDefaultBanner] = useState(null);
+    const [seoData, setSeoData] = useState(initialSeoData || null);
+
+    // Client-side SEO details loader
+    useEffect(() => {
+        const currentCategorySlug = selectedCategory?.slug;
+        const currentSubcategorySlug = selectedSubcategory?.slug;
+        const initialCategorySlug = initialCategory?.slug;
+        const initialSubcategorySlug = initialSubcategory?.slug;
+
+        if (currentCategorySlug === initialCategorySlug && currentSubcategorySlug === initialSubcategorySlug) {
+            setSeoData(initialSeoData || null);
+            return;
+        }
+
+        const fetchSeoData = async () => {
+            const targetSlug = selectedSubcategory?.slug || selectedCategory?.slug;
+            if (!targetSlug) {
+                setSeoData(null);
+                return;
+            }
+            try {
+                const res = await api.get(`/seo/category/${targetSlug}`);
+                setSeoData(res.data);
+            } catch (err) {
+                console.error("Error fetching category SEO data:", err);
+                setSeoData(null);
+            }
+        };
+        fetchSeoData();
+    }, [selectedCategory, selectedSubcategory, initialCategory, initialSubcategory, initialSeoData]);
 
     const activeBanner = useMemo(() => {
         if (selectedSubcategory && (selectedSubcategory.bannerMedia || selectedSubcategory.bannerHeading || selectedSubcategory.bannerSubtitle)) {
@@ -404,6 +289,84 @@ export default function Products() {
 
     const dropdownRef = useRef(null);
     const chipsScrollRef = useRef(null);
+    const filterBarRef = useRef<HTMLDivElement>(null);
+    const [navbarHeight, setNavbarHeight] = useState(76);
+    const [filterBarHeight, setFilterBarHeight] = useState(88);
+    const [isDesktopOrTablet, setIsDesktopOrTablet] = useState(false);
+
+    // Active Filters List (defined here to avoid Temporal Dead Zone ReferenceError in useEffect below)
+    const activeFiltersList = useMemo(() => {
+        const list = [];
+        if (selectedCategory) list.push({ type: 'category', label: selectedCategory.name });
+        if (selectedSubcategory) list.push({ type: 'subcategory', label: `Subcategory: ${selectedSubcategory.name}` });
+        if (minPrice > 0 || maxPrice < maxPriceLimit) list.push({ type: 'price', label: `₹${minPrice} - ₹${maxPrice}` });
+        selectedUseCases.forEach(u => list.push({ type: 'useCase', label: u }));
+        selectedPrintStyles.forEach(ps => list.push({ type: 'printStyle', label: ps }));
+        selectedHighlights.forEach(h => {
+            let label = h;
+            if (h === 'featured') label = 'Featured';
+            if (h === 'bestSeller') label = 'Best Seller';
+            if (h === 'newArrival') label = 'New Arrival';
+            if (h === 'customizable') label = 'Customizable';
+            list.push({ type: 'highlight', val: h, label });
+        });
+        if (searchQuery) list.push({ type: 'search', label: `"${searchQuery}"` });
+        return list;
+    }, [selectedCategory, selectedSubcategory, minPrice, maxPrice, maxPriceLimit, selectedUseCases, selectedPrintStyles, selectedHighlights, searchQuery]);
+
+    // Measure heights and screen sizes dynamically using ResizeObserver
+    useEffect(() => {
+        let resizeObserver: ResizeObserver | null = null;
+        let navEl = document.querySelector('nav');
+        let filterBarEl = filterBarRef.current;
+
+        const setupObserver = () => {
+            if (!resizeObserver && typeof window !== 'undefined' && 'ResizeObserver' in window) {
+                resizeObserver = new ResizeObserver((entries) => {
+                    for (let entry of entries) {
+                        if (entry.target === navEl && navEl) {
+                            setNavbarHeight(navEl.offsetHeight);
+                        } else if (entry.target === filterBarEl && filterBarEl) {
+                            setFilterBarHeight(filterBarEl.offsetHeight);
+                        }
+                    }
+                });
+            }
+            if (resizeObserver) {
+                if (navEl) resizeObserver.observe(navEl);
+                if (filterBarEl) resizeObserver.observe(filterBarEl);
+            }
+        };
+
+        setupObserver();
+
+        // Fallback check if navEl was not loaded yet
+        let checkTimer = setInterval(() => {
+            const currentNav = document.querySelector('nav');
+            if (currentNav && currentNav !== navEl) {
+                if (navEl && resizeObserver) resizeObserver.unobserve(navEl);
+                navEl = currentNav;
+                setupObserver();
+                clearInterval(checkTimer);
+            }
+        }, 100);
+
+        const handleResize = () => {
+            setIsDesktopOrTablet(window.innerWidth >= 768);
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        
+        return () => {
+            clearInterval(checkTimer);
+            if (resizeObserver) {
+                resizeObserver.disconnect();
+            }
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
+    const stickyTopOffset = navbarHeight + filterBarHeight;
     
     // Reset visible count on filter changes
     useEffect(() => {
@@ -529,6 +492,19 @@ export default function Products() {
         const searchFromUrl = searchParams.get('search') || '';
         setSearchQuery(searchFromUrl);
 
+        if (initialCategory) {
+            setSelectedCategory(initialCategory);
+            if (initialSubcategory) {
+                setSelectedSubcategory(initialSubcategory);
+                setShowAllProducts(false);
+            } else if (subcategoryIdFromUrl && subcategories.length > 0) {
+                const subToSelect = subcategories.find(s => String(s._id) === String(subcategoryIdFromUrl)) || null;
+                setSelectedSubcategory(subToSelect);
+                if (subToSelect) setShowAllProducts(false);
+            }
+            return;
+        }
+
         if (categories.length > 0) {
             let catToSelect = null;
             if (categoryIdFromUrl) {
@@ -547,7 +523,7 @@ export default function Products() {
                 }
             }
         }
-    }, [categoryIdFromUrl, subcategoryIdFromUrl, searchParams, categories, subcategories]);
+    }, [categoryIdFromUrl, subcategoryIdFromUrl, searchParams, categories, subcategories, initialCategory, initialSubcategory]);
 
     // ===== FETCH PRODUCTS =====
     // KEY CHANGE: Always fetch products when a category is selected (no early return for subcategory cards)
@@ -623,22 +599,7 @@ export default function Products() {
         searchQuery
     ]);
 
-    // Active Filters
-    const activeFiltersList = [];
-    if (selectedCategory) activeFiltersList.push({ type: 'category', label: selectedCategory.name });
-    if (selectedSubcategory) activeFiltersList.push({ type: 'subcategory', label: `Subcategory: ${selectedSubcategory.name}` });
-    if (minPrice > 0 || maxPrice < maxPriceLimit) activeFiltersList.push({ type: 'price', label: `₹${minPrice} - ₹${maxPrice}` });
-    selectedUseCases.forEach(u => activeFiltersList.push({ type: 'useCase', label: u }));
-    selectedPrintStyles.forEach(ps => activeFiltersList.push({ type: 'printStyle', label: ps }));
-    selectedHighlights.forEach(h => {
-        let label = h;
-        if (h === 'featured') label = 'Featured';
-        if (h === 'bestSeller') label = 'Best Seller';
-        if (h === 'newArrival') label = 'New Arrival';
-        if (h === 'customizable') label = 'Customizable';
-        activeFiltersList.push({ type: 'highlight', val: h, label });
-    });
-    if (searchQuery) activeFiltersList.push({ type: 'search', label: `"${searchQuery}"` });
+    // Active Filters - Moved to top of component to resolve initialization ReferenceError
 
     const handleDismissFilter = (filter) => {
         if (filter.type === 'category') { setSelectedCategory(null); setSelectedSubcategory(null); setShowAllProducts(false); }
@@ -780,263 +741,18 @@ export default function Products() {
                 </div>
             </div>
 
-            {/* ========== 3. STICKY FILTER BAR ========== */}
-            <div className="sticky top-[64px] sm:top-[72px] lg:top-[80px] z-30 w-full transition-all duration-300">
-                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-14">
-                    <div className="bg-[#A7AA63]/20 dark:bg-[#121A1B]/80 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 border border-[var(--secondary)]/15 shadow-xl shadow-black/5 dark:shadow-none">
-                        
-                        {/* Desktop Filter Pills */}
-                        <div className="hidden lg:flex items-center gap-3" ref={dropdownRef}>
-                            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--primary)] mr-2">
-                                <SlidersHorizontal size={14} /> Filters:
-                            </div>
 
-                            {/* Category Dropdown */}
-                            <div className="relative">
-                                <button 
-                                    onClick={() => setActiveDropdown(activeDropdown === 'category' ? null : 'category')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${
-                                        selectedCategory 
-                                            ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' 
-                                            : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'
-                                    }`}
-                                >
-                                    Category {selectedCategory && `(${selectedCategory.name})`}
-                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'category' ? 'rotate-180' : ''}`} />
-                                </button>
-                                <AnimatePresence>
-                                    {activeDropdown === 'category' && (
-                                        <motion.div 
-                                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                            className="absolute left-0 mt-2 w-64 bg-[#fbfbf6] dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3"
-                                        >
-                                            <button 
-                                                onClick={() => { setSelectedCategory(null); setSelectedSubcategory(null); setShowAllProducts(false); setActiveDropdown(null); }}
-                                                className={`w-full text-left text-xs font-semibold px-2 py-1.5 rounded-lg flex items-center justify-between ${!selectedCategory ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}
-                                            >
-                                                <span>All Categories</span>
-                                                {!selectedCategory && <Check size={12} />}
-                                            </button>
-                                            <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar space-y-1">
-                                                {categories.map((cat) => {
-                                                    const isCatSelected = selectedCategory?._id === cat._id;
-                                                    return (
-                                                        <div key={cat._id} className="space-y-1">
-                                                            <button 
-                                                                onClick={() => { setSelectedCategory(cat); setSelectedSubcategory(null); setShowAllProducts(false); }}
-                                                                className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isCatSelected ? 'bg-[var(--primary)]/15 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}
-                                                            >
-                                                                <span>{cat.name}</span>
-                                                                {isCatSelected && <Check size={12} />}
-                                                            </button>
-                                                            {isCatSelected && subcategories.filter(s => (s.parentCategory?._id || s.parentCategory) === cat._id).length > 0 && (
-                                                                <div className="pl-4 border-l border-gray-100 dark:border-white/5 py-1 space-y-1">
-                                                                    {subcategories.filter(s => (s.parentCategory?._id || s.parentCategory) === cat._id).map(sub => {
-                                                                        const isSubSelected = selectedSubcategory?._id === sub._id;
-                                                                        return (
-                                                                            <button key={sub._id} onClick={() => { setSelectedSubcategory(sub); setShowAllProducts(false); }}
-                                                                                className={`w-full text-left text-[11px] font-semibold px-2 py-1 rounded-md flex items-center justify-between ${isSubSelected ? 'bg-[var(--primary)]/20 text-[var(--primary)] font-bold' : 'text-gray-500 hover:text-[var(--primary)] hover:bg-gray-50 dark:hover:bg-white/5'}`}
-                                                                            >
-                                                                                <span>{sub.name}</span>
-                                                                                {isSubSelected && <Check size={10} />}
-                                                                            </button>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            {/* Price Dropdown */}
-                            <div className="relative">
-                                <button onClick={() => setActiveDropdown(activeDropdown === 'price' ? null : 'price')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${minPrice > 0 || maxPrice < maxPriceLimit ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
-                                    Price {minPrice > 0 || maxPrice < maxPriceLimit ? `(₹${minPrice}-₹${maxPrice})` : ''}
-                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'price' ? 'rotate-180' : ''}`} />
-                                </button>
-                                <AnimatePresence>
-                                    {activeDropdown === 'price' && (
-                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                            className="absolute left-0 mt-2 w-72 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-5 shadow-2xl z-50 space-y-4">
-                                            <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-gray-500">
-                                                <span>Budget</span>
-                                                <button onClick={() => { setMinPrice(0); setMaxPrice(maxPriceLimit); }} className="text-[10px] text-[var(--primary)] underline lowercase">reset</button>
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <div className="flex justify-between text-xs font-bold"><span>Min: ₹{minPrice}</span><span>Max: ₹{maxPrice}</span></div>
-                                                <input type="range" min="0" max={maxPriceLimit} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="premium-range-slider" />
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            {/* Occasion Dropdown */}
-                            <div className="relative">
-                                <button onClick={() => setActiveDropdown(activeDropdown === 'useCase' ? null : 'useCase')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedUseCases.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
-                                    Occasion {selectedUseCases.length > 0 && `(${selectedUseCases.length})`}
-                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'useCase' ? 'rotate-180' : ''}`} />
-                                </button>
-                                <AnimatePresence>
-                                    {activeDropdown === 'useCase' && (
-                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
-                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
-                                                <span>Occasion</span>
-                                                {selectedUseCases.length > 0 && <button onClick={() => setSelectedUseCases([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
-                                            </div>
-                                            <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar space-y-1">
-                                                {availableUseCases.map((uc) => {
-                                                    const isChecked = selectedUseCases.includes(uc);
-                                                    return (
-                                                        <button key={uc} onClick={() => { isChecked ? setSelectedUseCases(prev => prev.filter(x => x !== uc)) : setSelectedUseCases(prev => [...prev, uc]); }}
-                                                            className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
-                                                            <span>{uc}</span>
-                                                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            {/* Print Style Dropdown */}
-                            <div className="relative">
-                                <button onClick={() => setActiveDropdown(activeDropdown === 'printStyle' ? null : 'printStyle')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedPrintStyles.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
-                                    Print Style {selectedPrintStyles.length > 0 && `(${selectedPrintStyles.length})`}
-                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'printStyle' ? 'rotate-180' : ''}`} />
-                                </button>
-                                <AnimatePresence>
-                                    {activeDropdown === 'printStyle' && (
-                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
-                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
-                                                <span>Print Technique</span>
-                                                {selectedPrintStyles.length > 0 && <button onClick={() => setSelectedPrintStyles([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
-                                            </div>
-                                            <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar space-y-1">
-                                                {availablePrintStyles.map((ps) => {
-                                                    const isChecked = selectedPrintStyles.includes(ps);
-                                                    return (
-                                                        <button key={ps} onClick={() => { isChecked ? setSelectedPrintStyles(prev => prev.filter(x => x !== ps)) : setSelectedPrintStyles(prev => [...prev, ps]); }}
-                                                            className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
-                                                            <span>{ps}</span>
-                                                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            {/* Highlights Dropdown */}
-                            <div className="relative">
-                                <button onClick={() => setActiveDropdown(activeDropdown === 'highlights' ? null : 'highlights')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedHighlights.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
-                                    Highlights {selectedHighlights.length > 0 && `(${selectedHighlights.length})`}
-                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'highlights' ? 'rotate-180' : ''}`} />
-                                </button>
-                                <AnimatePresence>
-                                    {activeDropdown === 'highlights' && (
-                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
-                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
-                                                <span>Highlights</span>
-                                                {selectedHighlights.length > 0 && <button onClick={() => setSelectedHighlights([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
-                                            </div>
-                                            {[{ id: 'featured', label: 'Featured' }, { id: 'bestSeller', label: 'Best Sellers' }, { id: 'newArrival', label: 'New Arrivals' }, { id: 'customizable', label: 'Customizable' }].map((hl) => {
-                                                const isChecked = selectedHighlights.includes(hl.id);
-                                                return (
-                                                    <button key={hl.id} onClick={() => { isChecked ? setSelectedHighlights(prev => prev.filter(x => x !== hl.id)) : setSelectedHighlights(prev => [...prev, hl.id]); }}
-                                                        className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
-                                                        <span>{hl.label}</span>
-                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
-                                                    </button>
-                                                );
-                                            })}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        </div>
-
-                        {/* Desktop Sort */}
-                        <div className="hidden lg:flex items-center gap-3 ml-auto">
-                            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}
-                                className="bg-white/60 dark:bg-white/5 text-xs font-bold px-4 py-2 rounded-full border border-[var(--secondary)]/20 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--primary)]">
-                                <option value="Popular">Popular</option>
-                                <option value="Newest">Newest</option>
-                                <option value="PriceLowToHigh">Price: Low → High</option>
-                                <option value="PriceHighToLow">Price: High → Low</option>
-                            </select>
-                        </div>
-                        
-                        {/* Mobile: Filter + Sort */}
-                        <div className="flex lg:hidden items-center gap-2 w-full">
-                            <button onClick={() => setIsMobileFilterOpen(true)}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl bg-white/60 dark:bg-white/5 border border-[var(--secondary)]/20 relative min-h-[44px] touch-manipulation">
-                                <SlidersHorizontal size={14} /><span>Filters</span>
-                                {activeFilterCount > 0 && (
-                                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[var(--primary)] text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-sm">{activeFilterCount}</span>
-                                )}
-                            </button>
-                            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}
-                                className="flex-1 bg-white/60 dark:bg-white/5 text-xs font-bold px-4 py-2.5 rounded-xl border border-[var(--secondary)]/20 cursor-pointer focus:outline-none min-h-[44px] touch-manipulation text-center">
-                                <option value="Popular">↕ Popular</option>
-                                <option value="Newest">↕ Newest</option>
-                                <option value="PriceLowToHigh">↕ Price: Low → High</option>
-                                <option value="PriceHighToLow">↕ Price: High → Low</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* ========== 4. ACTIVE FILTERS CHIPS ========== */}
-            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-14 w-full">
-                <AnimatePresence>
-                    {activeFiltersList.length > 0 && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                            className="flex items-center gap-2 py-3 overflow-x-auto no-scrollbar">
-                            <div className="flex items-center gap-1.5 shrink-0">
-                                {activeFiltersList.map((filter, idx) => (
-                                    <motion.span key={idx} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.85 }}
-                                        className="inline-flex items-center gap-1 bg-[var(--primary)]/10 text-[var(--primary)] px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold whitespace-nowrap shrink-0 min-h-[28px]">
-                                        {filter.label}
-                                        <button onClick={() => handleDismissFilter(filter)} className="ml-0.5 hover:text-red-500 transition-colors touch-manipulation"><X size={10} /></button>
-                                    </motion.span>
-                                ))}
-                            </div>
-                            <button onClick={handleClearAllFilters} className="text-[10px] sm:text-xs text-[var(--primary)] font-black hover:underline flex items-center gap-1 pl-3 border-l border-gray-300 dark:border-white/10 whitespace-nowrap shrink-0 touch-manipulation min-h-[28px]">
-                                <RotateCcw size={10} /> Reset
-                            </button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
 
             {/* ========================================================================
                 5. MAIN CONTENT — FLIPKART/AMAZON HIERARCHY
                    Title → Chips → 3-col Subcategory Cards → 2-col Products Grid
             ======================================================================== */}
-            <main className="flex-grow w-full max-w-[1400px] mx-auto px-3 sm:px-6 md:px-10 lg:px-14 py-4 sm:py-6">
+            <main className="flex-grow w-full flex flex-col" style={{ '--sticky-top': `${stickyTopOffset}px` } as any}>
                 
                 {loading && products.length === 0 ? (
                     /* ===== SKELETON STATE ===== */
-                    <div className="flex flex-col lg:flex-row gap-5 lg:gap-8 items-start">
-                        <aside className="w-full lg:w-[280px] shrink-0 hidden lg:block">
+                    <div className="w-full max-w-[1400px] mx-auto px-3 sm:px-6 md:px-10 lg:px-14 py-4 sm:py-6 flex flex-col md:flex-row gap-5 md:gap-8 items-start">
+                        <aside className="w-full md:w-[280px] shrink-0 hidden md:block" style={isDesktopOrTablet ? { width: '280px' } : {}}>
                             <div className="bg-white dark:bg-[#1a2526] p-6 rounded-[24px] border border-[var(--secondary)]/10 space-y-4">
                                 <div className="h-6 w-32 rounded skeleton-shimmer" />
                                 {[...Array(6)].map((_, i) => <div key={i} className="h-10 rounded-full skeleton-shimmer" />)}
@@ -1055,12 +771,207 @@ export default function Products() {
                         </div>
                     </div>
                 ) : (
-                    <div className="flex flex-col lg:flex-row gap-5 lg:gap-8 items-start">
+                    <>
+                        {/* Products Scroll Context Wrapper: Constrains the sticky filter bar so it doesn't stick in the next section */}
+                        <div className="w-full flex flex-col">
+                            {/* ========== 3. STICKY FILTER BAR ========== */}
+                            <div ref={filterBarRef} className="sticky z-30 w-full md:bg-[var(--bg)] md:py-3 transition-none" style={{ top: `${navbarHeight}px` }}>
+                                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-14 flex flex-col gap-2">
+                                    <div className="bg-[#A7AA63]/20 dark:bg-[#121A1B]/80 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 border border-[var(--secondary)]/15 shadow-xl shadow-black/5 dark:shadow-none">
+                                        
+                                        {/* Desktop Filter Pills */}
+                                        <div className="hidden lg:flex items-center gap-3" ref={dropdownRef}>
+                                            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--primary)] mr-2">
+                                                <SlidersHorizontal size={14} /> Filters:
+                                            </div>
+
+                                            {/* Price Dropdown */}
+                                            <div className="relative">
+                                                <button onClick={() => setActiveDropdown(activeDropdown === 'price' ? null : 'price')}
+                                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${minPrice > 0 || maxPrice < maxPriceLimit ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
+                                                    Price {minPrice > 0 || maxPrice < maxPriceLimit ? `(₹${minPrice}-₹${maxPrice})` : ''}
+                                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'price' ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                <AnimatePresence>
+                                                    {activeDropdown === 'price' && (
+                                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                                            className="absolute left-0 mt-2 w-72 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-5 shadow-2xl z-50 space-y-4">
+                                                            <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-gray-500">
+                                                                <span>Budget</span>
+                                                                <button onClick={() => { setMinPrice(0); setMaxPrice(maxPriceLimit); }} className="text-[10px] text-[var(--primary)] underline lowercase">reset</button>
+                                                            </div>
+                                                            <div className="space-y-1.5">
+                                                                <div className="flex justify-between text-xs font-bold"><span>Min: ₹{minPrice}</span><span>Max: ₹{maxPrice}</span></div>
+                                                                <input type="range" min="0" max={maxPriceLimit} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="premium-range-slider" />
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+
+                                            {/* Occasion Dropdown */}
+                                            <div className="relative">
+                                                <button onClick={() => setActiveDropdown(activeDropdown === 'useCase' ? null : 'useCase')}
+                                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedUseCases.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
+                                                    Occasion {selectedUseCases.length > 0 && `(${selectedUseCases.length})`}
+                                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'useCase' ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                <AnimatePresence>
+                                                    {activeDropdown === 'useCase' && (
+                                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
+                                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
+                                                                <span>Occasion</span>
+                                                                {selectedUseCases.length > 0 && <button onClick={() => setSelectedUseCases([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
+                                                            </div>
+                                                            <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar space-y-1">
+                                                                {availableUseCases.map((uc) => {
+                                                                    const isChecked = selectedUseCases.includes(uc);
+                                                                    return (
+                                                                        <button key={uc} onClick={() => { isChecked ? setSelectedUseCases(prev => prev.filter(x => x !== uc)) : setSelectedUseCases(prev => [...prev, uc]); }}
+                                                                            className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
+                                                                            <span>{uc}</span>
+                                                                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+
+                                            {/* Print Style Dropdown */}
+                                            <div className="relative">
+                                                <button onClick={() => setActiveDropdown(activeDropdown === 'printStyle' ? null : 'printStyle')}
+                                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedPrintStyles.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
+                                                    Print Style {selectedPrintStyles.length > 0 && `(${selectedPrintStyles.length})`}
+                                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'printStyle' ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                <AnimatePresence>
+                                                    {activeDropdown === 'printStyle' && (
+                                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
+                                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
+                                                                <span>Print Technique</span>
+                                                                {selectedPrintStyles.length > 0 && <button onClick={() => setSelectedPrintStyles([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
+                                                            </div>
+                                                            <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar space-y-1">
+                                                                {availablePrintStyles.map((ps) => {
+                                                                    const isChecked = selectedPrintStyles.includes(ps);
+                                                                    return (
+                                                                        <button key={ps} onClick={() => { isChecked ? setSelectedPrintStyles(prev => prev.filter(x => x !== ps)) : setSelectedPrintStyles(prev => [...prev, ps]); }}
+                                                                            className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
+                                                                            <span>{ps}</span>
+                                                                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+
+                                            {/* Highlights Dropdown */}
+                                            <div className="relative">
+                                                <button onClick={() => setActiveDropdown(activeDropdown === 'highlights' ? null : 'highlights')}
+                                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedHighlights.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
+                                                    Highlights {selectedHighlights.length > 0 && `(${selectedHighlights.length})`}
+                                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'highlights' ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                <AnimatePresence>
+                                                    {activeDropdown === 'highlights' && (
+                                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
+                                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
+                                                                <span>Highlights</span>
+                                                                {selectedHighlights.length > 0 && <button onClick={() => setSelectedHighlights([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
+                                                            </div>
+                                                            {[{ id: 'featured', label: 'Featured' }, { id: 'bestSeller', label: 'Best Sellers' }, { id: 'newArrival', label: 'New Arrivals' }, { id: 'customizable', label: 'Customizable' }].map((hl) => {
+                                                                const isChecked = selectedHighlights.includes(hl.id);
+                                                                return (
+                                                                    <button key={hl.id} onClick={() => { isChecked ? setSelectedHighlights(prev => prev.filter(x => x !== hl.id)) : setSelectedHighlights(prev => [...prev, hl.id]); }}
+                                                                        className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
+                                                                        <span>{hl.label}</span>
+                                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                        </div>
+
+                                        {/* Desktop Sort */}
+                                        <div className="hidden lg:flex items-center gap-3 ml-auto">
+                                            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}
+                                                className="bg-white/60 dark:bg-white/5 text-xs font-bold px-4 py-2 rounded-full border border-[var(--secondary)]/20 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--primary)]">
+                                                <option value="Popular">Popular</option>
+                                                <option value="Newest">Newest</option>
+                                                <option value="PriceLowToHigh">Price: Low → High</option>
+                                                <option value="PriceHighToLow">Price: High → Low</option>
+                                            </select>
+                                        </div>
+                                        
+                                        {/* Mobile: Filter + Sort */}
+                                        <div className="flex lg:hidden items-center gap-2 w-full">
+                                            <button onClick={() => setIsMobileFilterOpen(true)}
+                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl bg-white/60 dark:bg-white/5 border border-[var(--secondary)]/20 relative min-h-[44px] touch-manipulation">
+                                                <SlidersHorizontal size={14} /><span>Filters</span>
+                                                {activeFilterCount > 0 && (
+                                                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[var(--primary)] text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-sm">{activeFilterCount}</span>
+                                                )}
+                                            </button>
+                                            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}
+                                                className="flex-1 bg-white/60 dark:bg-white/5 text-xs font-bold px-4 py-2.5 rounded-xl border border-[var(--secondary)]/20 cursor-pointer focus:outline-none min-h-[44px] touch-manipulation text-center">
+                                                <option value="Popular">↕ Popular</option>
+                                                <option value="Newest">↕ Newest</option>
+                                                <option value="PriceLowToHigh">↕ Price: Low → High</option>
+                                                <option value="PriceHighToLow">↕ Price: High → Low</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* ========== 4. ACTIVE FILTERS CHIPS ========== */}
+                                    <AnimatePresence>
+                                        {activeFiltersList.length > 0 && (
+                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                                                className="flex items-center gap-2 py-1 overflow-x-auto no-scrollbar">
+                                                <div className="flex items-center gap-1.5 shrink-0">
+                                                    {activeFiltersList.map((filter, idx) => (
+                                                        <motion.span key={idx} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.85 }}
+                                                            className="inline-flex items-center gap-1 bg-[var(--primary)]/10 text-[var(--primary)] px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold whitespace-nowrap shrink-0 min-h-[28px]">
+                                                            {filter.label}
+                                                            <button onClick={() => handleDismissFilter(filter)} className="ml-0.5 hover:text-red-500 transition-colors touch-manipulation"><X size={10} /></button>
+                                                        </motion.span>
+                                                    ))}
+                                                </div>
+                                                <button onClick={handleClearAllFilters} className="text-[10px] sm:text-xs text-[var(--primary)] font-black hover:underline flex items-center gap-1 pl-3 border-l border-gray-300 dark:border-white/10 whitespace-nowrap shrink-0 touch-manipulation min-h-[28px]">
+                                                    <RotateCcw size={10} /> Reset
+                                                </button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            </div>
+
+                            <div className="w-full max-w-[1400px] mx-auto px-3 sm:px-6 md:px-10 lg:px-14 py-4 sm:py-6">
+                                <div className="flex flex-col md:flex-row gap-5 md:gap-8 items-start">
                         
                         {/* ===== SIDEBAR (Desktop) ===== */}
-                        <aside className="w-full lg:w-[280px] shrink-0 sticky top-[150px] bg-[#A7AA63]/25 dark:bg-[#121A1B]/60 p-6 rounded-[24px] border border-[var(--secondary)]/30 shadow-md hidden lg:block z-20">
+                        <aside
+                            data-lenis-prevent
+                            className="w-full md:w-[280px] shrink-0 hidden md:block z-20"
+                            style={{ position: 'sticky', top: `${stickyTopOffset}px`, width: isDesktopOrTablet ? '280px' : '100%' }}
+                        >
+                            <div 
+                                className="bg-[#A7AA63]/25 dark:bg-[#121A1B]/60 p-6 rounded-[24px] border border-[var(--secondary)]/30 shadow-md overflow-y-auto custom-scrollbar"
+                                style={{ maxHeight: `calc(100vh - ${stickyTopOffset}px - 24px)` }}
+                            >
                             <h3 className="text-xl font-serif font-black mb-6 uppercase tracking-wider border-b border-[var(--text)] inline-block pb-1">CATEGORIES</h3>
-                            <ul className="space-y-2 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                            <ul className="space-y-2 pr-2">
                                 <li>
                                     <button onClick={() => { setSelectedCategory(null); setSelectedSubcategory(null); setShowAllProducts(false); }}
                                         className={`w-full text-left px-4 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${!selectedCategory ? 'bg-[var(--primary)] text-white shadow-md' : 'text-[var(--text)] hover:bg-[var(--text)]/5'}`}>
@@ -1095,6 +1006,7 @@ export default function Products() {
                                     );
                                 })}
                             </ul>
+                            </div>
                         </aside>
 
                         {/* ===== RIGHT SIDE — MAIN CONTENT ===== */}
@@ -1171,67 +1083,71 @@ export default function Products() {
                                         )}
                                     </div>
                                 </div>
-                            ) : (() => {
-                                const showSubcategoryCards = categorySubs.length > 0 && !selectedSubcategory && !showAllProducts;
+                            ) : (
+                                <div className="space-y-10">
+                                    {(() => {
+                                        const showSubcategoryCards = categorySubs.length > 0 && !selectedSubcategory && !showAllProducts;
 
                                 if (showSubcategoryCards) {
                                     return (
                                         <div className="space-y-4 sm:space-y-5">
-                                            {/* Header */}
-                                            <div className="flex items-center justify-between gap-3">
-                                                <div className="flex items-center gap-2.5 min-w-0">
-                                                    <button onClick={() => { setSelectedCategory(null); setSelectedSubcategory(null); setShowAllProducts(false); }}
-                                                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-white/10 border border-[var(--secondary)]/15 flex items-center justify-center shadow-sm hover:bg-[var(--primary)] hover:text-white hover:border-[var(--primary)] transition-all active:scale-90 shrink-0 touch-manipulation">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                                                    </button>
-                                                    <div className="min-w-0">
-                                                        <h2 className="text-lg sm:text-2xl font-serif font-black uppercase tracking-tight text-[var(--text)] truncate">
-                                                            {selectedCategory.name}
-                                                        </h2>
-                                                        <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                            Select a style to browse custom products
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap shrink-0">
-                                                    {categorySubs.length} styles
-                                                </span>
-                                            </div>
-
-                                            {/* Horizontal subcategory chips */}
-                                            {categorySubs.length > 0 && (
-                                                <div className="relative -mx-3 sm:-mx-0">
-                                                    <div ref={chipsScrollRef} className="flex gap-2 overflow-x-auto px-3 sm:px-0 pb-1 no-scrollbar scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
-                                                        {/* All chip */}
-                                                        <button
-                                                            onClick={() => { setSelectedSubcategory(null); setShowAllProducts(true); }}
-                                                            className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
-                                                                showAllProducts && !selectedSubcategory
-                                                                    ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
-                                                                    : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
-                                                            }`}
-                                                        >
-                                                            All Products
+                                            <div className="space-y-4 pb-3">
+                                                {/* Header */}
+                                                <div className="flex items-center justify-between gap-3">
+                                                    <div className="flex items-center gap-2.5 min-w-0">
+                                                        <button onClick={() => { setSelectedCategory(null); setSelectedSubcategory(null); setShowAllProducts(false); }}
+                                                            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-white/10 border border-[var(--secondary)]/15 flex items-center justify-center shadow-sm hover:bg-[var(--primary)] hover:text-white hover:border-[var(--primary)] transition-all active:scale-90 shrink-0 touch-manipulation">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                                                         </button>
-                                                        {categorySubs.map((sub) => {
-                                                            const isActive = selectedSubcategory?._id === sub._id;
-                                                            return (
-                                                                <button
-                                                                    key={sub._id}
-                                                                    onClick={() => { setSelectedSubcategory(sub); setShowAllProducts(false); }}
-                                                                    className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
-                                                                        isActive
-                                                                            ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
-                                                                            : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
-                                                                    }`}
-                                                                >
-                                                                    {sub.name}
-                                                                </button>
-                                                            );
-                                                        })}
+                                                        <div className="min-w-0">
+                                                            <h2 className="text-lg sm:text-2xl font-serif font-black uppercase tracking-tight text-[var(--text)] truncate">
+                                                                {selectedCategory.name}
+                                                            </h2>
+                                                            <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                                Select a style to browse custom products
+                                                            </p>
+                                                        </div>
                                                     </div>
+                                                    <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap shrink-0">
+                                                        {categorySubs.length} styles
+                                                    </span>
                                                 </div>
-                                            )}
+
+                                                {/* Horizontal subcategory chips */}
+                                                {categorySubs.length > 0 && (
+                                                    <div className="relative -mx-3 sm:-mx-0">
+                                                        <div ref={chipsScrollRef} className="flex gap-2 overflow-x-auto px-3 sm:px-0 pb-1 no-scrollbar scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
+                                                            {/* All chip */}
+                                                            <button
+                                                                onClick={() => { setSelectedSubcategory(null); setShowAllProducts(true); }}
+                                                                className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
+                                                                    showAllProducts && !selectedSubcategory
+                                                                        ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
+                                                                        : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
+                                                                }`}
+                                                            >
+                                                                All Products
+                                                            </button>
+                                                            {categorySubs.map((sub) => {
+                                                                const isActive = selectedSubcategory?._id === sub._id;
+                                                                return (
+                                                                    <button
+                                                                        key={sub._id}
+                                                                        onClick={() => { setSelectedSubcategory(sub); setShowAllProducts(false); }}
+                                                                        className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
+                                                                            isActive
+                                                                                ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
+                                                                                : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
+                                                                        }`}
+                                                                    >
+                                                                        {sub.name}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
 
                                             {/* Subcategory Grid Cards */}
                                             <div className="flex overflow-x-auto snap-x snap-mandatory lg:grid lg:grid-cols-3 xl:grid-cols-4 lg:gap-8 gap-6 pb-6 lg:pb-0 scroll-smooth custom-scrollbar lg:overflow-x-visible pt-2">
@@ -1297,68 +1213,70 @@ export default function Products() {
                                 } else {
                                     return (
                                         <div className="space-y-4 sm:space-y-5">
-                                            {/* Category Header */}
-                                            <div className="flex items-center justify-between gap-3">
-                                                <div className="flex items-center gap-2.5 min-w-0">
-                                                    <button onClick={() => { 
-                                                        if (selectedSubcategory) {
-                                                            setSelectedSubcategory(null);
-                                                            setShowAllProducts(false);
-                                                        } else if (showAllProducts) {
-                                                            setShowAllProducts(false);
-                                                        }
-                                                    }}
-                                                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-white/10 border border-[var(--secondary)]/15 flex items-center justify-center shadow-sm hover:bg-[var(--primary)] hover:text-white hover:border-[var(--primary)] transition-all active:scale-90 shrink-0 touch-manipulation">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                                                    </button>
-                                                    <div className="min-w-0">
-                                                        <h2 className="text-lg sm:text-2xl font-serif font-black uppercase tracking-tight text-[var(--text)] truncate">
-                                                            {selectedCategory.name}
-                                                        </h2>
-                                                        <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                            {selectedSubcategory ? selectedSubcategory.name : 'All Products'}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap shrink-0">
-                                                    {products.length} items
-                                                </span>
-                                            </div>
-
-                                            {/* Horizontal subcategory chips */}
-                                            {categorySubs.length > 0 && (
-                                                <div className="relative -mx-3 sm:-mx-0">
-                                                    <div ref={chipsScrollRef} className="flex gap-2 overflow-x-auto px-3 sm:px-0 pb-1 no-scrollbar scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
-                                                        {/* All chip */}
-                                                        <button
-                                                            onClick={() => { setSelectedSubcategory(null); setShowAllProducts(true); }}
-                                                            className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
-                                                                showAllProducts && !selectedSubcategory
-                                                                    ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
-                                                                    : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
-                                                            }`}
-                                                        >
-                                                            All Products
+                                            <div className="space-y-4 pb-3">
+                                                {/* Category Header */}
+                                                <div className="flex items-center justify-between gap-3">
+                                                    <div className="flex items-center gap-2.5 min-w-0">
+                                                        <button onClick={() => { 
+                                                            if (selectedSubcategory) {
+                                                                setSelectedSubcategory(null);
+                                                                setShowAllProducts(false);
+                                                            } else if (showAllProducts) {
+                                                                setShowAllProducts(false);
+                                                            }
+                                                        }}
+                                                            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white dark:bg-white/10 border border-[var(--secondary)]/15 flex items-center justify-center shadow-sm hover:bg-[var(--primary)] hover:text-white hover:border-[var(--primary)] transition-all active:scale-90 shrink-0 touch-manipulation">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                                                         </button>
-                                                        {categorySubs.map((sub) => {
-                                                            const isActive = selectedSubcategory?._id === sub._id;
-                                                            return (
-                                                                <button
-                                                                    key={sub._id}
-                                                                    onClick={() => { setSelectedSubcategory(sub); setShowAllProducts(false); }}
-                                                                    className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
-                                                                        isActive
-                                                                            ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
-                                                                            : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
-                                                                    }`}
-                                                                >
-                                                                    {sub.name}
-                                                                </button>
-                                                            );
-                                                        })}
+                                                        <div className="min-w-0">
+                                                            <h2 className="text-lg sm:text-2xl font-serif font-black uppercase tracking-tight text-[var(--text)] truncate">
+                                                                {selectedCategory.name}
+                                                            </h2>
+                                                            <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                                {selectedSubcategory ? selectedSubcategory.name : 'All Products'}
+                                                            </p>
+                                                        </div>
                                                     </div>
+                                                    <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap shrink-0">
+                                                        {products.length} items
+                                                    </span>
                                                 </div>
-                                            )}
+
+                                                {/* Horizontal subcategory chips */}
+                                                {categorySubs.length > 0 && (
+                                                    <div className="relative -mx-3 sm:-mx-0">
+                                                        <div ref={chipsScrollRef} className="flex gap-2 overflow-x-auto px-3 sm:px-0 pb-1 no-scrollbar scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
+                                                            {/* All chip */}
+                                                            <button
+                                                                onClick={() => { setSelectedSubcategory(null); setShowAllProducts(true); }}
+                                                                className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
+                                                                    showAllProducts && !selectedSubcategory
+                                                                        ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
+                                                                        : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
+                                                                }`}
+                                                            >
+                                                                All Products
+                                                            </button>
+                                                            {categorySubs.map((sub) => {
+                                                                const isActive = selectedSubcategory?._id === sub._id;
+                                                                return (
+                                                                    <button
+                                                                        key={sub._id}
+                                                                        onClick={() => { setSelectedSubcategory(sub); setShowAllProducts(false); }}
+                                                                        className={`shrink-0 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 min-h-[36px] touch-manipulation whitespace-nowrap ${
+                                                                            isActive
+                                                                                ? 'bg-[var(--text)] text-[var(--bg)] shadow-md'
+                                                                                : 'bg-white dark:bg-white/5 text-[var(--text)] border border-[var(--secondary)]/20 hover:border-[var(--secondary)]/40'
+                                                                        }`}
+                                                                    >
+                                                                        {sub.name}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
 
                                             {/* Products Grid */}
                                             <div>
@@ -1409,12 +1327,37 @@ export default function Products() {
                                     );
                                 }
                             })()}
-                        </div>
+                            </div>
+                        )}
                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Transition Sections: Rendered directly below the grid flex container, full width inside <main> */}
+                        <div className="w-full max-w-[1400px] mx-auto px-3 sm:px-6 md:px-10 lg:px-14 pb-12">
+                            {!selectedCategory ? (
+                                <div className="mt-10 pt-10 border-t border-[var(--secondary)]/15">
+                                    <CategoryUI />
+                                </div>
+                            ) : (
+                                seoData && (
+                                    <div className="mt-10 pt-10 border-t border-[var(--secondary)]/15 space-y-10">
+                                        <CategorySEOContent entity={seoData.entity} seoContent={seoData.seoContent} />
+                                        <CategoryFAQ entity={seoData.entity} faqs={seoData.faqs} />
+                                        <RelatedCategories 
+                                            parentCategory={seoData.parentCategory} 
+                                            siblingCategories={seoData.siblingCategories} 
+                                            popularCategories={seoData.popularCategories} 
+                                        />
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    </>
                 )}
             </main>
 
-            <CategoryUI />
             <Footer />
 
             {/* ========== MOBILE FILTER DRAWER ========== */}

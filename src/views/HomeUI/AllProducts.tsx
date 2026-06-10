@@ -20,7 +20,7 @@ export default function AllProducts() {
                 
                 const formattedItems = limitedData.map(product => ({
                     image: resolveImage(product.coverImage || product.primaryImage || (product.images && product.images[0])),
-                    link: `/product/${product._id}`,
+                    link: `/product/${product.slug || product._id}`,
                     title: product.name,
                     description: `₹${product.price}`
                 }));
