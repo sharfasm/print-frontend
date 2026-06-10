@@ -26,6 +26,7 @@ export default function Cart() {
     } = useShop();
     const navigate = useRouter();
     const [couponInput, setCouponInput] = useState('');
+    const [promoExpanded, setPromoExpanded] = useState(false);
 
     if (cart.length === 0) {
         return (
@@ -117,43 +118,34 @@ export default function Cart() {
                         <div className="bg-[var(--secondary)]/5 rounded-[2rem] p-8 border border-[var(--secondary)]/10 sticky top-24">
                             <h3 className="text-2xl font-black mb-6">Order Summary</h3>
 
-                            {/* Free Shipping Progress */}
-                            {cart.length > 0 && (
-                                <div className="mb-6 bg-[var(--bg)] p-4 rounded-2xl border border-[var(--secondary)]/10">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Truck className="w-4 h-4 text-[var(--primary)] animate-pulse" />
-                                        <span className="text-xs font-black uppercase tracking-wider">
-                                            {freeShipping || cartTotal >= 999 
-                                                ? "Free Shipping Unlocked!" 
-                                                : `Add ₹${999 - cartTotal} more for Free Shipping`}
-                                        </span>
-                                    </div>
-                                    <div className="w-full bg-[var(--secondary)]/10 h-2 rounded-full overflow-hidden">
-                                        <div 
-                                            className="bg-[var(--primary)] h-full transition-all duration-500 ease-out"
-                                            style={{ width: `${freeShipping || cartTotal >= 999 ? 100 : Math.min(100, (cartTotal / 999) * 100)}%` }}
-                                        ></div>
-                                    </div>
-                                    <span className="text-[10px] opacity-60 font-medium mt-1.5 block">
-                                        Free shipping applies above ₹999 or via special coupons.
-                                    </span>
-                                </div>
-                            )}
-
-                            {/* Coupon Input Section */}
-                            <div className="mb-6">
-                                <label className="text-xs font-black uppercase tracking-wider mb-2 block">
-                                    Have a Promo Code?
-                                </label>
-                                {!appliedCoupon ? (
-                                    <div className="space-y-2">
+                            {/* Collapsible Promo Code Section */}
+                            <div className="mb-6 border-b border-[var(--secondary)]/10 pb-4">
+                                <button 
+                                    onClick={() => setPromoExpanded(!promoExpanded)} 
+                                    className="w-full flex items-center justify-between text-sm font-bold text-[var(--text)] opacity-80 hover:opacity-100 py-2 transition-all cursor-pointer"
+                                >
+                                    <span>Have a Promo Code?</span>
+                                    <svg 
+                                        xmlns="http://www.w3.org/2000/svg" 
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        strokeWidth={2.5} 
+                                        stroke="currentColor" 
+                                        className={`w-4 h-4 transition-transform duration-200 ${promoExpanded ? 'rotate-180' : ''}`}
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </button>
+                                
+                                {promoExpanded && !appliedCoupon && (
+                                    <div className="mt-3 space-y-2">
                                         <div className="flex gap-2">
                                             <input 
                                                 type="text" 
-                                                placeholder="Enter coupon code" 
+                                                placeholder="Enter code" 
                                                 value={couponInput}
                                                 onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                                                className="flex-1 bg-[var(--bg)] px-4 py-3 rounded-xl border border-[var(--secondary)]/20 focus:border-[var(--primary)]/50 focus:outline-none font-mono text-sm font-bold uppercase tracking-wider"
+                                                className="flex-1 bg-[var(--bg)] px-4 py-2.5 rounded-xl border border-[var(--secondary)]/20 focus:border-[var(--primary)]/50 focus:outline-none font-mono text-sm font-bold uppercase tracking-wider"
                                             />
                                             <button 
                                                 onClick={() => {
@@ -162,7 +154,7 @@ export default function Cart() {
                                                     }
                                                 }}
                                                 disabled={couponLoading || !couponInput.trim()}
-                                                className="bg-[var(--primary)] text-[var(--bg)] px-6 rounded-xl font-bold hover:opacity-90 active:scale-95 transition-all text-sm disabled:opacity-50"
+                                                className="bg-[var(--primary)] text-[var(--bg)] px-5 rounded-xl font-bold hover:opacity-90 active:scale-95 transition-all text-sm disabled:opacity-50 cursor-pointer"
                                             >
                                                 {couponLoading ? "Applying..." : "Apply"}
                                             </button>
@@ -173,16 +165,18 @@ export default function Cart() {
                                             </p>
                                         )}
                                     </div>
-                                ) : (
-                                    <div className="flex items-center justify-between bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 p-3 rounded-xl">
+                                )}
+
+                                {appliedCoupon && (
+                                    <div className="mt-3 flex items-center justify-between bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 p-3.5 rounded-xl">
                                         <div className="flex items-center gap-2">
-                                            <Tag className="w-4 h-4 animate-bounce" />
+                                            <Tag className="w-4 h-4" />
                                             <div>
-                                                <p className="font-mono text-xs font-black tracking-wider uppercase">
-                                                    {appliedCoupon.code}
+                                                <p className="text-xs font-bold tracking-wider uppercase flex items-center gap-1">
+                                                    Coupon Applied ✓
                                                 </p>
                                                 <p className="text-[10px] font-medium opacity-80">
-                                                    ₹{couponDiscount} Saved
+                                                    Code: {appliedCoupon.code} (-₹{couponDiscount} Saved)
                                                 </p>
                                             </div>
                                         </div>
@@ -191,25 +185,25 @@ export default function Cart() {
                                                 removeCoupon();
                                                 setCouponInput('');
                                             }}
-                                            className="p-1 hover:bg-green-500/20 rounded-lg transition-colors"
+                                            className="text-xs font-bold text-red-500 hover:text-red-600 hover:underline px-2 py-1 transition-colors cursor-pointer"
                                             title="Remove coupon"
                                         >
-                                            <X className="w-4 h-4" />
+                                            Remove Coupon
                                         </button>
                                     </div>
                                 )}
                             </div>
                             
                             <div className="space-y-4 mb-6">
-                                <div className="flex justify-between opacity-80 font-medium">
+                                <div className="flex justify-between text-sm text-[var(--text)] opacity-80 font-medium">
                                     <span>Subtotal ({cart.reduce((a,c) => a + c.quantity, 0)} items)</span>
                                     <span>₹{cartTotal}</span>
                                 </div>
-                                <div className="flex justify-between text-green-600 dark:text-green-400 font-medium">
+                                <div className="flex justify-between text-sm text-green-600 dark:text-green-400 font-medium">
                                     <span>Discount</span>
-                                    <span>- ₹{couponDiscount}</span>
+                                    <span>- ₹{couponDiscount || 0}</span>
                                 </div>
-                                <div className="flex justify-between opacity-80 font-medium">
+                                <div className="flex justify-between text-sm text-[var(--text)] opacity-80 font-medium">
                                     <span>Shipping</span>
                                     <span>
                                         {freeShipping || cartTotal >= 999 ? (
@@ -222,7 +216,7 @@ export default function Cart() {
                                     </span>
                                 </div>
                                 <hr className="border-[var(--secondary)]/10 my-4" />
-                                <div className="flex justify-between text-2xl font-black">
+                                <div className="flex justify-between text-xl md:text-2xl font-black text-[var(--text)] tracking-tight">
                                     <span>Total</span>
                                     <span className="text-[var(--primary)]">₹{Math.max(0, cartTotal - couponDiscount)}</span>
                                 </div>
@@ -230,11 +224,14 @@ export default function Cart() {
 
                             <button 
                                 onClick={() => navigate.push('/checkout')}
-                                className="w-full bg-[var(--primary)] text-[var(--bg)] font-bold py-4 rounded-xl shadow-lg hover:opacity-90 transition-opacity mb-4 text-lg"
+                                className="w-full bg-[var(--primary)] text-[var(--bg)] font-extrabold py-4 rounded-2xl shadow-xl hover:opacity-95 active:scale-[0.99] transition-all mb-4 text-lg uppercase tracking-wider cursor-pointer"
                             >
                                 Proceed to Checkout
                             </button>
-                            <p className="text-center text-xs opacity-60 font-medium">Taxes and shipping computed at checkout. Secured Encrypted Connection.</p>
+                            <div className="flex items-center justify-center gap-1.5 text-xs opacity-60 font-semibold tracking-wide mt-2">
+                                <span>🔒</span>
+                                <span>Secure Checkout</span>
+                            </div>
                         </div>
                     </div>
                 </div>

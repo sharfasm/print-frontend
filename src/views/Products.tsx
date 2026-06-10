@@ -741,260 +741,17 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                 </div>
             </div>
 
-            {/* ========== 3. STICKY FILTER BAR ========== */}
-            <div ref={filterBarRef} className="sticky z-30 w-full md:bg-[var(--bg)] md:py-3 transition-none" style={{ top: `${navbarHeight}px` }}>
-                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-14 flex flex-col gap-2">
-                    <div className="bg-[#A7AA63]/20 dark:bg-[#121A1B]/80 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 border border-[var(--secondary)]/15 shadow-xl shadow-black/5 dark:shadow-none">
-                        
-                        {/* Desktop Filter Pills */}
-                        <div className="hidden lg:flex items-center gap-3" ref={dropdownRef}>
-                            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--primary)] mr-2">
-                                <SlidersHorizontal size={14} /> Filters:
-                            </div>
 
-                            {/* Category Dropdown */}
-                            <div className="relative">
-                                <button 
-                                    onClick={() => setActiveDropdown(activeDropdown === 'category' ? null : 'category')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${
-                                        selectedCategory 
-                                            ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' 
-                                            : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'
-                                    }`}
-                                >
-                                    Category {selectedCategory && `(${selectedCategory.name})`}
-                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'category' ? 'rotate-180' : ''}`} />
-                                </button>
-                                <AnimatePresence>
-                                    {activeDropdown === 'category' && (
-                                        <motion.div 
-                                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                            className="absolute left-0 mt-2 w-64 bg-[#fbfbf6] dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3"
-                                        >
-                                            <button 
-                                                onClick={() => { setSelectedCategory(null); setSelectedSubcategory(null); setShowAllProducts(false); setActiveDropdown(null); }}
-                                                className={`w-full text-left text-xs font-semibold px-2 py-1.5 rounded-lg flex items-center justify-between ${!selectedCategory ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}
-                                            >
-                                                <span>All Categories</span>
-                                                {!selectedCategory && <Check size={12} />}
-                                            </button>
-                                            <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar space-y-1">
-                                                {categories.map((cat) => {
-                                                    const isCatSelected = selectedCategory?._id === cat._id;
-                                                    return (
-                                                        <div key={cat._id} className="space-y-1">
-                                                            <button 
-                                                                onClick={() => { setSelectedCategory(cat); setSelectedSubcategory(null); setShowAllProducts(false); }}
-                                                                className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isCatSelected ? 'bg-[var(--primary)]/15 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}
-                                                            >
-                                                                <span>{cat.name}</span>
-                                                                {isCatSelected && <Check size={12} />}
-                                                            </button>
-                                                            {isCatSelected && subcategories.filter(s => (s.parentCategory?._id || s.parentCategory) === cat._id).length > 0 && (
-                                                                <div className="pl-4 border-l border-gray-100 dark:border-white/5 py-1 space-y-1">
-                                                                    {subcategories.filter(s => (s.parentCategory?._id || s.parentCategory) === cat._id).map(sub => {
-                                                                        const isSubSelected = selectedSubcategory?._id === sub._id;
-                                                                        return (
-                                                                            <button key={sub._id} onClick={() => { setSelectedSubcategory(sub); setShowAllProducts(false); }}
-                                                                                className={`w-full text-left text-[11px] font-semibold px-2 py-1 rounded-md flex items-center justify-between ${isSubSelected ? 'bg-[var(--primary)]/20 text-[var(--primary)] font-bold' : 'text-gray-500 hover:text-[var(--primary)] hover:bg-gray-50 dark:hover:bg-white/5'}`}
-                                                                            >
-                                                                                <span>{sub.name}</span>
-                                                                                {isSubSelected && <Check size={10} />}
-                                                                            </button>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            {/* Price Dropdown */}
-                            <div className="relative">
-                                <button onClick={() => setActiveDropdown(activeDropdown === 'price' ? null : 'price')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${minPrice > 0 || maxPrice < maxPriceLimit ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
-                                    Price {minPrice > 0 || maxPrice < maxPriceLimit ? `(₹${minPrice}-₹${maxPrice})` : ''}
-                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'price' ? 'rotate-180' : ''}`} />
-                                </button>
-                                <AnimatePresence>
-                                    {activeDropdown === 'price' && (
-                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                            className="absolute left-0 mt-2 w-72 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-5 shadow-2xl z-50 space-y-4">
-                                            <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-gray-500">
-                                                <span>Budget</span>
-                                                <button onClick={() => { setMinPrice(0); setMaxPrice(maxPriceLimit); }} className="text-[10px] text-[var(--primary)] underline lowercase">reset</button>
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <div className="flex justify-between text-xs font-bold"><span>Min: ₹{minPrice}</span><span>Max: ₹{maxPrice}</span></div>
-                                                <input type="range" min="0" max={maxPriceLimit} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="premium-range-slider" />
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            {/* Occasion Dropdown */}
-                            <div className="relative">
-                                <button onClick={() => setActiveDropdown(activeDropdown === 'useCase' ? null : 'useCase')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedUseCases.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
-                                    Occasion {selectedUseCases.length > 0 && `(${selectedUseCases.length})`}
-                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'useCase' ? 'rotate-180' : ''}`} />
-                                </button>
-                                <AnimatePresence>
-                                    {activeDropdown === 'useCase' && (
-                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
-                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
-                                                <span>Occasion</span>
-                                                {selectedUseCases.length > 0 && <button onClick={() => setSelectedUseCases([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
-                                            </div>
-                                            <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar space-y-1">
-                                                {availableUseCases.map((uc) => {
-                                                    const isChecked = selectedUseCases.includes(uc);
-                                                    return (
-                                                        <button key={uc} onClick={() => { isChecked ? setSelectedUseCases(prev => prev.filter(x => x !== uc)) : setSelectedUseCases(prev => [...prev, uc]); }}
-                                                            className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
-                                                            <span>{uc}</span>
-                                                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            {/* Print Style Dropdown */}
-                            <div className="relative">
-                                <button onClick={() => setActiveDropdown(activeDropdown === 'printStyle' ? null : 'printStyle')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedPrintStyles.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
-                                    Print Style {selectedPrintStyles.length > 0 && `(${selectedPrintStyles.length})`}
-                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'printStyle' ? 'rotate-180' : ''}`} />
-                                </button>
-                                <AnimatePresence>
-                                    {activeDropdown === 'printStyle' && (
-                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
-                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
-                                                <span>Print Technique</span>
-                                                {selectedPrintStyles.length > 0 && <button onClick={() => setSelectedPrintStyles([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
-                                            </div>
-                                            <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar space-y-1">
-                                                {availablePrintStyles.map((ps) => {
-                                                    const isChecked = selectedPrintStyles.includes(ps);
-                                                    return (
-                                                        <button key={ps} onClick={() => { isChecked ? setSelectedPrintStyles(prev => prev.filter(x => x !== ps)) : setSelectedPrintStyles(prev => [...prev, ps]); }}
-                                                            className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
-                                                            <span>{ps}</span>
-                                                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            {/* Highlights Dropdown */}
-                            <div className="relative">
-                                <button onClick={() => setActiveDropdown(activeDropdown === 'highlights' ? null : 'highlights')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedHighlights.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
-                                    Highlights {selectedHighlights.length > 0 && `(${selectedHighlights.length})`}
-                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'highlights' ? 'rotate-180' : ''}`} />
-                                </button>
-                                <AnimatePresence>
-                                    {activeDropdown === 'highlights' && (
-                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
-                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
-                                                <span>Highlights</span>
-                                                {selectedHighlights.length > 0 && <button onClick={() => setSelectedHighlights([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
-                                            </div>
-                                            {[{ id: 'featured', label: 'Featured' }, { id: 'bestSeller', label: 'Best Sellers' }, { id: 'newArrival', label: 'New Arrivals' }, { id: 'customizable', label: 'Customizable' }].map((hl) => {
-                                                const isChecked = selectedHighlights.includes(hl.id);
-                                                return (
-                                                    <button key={hl.id} onClick={() => { isChecked ? setSelectedHighlights(prev => prev.filter(x => x !== hl.id)) : setSelectedHighlights(prev => [...prev, hl.id]); }}
-                                                        className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
-                                                        <span>{hl.label}</span>
-                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
-                                                    </button>
-                                                );
-                                            })}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        </div>
-
-                        {/* Desktop Sort */}
-                        <div className="hidden lg:flex items-center gap-3 ml-auto">
-                            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}
-                                className="bg-white/60 dark:bg-white/5 text-xs font-bold px-4 py-2 rounded-full border border-[var(--secondary)]/20 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--primary)]">
-                                <option value="Popular">Popular</option>
-                                <option value="Newest">Newest</option>
-                                <option value="PriceLowToHigh">Price: Low → High</option>
-                                <option value="PriceHighToLow">Price: High → Low</option>
-                            </select>
-                        </div>
-                        
-                        {/* Mobile: Filter + Sort */}
-                        <div className="flex lg:hidden items-center gap-2 w-full">
-                            <button onClick={() => setIsMobileFilterOpen(true)}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl bg-white/60 dark:bg-white/5 border border-[var(--secondary)]/20 relative min-h-[44px] touch-manipulation">
-                                <SlidersHorizontal size={14} /><span>Filters</span>
-                                {activeFilterCount > 0 && (
-                                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[var(--primary)] text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-sm">{activeFilterCount}</span>
-                                )}
-                            </button>
-                            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}
-                                className="flex-1 bg-white/60 dark:bg-white/5 text-xs font-bold px-4 py-2.5 rounded-xl border border-[var(--secondary)]/20 cursor-pointer focus:outline-none min-h-[44px] touch-manipulation text-center">
-                                <option value="Popular">↕ Popular</option>
-                                <option value="Newest">↕ Newest</option>
-                                <option value="PriceLowToHigh">↕ Price: Low → High</option>
-                                <option value="PriceHighToLow">↕ Price: High → Low</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* ========== 4. ACTIVE FILTERS CHIPS ========== */}
-                    <AnimatePresence>
-                        {activeFiltersList.length > 0 && (
-                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                                className="flex items-center gap-2 py-1 overflow-x-auto no-scrollbar">
-                                <div className="flex items-center gap-1.5 shrink-0">
-                                    {activeFiltersList.map((filter, idx) => (
-                                        <motion.span key={idx} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.85 }}
-                                            className="inline-flex items-center gap-1 bg-[var(--primary)]/10 text-[var(--primary)] px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold whitespace-nowrap shrink-0 min-h-[28px]">
-                                            {filter.label}
-                                            <button onClick={() => handleDismissFilter(filter)} className="ml-0.5 hover:text-red-500 transition-colors touch-manipulation"><X size={10} /></button>
-                                        </motion.span>
-                                    ))}
-                                </div>
-                                <button onClick={handleClearAllFilters} className="text-[10px] sm:text-xs text-[var(--primary)] font-black hover:underline flex items-center gap-1 pl-3 border-l border-gray-300 dark:border-white/10 whitespace-nowrap shrink-0 touch-manipulation min-h-[28px]">
-                                    <RotateCcw size={10} /> Reset
-                                </button>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </div>
 
             {/* ========================================================================
                 5. MAIN CONTENT — FLIPKART/AMAZON HIERARCHY
                    Title → Chips → 3-col Subcategory Cards → 2-col Products Grid
             ======================================================================== */}
-            <main className="flex-grow w-full max-w-[1400px] mx-auto px-3 sm:px-6 md:px-10 lg:px-14 py-4 sm:py-6" style={{ '--sticky-top': `${stickyTopOffset}px` } as any}>
+            <main className="flex-grow w-full flex flex-col" style={{ '--sticky-top': `${stickyTopOffset}px` } as any}>
                 
                 {loading && products.length === 0 ? (
                     /* ===== SKELETON STATE ===== */
-                    <div className="flex flex-col md:flex-row gap-5 md:gap-8 items-start">
+                    <div className="w-full max-w-[1400px] mx-auto px-3 sm:px-6 md:px-10 lg:px-14 py-4 sm:py-6 flex flex-col md:flex-row gap-5 md:gap-8 items-start">
                         <aside className="w-full md:w-[280px] shrink-0 hidden md:block" style={isDesktopOrTablet ? { width: '280px' } : {}}>
                             <div className="bg-white dark:bg-[#1a2526] p-6 rounded-[24px] border border-[var(--secondary)]/10 space-y-4">
                                 <div className="h-6 w-32 rounded skeleton-shimmer" />
@@ -1014,7 +771,194 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                         </div>
                     </div>
                 ) : (
-                    <div className="flex flex-col md:flex-row gap-5 md:gap-8 items-start">
+                    <>
+                        {/* Products Scroll Context Wrapper: Constrains the sticky filter bar so it doesn't stick in the next section */}
+                        <div className="w-full flex flex-col">
+                            {/* ========== 3. STICKY FILTER BAR ========== */}
+                            <div ref={filterBarRef} className="sticky z-30 w-full md:bg-[var(--bg)] md:py-3 transition-none" style={{ top: `${navbarHeight}px` }}>
+                                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 lg:px-14 flex flex-col gap-2">
+                                    <div className="bg-[#A7AA63]/20 dark:bg-[#121A1B]/80 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 border border-[var(--secondary)]/15 shadow-xl shadow-black/5 dark:shadow-none">
+                                        
+                                        {/* Desktop Filter Pills */}
+                                        <div className="hidden lg:flex items-center gap-3" ref={dropdownRef}>
+                                            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--primary)] mr-2">
+                                                <SlidersHorizontal size={14} /> Filters:
+                                            </div>
+
+                                            {/* Price Dropdown */}
+                                            <div className="relative">
+                                                <button onClick={() => setActiveDropdown(activeDropdown === 'price' ? null : 'price')}
+                                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${minPrice > 0 || maxPrice < maxPriceLimit ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
+                                                    Price {minPrice > 0 || maxPrice < maxPriceLimit ? `(₹${minPrice}-₹${maxPrice})` : ''}
+                                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'price' ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                <AnimatePresence>
+                                                    {activeDropdown === 'price' && (
+                                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                                            className="absolute left-0 mt-2 w-72 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-5 shadow-2xl z-50 space-y-4">
+                                                            <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-gray-500">
+                                                                <span>Budget</span>
+                                                                <button onClick={() => { setMinPrice(0); setMaxPrice(maxPriceLimit); }} className="text-[10px] text-[var(--primary)] underline lowercase">reset</button>
+                                                            </div>
+                                                            <div className="space-y-1.5">
+                                                                <div className="flex justify-between text-xs font-bold"><span>Min: ₹{minPrice}</span><span>Max: ₹{maxPrice}</span></div>
+                                                                <input type="range" min="0" max={maxPriceLimit} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="premium-range-slider" />
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+
+                                            {/* Occasion Dropdown */}
+                                            <div className="relative">
+                                                <button onClick={() => setActiveDropdown(activeDropdown === 'useCase' ? null : 'useCase')}
+                                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedUseCases.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
+                                                    Occasion {selectedUseCases.length > 0 && `(${selectedUseCases.length})`}
+                                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'useCase' ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                <AnimatePresence>
+                                                    {activeDropdown === 'useCase' && (
+                                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
+                                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
+                                                                <span>Occasion</span>
+                                                                {selectedUseCases.length > 0 && <button onClick={() => setSelectedUseCases([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
+                                                            </div>
+                                                            <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar space-y-1">
+                                                                {availableUseCases.map((uc) => {
+                                                                    const isChecked = selectedUseCases.includes(uc);
+                                                                    return (
+                                                                        <button key={uc} onClick={() => { isChecked ? setSelectedUseCases(prev => prev.filter(x => x !== uc)) : setSelectedUseCases(prev => [...prev, uc]); }}
+                                                                            className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
+                                                                            <span>{uc}</span>
+                                                                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+
+                                            {/* Print Style Dropdown */}
+                                            <div className="relative">
+                                                <button onClick={() => setActiveDropdown(activeDropdown === 'printStyle' ? null : 'printStyle')}
+                                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedPrintStyles.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
+                                                    Print Style {selectedPrintStyles.length > 0 && `(${selectedPrintStyles.length})`}
+                                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'printStyle' ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                <AnimatePresence>
+                                                    {activeDropdown === 'printStyle' && (
+                                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
+                                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
+                                                                <span>Print Technique</span>
+                                                                {selectedPrintStyles.length > 0 && <button onClick={() => setSelectedPrintStyles([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
+                                                            </div>
+                                                            <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar space-y-1">
+                                                                {availablePrintStyles.map((ps) => {
+                                                                    const isChecked = selectedPrintStyles.includes(ps);
+                                                                    return (
+                                                                        <button key={ps} onClick={() => { isChecked ? setSelectedPrintStyles(prev => prev.filter(x => x !== ps)) : setSelectedPrintStyles(prev => [...prev, ps]); }}
+                                                                            className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
+                                                                            <span>{ps}</span>
+                                                                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+
+                                            {/* Highlights Dropdown */}
+                                            <div className="relative">
+                                                <button onClick={() => setActiveDropdown(activeDropdown === 'highlights' ? null : 'highlights')}
+                                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 cursor-pointer ${selectedHighlights.length > 0 ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--bg)]' : 'bg-white/40 dark:bg-white/5 border-[var(--secondary)]/30 hover:border-[var(--secondary)]'}`}>
+                                                    Highlights {selectedHighlights.length > 0 && `(${selectedHighlights.length})`}
+                                                    <ChevronDown size={14} className={`transition-transform duration-300 ${activeDropdown === 'highlights' ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                <AnimatePresence>
+                                                    {activeDropdown === 'highlights' && (
+                                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                                            className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#121A1B] border border-[var(--secondary)]/25 rounded-2xl p-4 shadow-2xl z-50 space-y-3">
+                                                            <div className="flex justify-between items-center text-xs font-bold uppercase text-gray-500">
+                                                                <span>Highlights</span>
+                                                                {selectedHighlights.length > 0 && <button onClick={() => setSelectedHighlights([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
+                                                            </div>
+                                                            {[{ id: 'featured', label: 'Featured' }, { id: 'bestSeller', label: 'Best Sellers' }, { id: 'newArrival', label: 'New Arrivals' }, { id: 'customizable', label: 'Customizable' }].map((hl) => {
+                                                                const isChecked = selectedHighlights.includes(hl.id);
+                                                                return (
+                                                                    <button key={hl.id} onClick={() => { isChecked ? setSelectedHighlights(prev => prev.filter(x => x !== hl.id)) : setSelectedHighlights(prev => [...prev, hl.id]); }}
+                                                                        className={`w-full text-left text-xs font-bold px-2 py-1.5 rounded-lg flex items-center justify-between ${isChecked ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}>
+                                                                        <span>{hl.label}</span>
+                                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${isChecked ? 'bg-[var(--primary)] border-[var(--primary)] text-white' : 'border-gray-300'}`}>{isChecked && <Check size={10} />}</div>
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                        </div>
+
+                                        {/* Desktop Sort */}
+                                        <div className="hidden lg:flex items-center gap-3 ml-auto">
+                                            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}
+                                                className="bg-white/60 dark:bg-white/5 text-xs font-bold px-4 py-2 rounded-full border border-[var(--secondary)]/20 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--primary)]">
+                                                <option value="Popular">Popular</option>
+                                                <option value="Newest">Newest</option>
+                                                <option value="PriceLowToHigh">Price: Low → High</option>
+                                                <option value="PriceHighToLow">Price: High → Low</option>
+                                            </select>
+                                        </div>
+                                        
+                                        {/* Mobile: Filter + Sort */}
+                                        <div className="flex lg:hidden items-center gap-2 w-full">
+                                            <button onClick={() => setIsMobileFilterOpen(true)}
+                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl bg-white/60 dark:bg-white/5 border border-[var(--secondary)]/20 relative min-h-[44px] touch-manipulation">
+                                                <SlidersHorizontal size={14} /><span>Filters</span>
+                                                {activeFilterCount > 0 && (
+                                                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[var(--primary)] text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-sm">{activeFilterCount}</span>
+                                                )}
+                                            </button>
+                                            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}
+                                                className="flex-1 bg-white/60 dark:bg-white/5 text-xs font-bold px-4 py-2.5 rounded-xl border border-[var(--secondary)]/20 cursor-pointer focus:outline-none min-h-[44px] touch-manipulation text-center">
+                                                <option value="Popular">↕ Popular</option>
+                                                <option value="Newest">↕ Newest</option>
+                                                <option value="PriceLowToHigh">↕ Price: Low → High</option>
+                                                <option value="PriceHighToLow">↕ Price: High → Low</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* ========== 4. ACTIVE FILTERS CHIPS ========== */}
+                                    <AnimatePresence>
+                                        {activeFiltersList.length > 0 && (
+                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                                                className="flex items-center gap-2 py-1 overflow-x-auto no-scrollbar">
+                                                <div className="flex items-center gap-1.5 shrink-0">
+                                                    {activeFiltersList.map((filter, idx) => (
+                                                        <motion.span key={idx} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.85 }}
+                                                            className="inline-flex items-center gap-1 bg-[var(--primary)]/10 text-[var(--primary)] px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold whitespace-nowrap shrink-0 min-h-[28px]">
+                                                            {filter.label}
+                                                            <button onClick={() => handleDismissFilter(filter)} className="ml-0.5 hover:text-red-500 transition-colors touch-manipulation"><X size={10} /></button>
+                                                        </motion.span>
+                                                    ))}
+                                                </div>
+                                                <button onClick={handleClearAllFilters} className="text-[10px] sm:text-xs text-[var(--primary)] font-black hover:underline flex items-center gap-1 pl-3 border-l border-gray-300 dark:border-white/10 whitespace-nowrap shrink-0 touch-manipulation min-h-[28px]">
+                                                    <RotateCcw size={10} /> Reset
+                                                </button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            </div>
+
+                            <div className="w-full max-w-[1400px] mx-auto px-3 sm:px-6 md:px-10 lg:px-14 py-4 sm:py-6">
+                                <div className="flex flex-col md:flex-row gap-5 md:gap-8 items-start">
                         
                         {/* ===== SIDEBAR (Desktop) ===== */}
                         <aside
@@ -1137,11 +1081,6 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                                                 <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Showing all {products.length} products</p>
                                             </div>
                                         )}
-                                    </div>
-                                    
-                                    {/* Product Categories Section (Root Page Transition) */}
-                                    <div className="pt-6 border-t border-[var(--secondary)]/15">
-                                        <CategoryUI />
                                     </div>
                                 </div>
                             ) : (
@@ -1388,24 +1327,35 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                                     );
                                 }
                             })()}
-
-                            {/* Category/Subcategory page → FAQ & SEO Section */}
-                            {seoData && (
-                                <div className="pt-6 border-t border-[var(--secondary)]/15">
-                                    <CategorySEOContent entity={seoData.entity} seoContent={seoData.seoContent} />
-                                    <CategoryFAQ entity={seoData.entity} faqs={seoData.faqs} />
-                                    <RelatedCategories 
-                                        parentCategory={seoData.parentCategory} 
-                                        siblingCategories={seoData.siblingCategories} 
-                                        popularCategories={seoData.popularCategories} 
-                                    />
-                                </div>
-                            )}
                             </div>
                         )}
                     </div>
-                </div>
-            )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Transition Sections: Rendered directly below the grid flex container, full width inside <main> */}
+                        <div className="w-full max-w-[1400px] mx-auto px-3 sm:px-6 md:px-10 lg:px-14 pb-12">
+                            {!selectedCategory ? (
+                                <div className="mt-10 pt-10 border-t border-[var(--secondary)]/15">
+                                    <CategoryUI />
+                                </div>
+                            ) : (
+                                seoData && (
+                                    <div className="mt-10 pt-10 border-t border-[var(--secondary)]/15 space-y-10">
+                                        <CategorySEOContent entity={seoData.entity} seoContent={seoData.seoContent} />
+                                        <CategoryFAQ entity={seoData.entity} faqs={seoData.faqs} />
+                                        <RelatedCategories 
+                                            parentCategory={seoData.parentCategory} 
+                                            siblingCategories={seoData.siblingCategories} 
+                                            popularCategories={seoData.popularCategories} 
+                                        />
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    </>
+                )}
             </main>
 
             <Footer />

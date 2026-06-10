@@ -37,7 +37,14 @@ export default function Checkout() {
         removeCoupon
     } = useShop();
     const [couponInput, setCouponInput] = useState('');
+    const [promoExpanded, setPromoExpanded] = useState(!!appliedCoupon);
     const { user } = useAuth();
+
+    useEffect(() => {
+        if (appliedCoupon) {
+            setPromoExpanded(true);
+        }
+    }, [appliedCoupon]);
     const navigate = useRouter();
 
     // Derived checkout items
@@ -653,58 +660,86 @@ export default function Checkout() {
  
                         <hr className="border-[var(--secondary)]/10 my-6" />
 
-                        {/* Coupon Code Selection & Input Section */}
-                        <div className="mb-6 bg-[var(--bg)] border border-[var(--secondary)]/15 p-4 rounded-2xl shadow-sm">
-                            <label className="text-[10px] font-black uppercase tracking-[0.15em] opacity-65 mb-2.5 block text-[var(--primary)]">
-                                Apply Coupon / Promo Code
-                            </label>
-                            {!appliedCoupon ? (
-                                <div className="space-y-2.5">
-                                    <div className="flex gap-2">
-                                        <input 
-                                            type="text" 
-                                            placeholder="ENTER PROMO CODE" 
-                                            value={couponInput}
-                                            onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                                            className="flex-1 bg-[var(--bg)] px-4 py-2.5 rounded-xl border border-[var(--secondary)]/20 focus:border-[var(--primary)]/50 focus:outline-none font-mono text-xs font-bold uppercase tracking-wider transition-all"
-                                        />
-                                        <button 
-                                            onClick={() => {
-                                                if (couponInput.trim()) {
-                                                    applyCouponCode(couponInput.trim(), checkoutTotal);
-                                                }
-                                            }}
-                                            disabled={couponLoading || !couponInput.trim()}
-                                            className="bg-[var(--primary)] text-[var(--bg)] px-4 rounded-xl font-bold hover:opacity-90 active:scale-95 transition-all text-xs disabled:opacity-50 uppercase tracking-widest shrink-0 cursor-pointer"
-                                        >
-                                            {couponLoading ? "Applying..." : "Apply"}
-                                        </button>
-                                    </div>
-                                    {couponError && (
-                                        <p className="text-red-500 text-xs font-semibold flex items-center gap-1 mt-2.5">
-                                            <span>⚠️</span> {couponError}
-                                        </p>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="flex items-center justify-between bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 p-3.5 rounded-xl">
-                                    <div className="flex items-center gap-2.5">
-                                        <div className="w-6.5 h-6.5 bg-green-500/20 rounded-full flex items-center justify-center">
-                                            <CheckCircle2 size={13} className="text-green-600 dark:text-green-400" />
+                        {/* Collapsible Promo Code Section */}
+                        <div className="mb-6 border-b border-[var(--secondary)]/10 pb-4">
+                            <button 
+                                onClick={() => setPromoExpanded(!promoExpanded)} 
+                                className="w-full flex items-center justify-between text-sm font-bold text-[var(--text)] opacity-80 hover:opacity-100 py-2 transition-all cursor-pointer"
+                            >
+                                <span>Have a Promo Code?</span>
+                                <svg 
+                                    xmlns="http://www.w3.org/2000/svg" 
+                                    fill="none" 
+                                    viewBox="0 0 24 24" 
+                                    strokeWidth={2.5} 
+                                    stroke="currentColor" 
+                                    className={`w-4 h-4 transition-transform duration-200 ${promoExpanded ? 'rotate-180' : ''}`}
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
+                            
+                            <div 
+                                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                    promoExpanded ? 'max-h-48 opacity-100 mt-3' : 'max-h-0 opacity-0 pointer-events-none'
+                                }`}
+                            >
+                                {!appliedCoupon ? (
+                                    <div className="space-y-2 pb-2">
+                                        <div className="flex gap-2">
+                                            <input 
+                                                type="text" 
+                                                placeholder="Enter code" 
+                                                value={couponInput}
+                                                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                                                className="flex-1 bg-[var(--bg)] px-4 py-2.5 rounded-xl border border-[var(--secondary)]/20 focus:border-[var(--primary)]/50 focus:outline-none font-mono text-sm font-bold uppercase tracking-wider transition-all"
+                                            />
+                                            <button 
+                                                onClick={() => {
+                                                    if (couponInput.trim()) {
+                                                        applyCouponCode(couponInput.trim(), checkoutTotal);
+                                                    }
+                                                }}
+                                                disabled={couponLoading || !couponInput.trim()}
+                                                className="bg-[var(--primary)] text-[var(--bg)] px-5 rounded-xl font-bold hover:opacity-90 active:scale-95 transition-all text-sm disabled:opacity-50 cursor-pointer"
+                                            >
+                                                {couponLoading ? "Applying..." : "Apply"}
+                                            </button>
                                         </div>
-                                        <div>
-                                            <p className="text-xs font-black uppercase font-mono tracking-wider">{appliedCoupon.code}</p>
-                                            <p className="text-[9px] opacity-75 font-bold uppercase tracking-wide">Discount Applied</p>
+                                        {couponError && (
+                                            <p className="text-red-500 text-xs font-semibold flex items-center gap-1">
+                                                <span>⚠️</span> {couponError}
+                                            </p>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="pb-2">
+                                        <div className="flex items-center justify-between bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 p-3.5 rounded-xl">
+                                            <div className="flex items-center gap-2">
+                                                <Tag className="w-4 h-4 text-green-600 dark:text-green-400" />
+                                                <div>
+                                                    <p className="text-xs font-bold tracking-wider uppercase flex items-center gap-1">
+                                                        Coupon Applied ✓
+                                                    </p>
+                                                    <p className="text-[10px] font-medium opacity-80">
+                                                        Code: {appliedCoupon.code} (-₹{couponDiscount} Saved)
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                onClick={() => {
+                                                    removeCoupon();
+                                                    setCouponInput('');
+                                                }}
+                                                className="text-xs font-bold text-red-500 hover:text-red-600 hover:underline px-2 py-1 transition-colors cursor-pointer"
+                                                title="Remove coupon"
+                                            >
+                                                Remove Coupon
+                                            </button>
                                         </div>
                                     </div>
-                                    <button 
-                                        onClick={removeCoupon}
-                                        className="text-xs font-black text-red-500 hover:text-red-600 transition-colors uppercase tracking-wider ml-4 cursor-pointer"
-                                    >
-                                        Remove
-                                    </button>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
 
                         <hr className="border-[var(--secondary)]/10 my-6" />
