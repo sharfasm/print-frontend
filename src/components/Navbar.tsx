@@ -935,27 +935,106 @@ const Navbar = () => {
                                             <IconChevron className="w-3.5 h-3.5 opacity-40" open={openQuickLink === 'contact'} />
                                         </button>
                                         {openQuickLink === 'contact' && (
-                                            <div className="pl-10 pr-2 pb-1 space-y-0.5">
-                                                <Link href="/contact" onClick={closeDrawer} className="block px-3 py-2 rounded-lg text-[13px] font-medium text-[var(--text)]/70 hover:text-[var(--primary)] hover:bg-[var(--secondary)]/8 transition-colors touch-manipulation">
-                                                    💬 Live Chat
+                                            <div className="pl-4 pr-1.5 pt-3 pb-4 space-y-3 animate-subcat-fade text-[var(--text)]">
+                                                {/* Live Chat Card */}
+                                                <Link 
+                                                    href="/dashboard/requests?type=support" 
+                                                    onClick={closeDrawer} 
+                                                    className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white hover:bg-[var(--primary)]/[0.02] transition-all duration-300 group/btn active:scale-[0.98] shadow-sm border border-l-4 overflow-hidden text-left w-full"
+                                                    style={{ borderColor: 'rgba(80, 80, 57, 0.08)', borderLeftColor: '#10b981' }}
+                                                >
+                                                    <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 transition-colors group-hover/btn:bg-emerald-100 shrink-0">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.2" stroke="currentColor" className="w-4.5 h-4.5">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.596.596 0 0 1-.748-.688 4.01 4.01 0 0 0 .979-2.174C3.839 16.637 3 14.423 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className="text-xs font-black uppercase tracking-wider text-[var(--text)] leading-none">Live Support</span>
+                                                            <span className="flex h-1.5 w-1.5 relative shrink-0">
+                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-[9px] font-bold text-[var(--text)]/40 mt-1 truncate leading-none">Chat online with design desk</p>
+                                                    </div>
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600 shrink-0">Start →</span>
                                                 </Link>
-                                                <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" className="block px-3 py-2 rounded-lg text-[13px] font-medium text-[var(--text)]/70 hover:text-[var(--primary)] hover:bg-[var(--secondary)]/8 transition-colors touch-manipulation">
-                                                    📱 WhatsApp
+
+                                                {/* WhatsApp Card */}
+                                                <a 
+                                                    href="https://wa.me/919747723150" 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer" 
+                                                    className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white hover:bg-[var(--primary)]/[0.02] transition-all duration-300 group/btn active:scale-[0.98] shadow-sm border border-l-4 overflow-hidden text-left w-full"
+                                                    style={{ borderColor: 'rgba(80, 80, 57, 0.08)', borderLeftColor: '#25D366' }}
+                                                >
+                                                    <div className="p-2 rounded-xl bg-green-50 text-green-600 transition-colors group-hover/btn:bg-green-100 shrink-0">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5">
+                                                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                                                        </svg>
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <span className="text-xs font-black uppercase tracking-wider text-[var(--text)] leading-none">WhatsApp Support</span>
+                                                        <p className="text-[9px] font-bold text-[var(--text)]/40 mt-1 leading-none">Instant response channel</p>
+                                                    </div>
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-[#128C4A] shrink-0">Open →</span>
                                                 </a>
-                                                <a href="tel:" className="block px-3 py-2 rounded-lg text-[13px] font-medium text-[var(--text)]/70 hover:text-[var(--primary)] hover:bg-[var(--secondary)]/8 transition-colors touch-manipulation">
-                                                    📞 Phone
+
+                                                {/* Call Card */}
+                                                <a 
+                                                    href="tel:+919747723150" 
+                                                    className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white hover:bg-[var(--primary)]/[0.02] transition-all duration-300 group/btn active:scale-[0.98] shadow-sm border border-l-4 overflow-hidden text-left w-full"
+                                                    style={{ borderColor: 'rgba(80, 80, 57, 0.08)', borderLeftColor: 'var(--primary)' }}
+                                                >
+                                                    <div className="p-2 rounded-xl bg-[var(--primary)]/5 text-[var(--primary)] transition-colors group-hover/btn:bg-[var(--primary)]/10 shrink-0">
+                                                        <IconPhone className="w-4.5 h-4.5" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <span className="text-[9px] font-black uppercase tracking-wider text-[var(--text)]/40 leading-none">Call Support Desk</span>
+                                                        <p className="text-[13.5px] font-black mt-1 text-[var(--text)] tracking-wide leading-none">+91 97477 23150</p>
+                                                    </div>
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-[var(--primary)] shrink-0 opacity-0 group-hover/btn:opacity-100 transition-opacity">Call →</span>
                                                 </a>
-                                                <Link href="/contact" onClick={closeDrawer} className="block px-3 py-2 rounded-lg text-[13px] font-medium text-[var(--text)]/70 hover:text-[var(--primary)] hover:bg-[var(--secondary)]/8 transition-colors touch-manipulation">
-                                                    📍 Location
-                                                </Link>
+
+                                                {/* Office Address Card */}
+                                                <div 
+                                                    className="p-4 rounded-2xl bg-white space-y-4 shadow-sm border border-l-4 overflow-hidden text-left"
+                                                    style={{ borderColor: 'rgba(80, 80, 57, 0.08)', borderLeftColor: 'var(--secondary)' }}
+                                                >
+                                                    <div className="flex items-start gap-3.5">
+                                                        <div className="mt-0.5 p-2 rounded-xl bg-[var(--primary)]/5 text-[var(--primary)] shrink-0">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4.5 h-4.5">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                                            </svg>
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[9px] font-black uppercase tracking-wider text-[var(--text)]/40 mb-1">Office Address</span>
+                                                            <span className="font-bold text-[11px] leading-normal text-[var(--text)]/85">
+                                                                123, Print Street,<br />
+                                                                Koduvally, Kerala, India
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <a 
+                                                        href="https://maps.google.com/?q=Koduvally,Kerala,India" 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer" 
+                                                        className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--primary)] hover:opacity-95 text-white text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all w-full shadow-md shadow-[var(--primary)]/10"
+                                                    >
+                                                        <span>Open in Maps</span>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                                    </a>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
 
-                                    <Link href="/contact" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
+                                    <Link href="/products?highlights=bulkOrder" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
                                         <IconCube className="w-[18px] h-[18px] opacity-60" /> Bulk Orders
                                     </Link>
-                                    <Link href="/products" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
+                                    <Link href="/products?highlights=customizable" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
                                         <IconPaintBrush className="w-[18px] h-[18px] opacity-60" /> Customization
                                     </Link>
                                 </div>

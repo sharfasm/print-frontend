@@ -38,6 +38,7 @@ export default function Checkout() {
     } = useShop();
     const [couponInput, setCouponInput] = useState('');
     const [promoExpanded, setPromoExpanded] = useState(!!appliedCoupon);
+    const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false);
     const { user } = useAuth();
 
     useEffect(() => {
@@ -286,13 +287,226 @@ export default function Checkout() {
     return (
         <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] flex flex-col pt-[120px] pb-12">
             
+            {/* Mobile / Tablet Order Summary Accordion (Visible only below lg) */}
+            <div className="block lg:hidden w-full sticky top-[70px] z-30 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--secondary)]/10 shadow-sm transition-all duration-300">
+                <button 
+                    onClick={() => setMobileSummaryOpen(!mobileSummaryOpen)}
+                    className="w-full max-w-2xl mx-auto px-4 py-4.5 flex items-center justify-between font-black text-sm text-[var(--text)] focus:outline-none"
+                >
+                    <div className="flex items-center gap-2 text-[var(--primary)]">
+                        <ShoppingBag size={18} />
+                        <span>{mobileSummaryOpen ? 'Hide order summary' : 'Show order summary'}</span>
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            strokeWidth={2.5} 
+                            stroke="currentColor" 
+                            className={`w-4 h-4 transition-transform duration-300 ${mobileSummaryOpen ? 'rotate-180' : ''}`}
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <div className="font-mono font-black text-base">₹{finalTotal}</div>
+                </button>
+                
+                <div 
+                    className={`overflow-hidden transition-all duration-300 ease-in-out bg-[var(--secondary)]/[0.02] border-t border-[var(--secondary)]/5 px-4 ${
+                        mobileSummaryOpen ? 'max-h-[1000px] opacity-100 py-6' : 'max-h-0 opacity-0 pointer-events-none'
+                    }`}
+                >
+                    <div className="max-w-2xl mx-auto">
+                        {/* Items */}
+                        <div className="space-y-4 mb-6 max-h-64 overflow-y-auto pr-1">
+                            {checkoutItems.map(item => (
+                                <div key={item._id} className="flex gap-4 items-center">
+                                    <div className="w-14 h-14 rounded-xl bg-[var(--bg)] border border-[var(--secondary)]/10 overflow-hidden relative shrink-0">
+                                        <img src={resolveImage(item.image || (item.images && item.images[0]))} alt={item.name} className="w-full h-full object-cover" />
+                                        <div className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-[var(--secondary)]/20 backdrop-blur text-[var(--text)] rounded-full flex items-center justify-center text-[10px] font-bold border border-[var(--secondary)]/20 shadow-sm">{item.quantity}</div>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="font-bold text-xs line-clamp-2 leading-tight mb-1">{item.name}</h4>
+                                        {item.customization && Object.keys(item.customization).length > 0 && (
+                                            <div className="mt-1 space-y-0.5">
+                                                {Object.entries(item.customization).map(([key, value]) => (
+                                                    <div key={key} className="text-[10px] flex items-center gap-1">
+                                                        <span className="font-bold opacity-60 text-gray-500">{key}:</span>
+                                                        <span className="font-bold text-[var(--text)]">{String(value)}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {findLinkedCustomization(item._id) && (() => {
+                                            const linked = findLinkedCustomization(item._id);
+                                            return (
+                                                <div className="mt-2 bg-[var(--secondary)]/5 border border-[var(--secondary)]/10 rounded-lg p-2">
+                                                    <div className="flex items-center gap-1 mb-1">
+                                                        <CheckCircle2 size={10} className="text-emerald-600" />
+                                                        <span className="text-[9px] font-black uppercase tracking-wider text-[var(--text)]">Design Request Linked</span>
+                                                    </div>
+                                                    <div className="flex flex-col gap-0.5 text-[9px] font-bold opacity-80">
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="opacity-70">Status:</span>
+                                                            <span className="text-[var(--text)]">{linked.requestStatus.replace(/_/g, ' ').toUpperCase()}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
+                                    <div className="font-black text-sm self-start pt-1">₹{item.price * item.quantity}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <hr className="border-[var(--secondary)]/10 my-4" />
+
+                        {/* Collapsible Promo Code Section */}
+                        <div className="mb-4 border-b border-[var(--secondary)]/10 pb-3">
+                            <button 
+                                onClick={() => setPromoExpanded(!promoExpanded)} 
+                                className="w-full flex items-center justify-between text-xs font-bold text-[var(--text)] opacity-85 hover:opacity-100 py-1 transition-all cursor-pointer"
+                            >
+                                <span>Have a Promo Code?</span>
+                                <svg 
+                                    xmlns="http://www.w3.org/2000/svg" 
+                                    fill="none" 
+                                    viewBox="0 0 24 24" 
+                                    strokeWidth={2.5} 
+                                    stroke="currentColor" 
+                                    className={`w-3.5 h-3.5 transition-transform duration-200 ${promoExpanded ? 'rotate-180' : ''}`}
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
+                            
+                            <div 
+                                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                    promoExpanded ? 'max-h-48 opacity-100 mt-2.5' : 'max-h-0 opacity-0 pointer-events-none'
+                                }`}
+                            >
+                                {!appliedCoupon ? (
+                                    <div className="space-y-2 pb-1.5">
+                                        <div className="flex gap-2">
+                                            <input 
+                                                type="text" 
+                                                placeholder="Enter code" 
+                                                value={couponInput}
+                                                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                                                className="flex-1 bg-[var(--bg)] px-3 py-2 rounded-xl border border-[var(--secondary)]/20 focus:border-[var(--primary)]/50 focus:outline-none font-mono text-xs font-bold uppercase tracking-wider transition-all"
+                                            />
+                                            <button 
+                                                onClick={() => {
+                                                    if (couponInput.trim()) {
+                                                        applyCouponCode(couponInput.trim(), checkoutTotal);
+                                                    }
+                                                }}
+                                                disabled={couponLoading || !couponInput.trim()}
+                                                className="bg-[var(--primary)] text-[var(--bg)] px-4 rounded-xl font-bold hover:opacity-90 active:scale-95 transition-all text-xs disabled:opacity-50 cursor-pointer"
+                                            >
+                                                {couponLoading ? "Applying..." : "Apply"}
+                                            </button>
+                                        </div>
+                                        {couponError && (
+                                            <p className="text-red-500 text-[11px] font-semibold flex items-center gap-1">
+                                                <span>⚠️</span> {couponError}
+                                            </p>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="pb-1.5">
+                                        <div className="flex items-center justify-between bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 p-3 rounded-xl">
+                                            <div className="flex items-center gap-2">
+                                                <Tag className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+                                                <div>
+                                                    <p className="text-[11px] font-bold tracking-wider uppercase">
+                                                        Coupon Applied ✓
+                                                    </p>
+                                                    <p className="text-[9px] font-medium opacity-80">
+                                                        Code: {appliedCoupon.code} (-₹{couponDiscount} Saved)
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                onClick={() => {
+                                                    removeCoupon();
+                                                    setCouponInput('');
+                                                }}
+                                                className="text-[10px] font-bold text-red-500 hover:text-red-600 hover:underline px-2 py-0.5 transition-colors cursor-pointer"
+                                            >
+                                                Remove Coupon
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <hr className="border-[var(--secondary)]/10 my-4" />
+
+                        {/* Totals */}
+                        <div className="space-y-3 text-xs font-semibold">
+                            <div className="flex justify-between opacity-80">
+                                <span className="text-gray-500">Subtotal</span>
+                                <span className="font-bold">₹{checkoutTotal}</span>
+                            </div>
+                            {couponDiscount > 0 && (
+                                <div className="flex justify-between text-green-600 dark:text-green-400 font-bold bg-green-500/5 px-2.5 py-1.5 rounded-xl border border-green-500/10">
+                                    <span className="flex items-center gap-1 text-[11px]">
+                                        <Tag size={10} className="animate-pulse" />
+                                        Discount ({appliedCoupon?.code})
+                                    </span>
+                                    <span>- ₹{couponDiscount}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between opacity-80">
+                                <span className="text-gray-500">Shipping</span>
+                                <span className="text-emerald-600 font-bold">FREE</span>
+                            </div>
+                            <div className="flex justify-between text-green-500 font-semibold">
+                                <span className="text-gray-500">Taxes (Included)</span>
+                                <span>₹0</span>
+                            </div>
+                        </div>
+
+                        <hr className="border-[var(--secondary)]/10 my-4" />
+
+                        <div className="flex justify-between items-end bg-[var(--primary)]/5 p-3.5 rounded-2xl border border-[var(--primary)]/10">
+                            <span className="text-sm font-black">Final Total</span>
+                            <span className="text-xl font-black text-[var(--primary)] font-mono">₹{finalTotal}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-12 flex-1 flex flex-col lg:flex-row gap-8 lg:gap-16">
                 
                 {/* Left Column: Form Steps */}
                 <div className="flex-1 max-w-2xl w-full mx-auto lg:mx-0">
                     
-                    {/* Breadcrumb / Stepper */}
-                    <div className="mb-10 sm:mb-14 relative z-0">
+                    {/* Back Button */}
+                    <div className="mb-6">
+                        {currentStep === 1 ? (
+                            <Link 
+                                href="/cart" 
+                                className="inline-flex items-center gap-2 text-sm font-black text-[var(--text)] opacity-60 hover:opacity-100 hover:text-[var(--primary)] transition-all group cursor-pointer"
+                            >
+                                <ArrowLeft size={16} className="transform group-hover:-translate-x-1 transition-transform" />
+                                <span>Back to Cart</span>
+                            </Link>
+                        ) : (
+                            <button 
+                                onClick={prevStep}
+                                className="inline-flex items-center gap-2 text-sm font-black text-[var(--text)] opacity-60 hover:opacity-100 hover:text-[var(--primary)] transition-all group cursor-pointer focus:outline-none"
+                            >
+                                <ArrowLeft size={16} className="transform group-hover:-translate-x-1 transition-transform" />
+                                <span>Back to Previous Step</span>
+                            </button>
+                        )}
+                    </div>
+                    
+                    {/* Breadcrumb / Stepper (Desktop/Tablet) */}
+                    <div className="hidden md:block mb-10 sm:mb-14 relative z-0">
                         {/* Background Track */}
                         <div className="absolute top-4 left-4 right-4 h-1 bg-[var(--secondary)]/10 -translate-y-1/2 -z-10 rounded-full"></div>
                         
@@ -335,6 +549,24 @@ export default function Checkout() {
                         </div>
                     </div>
 
+                    {/* Mobile Stepper Progress Bar (Visible only on mobile) */}
+                    <div className="block md:hidden mb-8 bg-[var(--secondary)]/5 p-4.5 rounded-2xl border border-[var(--secondary)]/10 shadow-sm">
+                        <div className="flex items-center justify-between text-xs font-black mb-2">
+                            <span className="text-[var(--primary)] uppercase tracking-wider">
+                                {currentStep === 1 && "Customer Information"}
+                                {currentStep === 2 && "Shipping Address"}
+                                {currentStep === 3 && "Payment Details"}
+                            </span>
+                            <span className="opacity-60 font-mono">Step {currentStep} of 3</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-[var(--secondary)]/10 rounded-full overflow-hidden">
+                            <div 
+                                className="h-full bg-[var(--primary)] transition-all duration-500 ease-out rounded-full"
+                                style={{ width: `${(currentStep / 3) * 100}%` }}
+                            ></div>
+                        </div>
+                    </div>
+
                     {/* Step 1: Customer Information */}
                     {currentStep === 1 && (
                         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
@@ -345,7 +577,7 @@ export default function Checkout() {
                                 </p>
                             )}
                             
-                            <div className="space-y-5">
+                            <div className="bg-[var(--secondary)]/5 rounded-3xl p-6 sm:p-8 border border-[var(--secondary)]/10 shadow-sm space-y-5">
                                 <div>
                                     <label className="block text-sm font-bold mb-2 flex items-center justify-between">
                                         <span>Email Address <span className="text-red-500">*</span></span>
@@ -356,7 +588,7 @@ export default function Checkout() {
                                         name="email" 
                                         value={formData.email} 
                                         onChange={handleInputChange} 
-                                        className="w-full bg-[var(--secondary)]/5 border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all font-medium" 
+                                        className="w-full bg-[var(--bg)] border border-[var(--secondary)]/25 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium" 
                                     />
                                 </div>
                                 <div>
@@ -369,7 +601,7 @@ export default function Checkout() {
                                         name="phone" 
                                         value={formData.phone} 
                                         onChange={handleInputChange} 
-                                        className="w-full bg-[var(--secondary)]/5 border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all font-medium" 
+                                        className="w-full bg-[var(--bg)] border border-[var(--secondary)]/25 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium" 
                                     />
                                 </div>
                             </div>
@@ -428,51 +660,56 @@ export default function Checkout() {
                                 </div>
                             )}
 
-                            <div className="space-y-5">
+                            <div className="bg-[var(--secondary)]/5 rounded-3xl p-6 sm:p-8 border border-[var(--secondary)]/10 shadow-sm space-y-5">
                                 <div>
                                     <label className="block text-sm font-bold mb-2 flex items-center justify-between">
                                         <span>Full Name <span className="text-red-500">*</span></span>
                                         {errors.fullName && <span className="text-[10px] font-bold text-red-500">{errors.fullName}</span>}
                                     </label>
-                                    <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="Enter your full name" className="w-full bg-[var(--secondary)]/5 border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] font-medium" />
+                                    <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="Enter your full name" className="w-full bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium" />
                                 </div>
                                 
                                 <div>
                                     <label className="block text-sm font-bold mb-2">Address Line 1 <span className="text-red-500">*</span></label>
-                                    <input type="text" name="address1" value={formData.address1} onChange={handleInputChange} placeholder="House No, Building, Street" className="w-full bg-[var(--secondary)]/5 border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] font-medium" />
+                                    <input type="text" name="address1" value={formData.address1} onChange={handleInputChange} placeholder="House No, Building, Street" className="w-full bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium" />
                                 </div>
                                 
                                 <div>
                                     <label className="block text-sm font-bold mb-2">Address Line 2 (Optional)</label>
-                                    <input type="text" name="address2" value={formData.address2} onChange={handleInputChange} placeholder="Area, Landmark, Flat (optional)" className="w-full bg-[var(--secondary)]/5 border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] font-medium" />
+                                    <input type="text" name="address2" value={formData.address2} onChange={handleInputChange} placeholder="Area, Landmark, Flat (optional)" className="w-full bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium" />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-bold mb-2">City <span className="text-red-500">*</span></label>
-                                        <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="City" className="w-full bg-[var(--secondary)]/5 border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] font-medium" />
+                                        <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="City" className="w-full bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium" />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-bold mb-2">State <span className="text-red-500">*</span></label>
-                                        <select name="state" value={formData.state} onChange={handleInputChange} className="w-full bg-[var(--secondary)]/5 border border-[var(--secondary)]/20 rounded-xl px-4 py-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] font-medium appearance-none">
-                                            <option value="">Select State</option>
-                                            {indianStates.map(state => (
-                                                <option key={state} value={state}>{state}</option>
-                                            ))}
-                                        </select>
+                                        <div className="relative">
+                                            <select name="state" value={formData.state} onChange={handleInputChange} className="w-full bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-xl px-4 py-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium appearance-none cursor-pointer pr-10">
+                                                <option value="">Select State</option>
+                                                {indianStates.map(state => (
+                                                    <option key={state} value={state}>{state}</option>
+                                                ))}
+                                            </select>
+                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[var(--text)] opacity-60">
+                                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-4">
                                     <div>
                                         <label className="block text-sm font-bold mb-2">Pincode <span className="text-red-500">*</span></label>
-                                        <input type="text" name="zip" value={formData.zip} onChange={handleInputChange} placeholder="6-digit Pincode" className="w-full bg-[var(--secondary)]/5 border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] font-medium" />
+                                        <input type="text" name="zip" value={formData.zip} onChange={handleInputChange} placeholder="6-digit Pincode" className="w-full bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium" />
                                     </div>
                                 </div>
                                 
                                 {user && (
                                     <div className="pt-2">
-                                        <label className="flex items-center gap-3 cursor-pointer p-4 bg-[var(--secondary)]/5 rounded-xl border border-[var(--secondary)]/10 hover:bg-[var(--secondary)]/10 transition-colors">
+                                        <label className="flex items-center gap-3 cursor-pointer p-4 bg-[var(--bg)] rounded-xl border border-[var(--secondary)]/10 hover:bg-[var(--secondary)]/5 transition-colors">
                                             <input 
                                                 type="checkbox" 
                                                 name="saveAddress" 
@@ -563,13 +800,36 @@ export default function Checkout() {
                                     className="w-full bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] font-bold text-center tracking-[0.5em] text-lg mb-4" 
                                 />
 
-                                <label className="block text-sm font-bold mb-2">Upload Payment Screenshot <span className="text-red-500">*</span></label>
-                                <input 
-                                    type="file" 
-                                    accept="image/png, image/jpeg, image/jpg"
-                                    onChange={(e) => setPaymentProof(e.target.files ? e.target.files[0] : null)}
-                                    className="w-full bg-[var(--bg)] border border-[var(--secondary)]/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] text-sm mb-2" 
-                                />
+                                <label className="block text-sm font-bold mb-2.5">Upload Payment Screenshot <span className="text-red-500">*</span></label>
+                                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[var(--secondary)]/20 rounded-xl cursor-pointer hover:bg-[var(--secondary)]/5 hover:border-[var(--primary)]/50 transition-all group p-4 text-center mb-2">
+                                    <div className="flex flex-col items-center justify-center">
+                                        {paymentProof ? (
+                                            <div className="flex flex-col items-center gap-2 text-green-600 dark:text-green-400 font-bold">
+                                                <svg className="w-8 h-8 text-green-600 dark:text-green-400 animate-in zoom-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span className="text-sm truncate max-w-[280px]">{paymentProof.name}</span>
+                                                <span className="text-[10px] text-gray-500 font-medium">Click to replace file</span>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <svg className="w-8 h-8 text-[var(--secondary)] opacity-60 group-hover:text-[var(--primary)] transition-all mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                </svg>
+                                                <p className="text-xs font-bold text-[var(--text)] opacity-80 mb-1">
+                                                    Click to upload payment screenshot
+                                                </p>
+                                                <p className="text-[10px] text-[var(--text)] opacity-50">PNG, JPG, or JPEG (Max 5MB)</p>
+                                            </>
+                                        )}
+                                    </div>
+                                    <input 
+                                        type="file" 
+                                        accept="image/png, image/jpeg, image/jpg"
+                                        onChange={(e) => setPaymentProof(e.target.files ? e.target.files[0] : null)}
+                                        className="hidden" 
+                                    />
+                                </label>
                                 
                                 <p className="text-xs font-medium opacity-60 text-center mt-2">This helps us verify your payment quickly.</p>
                             </div>
@@ -599,7 +859,7 @@ export default function Checkout() {
                 </div>
 
                 {/* Right Column: Order Summary */}
-                <div className="w-full lg:w-[420px] shrink-0">
+                <div className="hidden lg:block w-full lg:w-[420px] shrink-0">
                     <div className="bg-[var(--secondary)]/5 rounded-[2rem] border border-[var(--secondary)]/10 p-6 sm:p-8 sticky top-28">
                         <h2 className="text-xl font-black mb-6">Order Summary</h2>
 

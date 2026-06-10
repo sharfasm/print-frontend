@@ -308,6 +308,7 @@ export default function Products({ initialCategory, initialSubcategory, initialS
             if (h === 'bestSeller') label = 'Best Seller';
             if (h === 'newArrival') label = 'New Arrival';
             if (h === 'customizable') label = 'Customizable';
+            if (h === 'bulkOrder') label = 'Bulk Orders';
             list.push({ type: 'highlight', val: h, label });
         });
         if (searchQuery) list.push({ type: 'search', label: `"${searchQuery}"` });
@@ -491,6 +492,13 @@ export default function Products({ initialCategory, initialSubcategory, initialS
     useEffect(() => {
         const searchFromUrl = searchParams.get('search') || '';
         setSearchQuery(searchFromUrl);
+
+        const highlightsFromUrl = searchParams.get('highlights') || '';
+        if (highlightsFromUrl) {
+            setSelectedHighlights(highlightsFromUrl.split(',').map(h => h.trim()));
+        } else {
+            setSelectedHighlights([]);
+        }
 
         if (initialCategory) {
             setSelectedCategory(initialCategory);
@@ -888,7 +896,7 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                                                                 <span>Highlights</span>
                                                                 {selectedHighlights.length > 0 && <button onClick={() => setSelectedHighlights([])} className="text-[10px] text-[var(--primary)] underline lowercase">clear</button>}
                                                             </div>
-                                                            {[{ id: 'featured', label: 'Featured' }, { id: 'bestSeller', label: 'Best Sellers' }, { id: 'newArrival', label: 'New Arrivals' }, { id: 'customizable', label: 'Customizable' }].map((hl) => {
+                                                            {[{ id: 'featured', label: 'Featured' }, { id: 'bestSeller', label: 'Best Sellers' }, { id: 'newArrival', label: 'New Arrivals' }, { id: 'customizable', label: 'Customizable' }, { id: 'bulkOrder', label: 'Bulk Orders' }].map((hl) => {
                                                                 const isChecked = selectedHighlights.includes(hl.id);
                                                                 return (
                                                                     <button key={hl.id} onClick={() => { isChecked ? setSelectedHighlights(prev => prev.filter(x => x !== hl.id)) : setSelectedHighlights(prev => [...prev, hl.id]); }}
@@ -1499,7 +1507,7 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                                     </button>
                                     {mobileFilterSections.highlights && (
                                         <div className="grid grid-cols-2 gap-2 pt-1 pb-2">
-                                            {[{ id: 'featured', label: 'Featured' }, { id: 'bestSeller', label: 'Best Sellers' }, { id: 'newArrival', label: 'New Arrivals' }, { id: 'customizable', label: 'Customizable' }].map((hl) => {
+                                            {[{ id: 'featured', label: 'Featured' }, { id: 'bestSeller', label: 'Best Sellers' }, { id: 'newArrival', label: 'New Arrivals' }, { id: 'customizable', label: 'Customizable' }, { id: 'bulkOrder', label: 'Bulk Orders' }].map((hl) => {
                                                 const isChecked = selectedHighlights.includes(hl.id);
                                                 return (
                                                     <button key={hl.id} onClick={() => { isChecked ? setSelectedHighlights(prev => prev.filter(x => x !== hl.id)) : setSelectedHighlights(prev => [...prev, hl.id]); }}
