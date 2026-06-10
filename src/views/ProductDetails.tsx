@@ -603,8 +603,8 @@ export default function ProductDetails() {
                                 </div>
                             </div>
 
-                        {/* Bulk Pricing Section */}
-                        {product.hasBulkPricing && product.bulkPricing && product.bulkPricing.length > 0 && (
+                        {/* Bulk Pricing / Order Section */}
+                        {product.hasBulkPricing && (
                             <div className="mb-10">
                                 <button 
                                     onClick={() => setIsBulkOpen(!isBulkOpen)}
@@ -618,7 +618,11 @@ export default function ProductDetails() {
                                         </div>
                                         <div className="text-left">
                                             <p className={`text-[10px] font-black uppercase tracking-widest ${isBulkOpen ? 'text-[var(--primary)]' : 'text-[var(--text)]/50'}`}>Corporate & Events</p>
-                                            <p className="font-bold text-lg">Bulk Pricing Available</p>
+                                            <p className="font-bold text-lg">
+                                                {product.hasBulkPricing && product.bulkPricing && product.bulkPricing.length > 0 
+                                                    ? 'Bulk Pricing Available' 
+                                                    : 'Request Bulk Order'}
+                                            </p>
                                         </div>
                                     </div>
                                     <div className={`w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 ${isBulkOpen ? 'bg-[var(--primary)] text-white rotate-180 shadow-md shadow-[var(--primary)]/30' : 'bg-[var(--secondary)]/10 text-[var(--text)]/50'}`}>
@@ -630,25 +634,27 @@ export default function ProductDetails() {
                                     <div className="bg-[var(--secondary)]/5 p-6 sm:p-8 rounded-3xl border border-[var(--secondary)]/10 shadow-inner space-y-8">
                                         
                                         {/* Pricing Tier Table */}
-                                        <div className="overflow-hidden rounded-2xl border border-[var(--secondary)]/15 bg-[var(--bg)]">
-                                            <div className="grid grid-cols-2 bg-[var(--text)] text-[var(--bg)] text-[10px] sm:text-xs font-black uppercase tracking-widest">
-                                                <div className="px-4 py-3 sm:py-4 border-r border-[var(--bg)]/20">Quantity Tier</div>
-                                                <div className="px-4 py-3 sm:py-4">Price Per Unit</div>
-                                            </div>
-                                            {product.bulkPricing.map((tier, idx) => (
-                                                <div key={idx} className={`grid grid-cols-2 border-t border-[var(--secondary)]/10 ${idx % 2 === 0 ? 'bg-[var(--secondary)]/5' : 'bg-[var(--bg)]'}`}>
-                                                    <div className="px-4 py-3 sm:py-4 text-sm font-bold text-[var(--secondary)]/80 flex items-center gap-2">
-                                                        {tier.minQty}{tier.maxQty ? ` - ${tier.maxQty}` : '+'} units
-                                                    </div>
-                                                    <div className="px-4 py-3 sm:py-4 text-base font-black text-[var(--text)] flex items-center justify-between">
-                                                        <span>₹{tier.pricePerUnit}</span>
-                                                        {tier.bestPriceAvailable && (
-                                                            <span className="hidden sm:inline-block bg-green-500 text-white text-[9px] px-2 py-0.5 rounded uppercase tracking-wider font-bold">Best Value</span>
-                                                        )}
-                                                    </div>
+                                        {product.hasBulkPricing && product.bulkPricing && product.bulkPricing.length > 0 && (
+                                            <div className="overflow-hidden rounded-2xl border border-[var(--secondary)]/15 bg-[var(--bg)]">
+                                                <div className="grid grid-cols-2 bg-[var(--text)] text-[var(--bg)] text-[10px] sm:text-xs font-black uppercase tracking-widest">
+                                                    <div className="px-4 py-3 sm:py-4 border-r border-[var(--bg)]/20">Quantity Tier</div>
+                                                    <div className="px-4 py-3 sm:py-4">Price Per Unit</div>
                                                 </div>
-                                            ))}
-                                        </div>
+                                                {product.bulkPricing.map((tier, idx) => (
+                                                    <div key={idx} className={`grid grid-cols-2 border-t border-[var(--secondary)]/10 ${idx % 2 === 0 ? 'bg-[var(--secondary)]/5' : 'bg-[var(--bg)]'}`}>
+                                                        <div className="px-4 py-3 sm:py-4 text-sm font-bold text-[var(--secondary)]/80 flex items-center gap-2">
+                                                            {tier.minQty}{tier.maxQty ? ` - ${tier.maxQty}` : '+'} units
+                                                        </div>
+                                                        <div className="px-4 py-3 sm:py-4 text-base font-black text-[var(--text)] flex items-center justify-between">
+                                                            <span>₹{tier.pricePerUnit}</span>
+                                                            {tier.bestPriceAvailable && (
+                                                                <span className="hidden sm:inline-block bg-green-500 text-white text-[9px] px-2 py-0.5 rounded uppercase tracking-wider font-bold">Best Value</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
 
                                         {/* Request Form */}
                                         {bulkSuccess ? (

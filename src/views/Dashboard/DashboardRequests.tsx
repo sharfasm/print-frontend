@@ -9,7 +9,7 @@ import {
     Send, Paperclip, MoreVertical, Check, CheckCheck, Play, Pause, FileText, Search
 } from 'lucide-react';
 import { io, Socket } from 'socket.io-client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import VoiceRecorder from '../../components/VoiceRecorder';
 import UpdateCustomizationModal from './UpdateCustomizationModal';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -80,11 +80,25 @@ const VoiceMessagePlayer = ({ src, isUser, durationText = "0:12" }: { src: strin
 
 export default function DashboardRequests() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const typeParam = searchParams.get('type');
     const { setBuyNowItem } = useShop();
     const [requests, setRequests] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedRequest, setSelectedRequest] = useState<any>(null);
+
+    useEffect(() => {
+        if (typeParam === 'support') {
+            setRequests(prevRequests => {
+                const supportItem = prevRequests.find((req: any) => req.requestType === 'support');
+                if (supportItem) {
+                    setSelectedRequest(supportItem);
+                }
+                return prevRequests;
+            });
+        }
+    }, [typeParam]);
     
     const [messageText, setMessageText] = useState("");
     const [attachments, setAttachments] = useState<File[]>([]);
@@ -194,11 +208,30 @@ export default function DashboardRequests() {
         try {
             const res = await api.get('/customization/my-requests');
             setRequests(res.data);
+
+            // Check if there is an explicit query param to select support
+            const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+            const forceSupport = params?.get('type') === 'support';
+
+            if (forceSupport) {
+                const supportItem = res.data.find((req: any) => req.requestType === 'support');
+                if (supportItem) {
+                    setSelectedRequest(supportItem);
+                    return;
+                }
+            }
+
             if (selectedRequest?._id) {
                 const freshSelected = res.data.find((req: any) => req._id === selectedRequest._id);
                 if (freshSelected) setSelectedRequest(freshSelected);
-            } else if (res.data.length > 0 && window.innerWidth > 1024) {
-                setSelectedRequest(res.data[0]);
+            } else if (res.data.length > 0) {
+                // Default select the Live Support request on load
+                const supportItem = res.data.find((req: any) => req.requestType === 'support');
+                if (supportItem) {
+                    setSelectedRequest(supportItem);
+                } else if (window.innerWidth > 1024) {
+                    setSelectedRequest(res.data[0]);
+                }
             }
         } catch (err: any) {
             setError(err.message);
@@ -294,9 +327,17 @@ export default function DashboardRequests() {
             req.productId?.name?.toLowerCase().includes(query) ||
             req.requestStatus?.toLowerCase().includes(query) ||
             req.paymentStatus?.toLowerCase().includes(query) ||
-            String(req._id || "").toLowerCase().includes(query)
+            String(req._id || "").toLowerCase().includes(query) ||
+            req.requestType === 'support'
         );
     });
+
+    const pinnedRequests = [...filteredRequests];
+    const supportIndex = pinnedRequests.findIndex(r => r.requestType === 'support');
+    if (supportIndex > -1) {
+        const [supportItem] = pinnedRequests.splice(supportIndex, 1);
+        pinnedRequests.unshift(supportItem);
+    }
 
     const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMessageText(e.target.value);
@@ -521,10 +562,11 @@ export default function DashboardRequests() {
                 </div>
 
                 <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar px-3 py-1 sm:p-3 space-y-1.5 overscroll-contain min-h-0" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
-                    {filteredRequests.map(req => {
+                    {pinnedRequests.map(req => {
                         const isSelected = selectedRequest?._id === req._id;
                         const latestMsg = req.messages?.[req.messages.length - 1];
                         const unreadCount = req.messages?.filter((m: any) => m.sender === 'admin' && !m.isRead)?.length || 0;
+                        const isSupport = req.requestType === 'support';
                         return (
                             <motion.div 
                                 whileHover={{ scale: 1.005 }}
@@ -536,22 +578,33 @@ export default function DashboardRequests() {
                                 <div className="flex items-start gap-3.5 sm:gap-4">
                                     <div className="relative shrink-0">
                                         {/* Product image with proper fallback */}
-                                        <div className="w-14 h-14 sm:w-14 sm:h-14 rounded-[1rem] overflow-hidden bg-[var(--secondary)]/5 border border-[var(--secondary)]/15 flex items-center justify-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] transition-transform group-hover:scale-105 group-active:scale-95">
-                                            <img
-                                                src={productImage(req)}
-                                                loading="lazy"
-                                                onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }}
-                                                className="w-full h-full object-cover"
-                                                alt={req.productId?.name || 'Product'}
-                                            />
-                                        </div>
-                                        {!isSelected && (unreadCount > 0 || req.requestStatus === 'preview_sent') && (
+                                        {isSupport ? (
+                                            <div className="w-14 h-14 rounded-[1rem] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-md transition-transform group-hover:scale-105 group-active:scale-95">
+                                                <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600">
+                                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                                </svg>
+                                            </div>
+                                        ) : (
+                                            <div className="w-14 h-14 sm:w-14 sm:h-14 rounded-[1rem] overflow-hidden bg-[var(--secondary)]/5 border border-[var(--secondary)]/15 flex items-center justify-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] transition-transform group-hover:scale-105 group-active:scale-95">
+                                                <img
+                                                    src={productImage(req)}
+                                                    loading="lazy"
+                                                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }}
+                                                    className="w-full h-full object-cover"
+                                                    alt={req.productId?.name || 'Product'}
+                                                />
+                                            </div>
+                                        )}
+                                        {isSupport && (
+                                            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-[var(--bg)] rounded-full animate-pulse shadow-sm z-10"></div>
+                                        )}
+                                        {!isSupport && !isSelected && (unreadCount > 0 || req.requestStatus === 'preview_sent') && (
                                             <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#00A884] border-2 border-[var(--bg)] rounded-full animate-pulse shadow-sm"></div>
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0 flex flex-col justify-center min-h-[56px] py-0.5">
                                         <div className="flex justify-between items-baseline mb-1">
-                                            <h4 className="font-bold text-[15px] sm:text-[14px] truncate pr-2 text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">{req.productId?.name || 'Custom Product'}</h4>
+                                            <h4 className="font-bold text-[15px] sm:text-[14px] truncate pr-2 text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">{isSupport ? 'Live Support' : (req.productId?.name || 'Custom Product')}</h4>
                                             <span className={`text-[11px] font-semibold whitespace-nowrap shrink-0 ${unreadCount > 0 && !isSelected ? 'text-[#00A884]' : 'text-[var(--text)]/40'}`}>
                                                 {isMounted ? timeAgo(latestMsg?.createdAt || req.updatedAt) : ''}
                                             </span>
@@ -565,14 +618,23 @@ export default function DashboardRequests() {
                                             )}
                                         </div>
                                         <div className="flex items-center gap-1.5 flex-wrap mt-auto">
-                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${req.requestType === 'bulk' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
-                                                {req.requestType === 'bulk' ? 'Bulk' : 'Custom'}
-                                            </span>
-                                            {getStatusBadge(req.requestStatus)}
-                                            {req.paymentStatus !== 'paid' && (
-                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100">
-                                                    Unpaid
+                                            {isSupport ? (
+                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-1">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                                                    Online Support
                                                 </span>
+                                            ) : (
+                                                <>
+                                                    <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${req.requestType === 'bulk' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                                                        {req.requestType === 'bulk' ? 'Bulk' : 'Custom'}
+                                                    </span>
+                                                    {getStatusBadge(req.requestStatus)}
+                                                    {req.paymentStatus !== 'paid' && (
+                                                        <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100">
+                                                            Unpaid
+                                                        </span>
+                                                    )}
+                                                </>
                                             )}
                                         </div>
                                     </div>
@@ -595,63 +657,109 @@ export default function DashboardRequests() {
                 {selectedRequest && (
                     <>
                         {/* Mobile Header */}
-                        <div className="msg-chat-header lg:hidden flex items-center justify-between gap-2 border-b border-[var(--secondary)]/15 bg-[var(--bg)] px-2.5 py-2">
-                            <button aria-label="Back" onClick={() => setSelectedRequest(null)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--secondary)]/10 text-[var(--text)] active:bg-[var(--secondary)]/20"><ChevronLeft size={24} strokeWidth={2.6} /></button>
-                            <button type="button" onClick={() => openProduct(selectedRequest.productId?._id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
-                                <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-[var(--secondary)]/15 bg-[var(--secondary)]/10"><img src={productImage(selectedRequest)} loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }} className="h-full w-full object-cover" alt="" /></span>
-                                <span className="min-w-0"><span className="block truncate text-sm font-black leading-tight text-[var(--text)]">{selectedRequest.productId?.name || 'Custom Request'}</span><span className="block truncate text-[10px] font-bold text-[var(--text)]/55">ID: {String(selectedRequest._id).slice(-6).toUpperCase()}</span></span>
-                            </button>
-                            <button onClick={() => openWhatsAppChat(selectedRequest)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366]/12 text-[#128C4A]"><svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
-                        </div>
+                        {selectedRequest.requestType === 'support' ? (
+                            <div className="msg-chat-header lg:hidden flex items-center justify-between gap-2 border-b border-[var(--secondary)]/15 bg-[var(--bg)] px-2.5 py-2">
+                                <button aria-label="Back" onClick={() => setSelectedRequest(null)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--secondary)]/10 text-[var(--text)] active:bg-[var(--secondary)]/20"><ChevronLeft size={24} strokeWidth={2.6} /></button>
+                                <div className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                                    <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-[var(--secondary)]/15 bg-emerald-500/10 flex items-center justify-center">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        </svg>
+                                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border border-[var(--bg)] rounded-full animate-pulse shadow-sm z-10"></div>
+                                    </span>
+                                    <span className="min-w-0">
+                                        <span className="block truncate text-sm font-black leading-tight text-[var(--text)]">Live Support Team</span>
+                                        <span className="block truncate text-[10px] font-bold text-emerald-600">Online • Live Chat</span>
+                                    </span>
+                                </div>
+                                <button onClick={() => openWhatsAppChat(selectedRequest)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366]/12 text-[#128C4A]"><svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+                            </div>
+                        ) : (
+                            <div className="msg-chat-header lg:hidden flex items-center justify-between gap-2 border-b border-[var(--secondary)]/15 bg-[var(--bg)] px-2.5 py-2">
+                                <button aria-label="Back" onClick={() => setSelectedRequest(null)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--secondary)]/10 text-[var(--text)] active:bg-[var(--secondary)]/20"><ChevronLeft size={24} strokeWidth={2.6} /></button>
+                                <button type="button" onClick={() => openProduct(selectedRequest.productId?._id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                                    <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-[var(--secondary)]/15 bg-[var(--secondary)]/10"><img src={productImage(selectedRequest)} loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }} className="h-full w-full object-cover" alt="" /></span>
+                                    <span className="min-w-0"><span className="block truncate text-sm font-black leading-tight text-[var(--text)]">{selectedRequest.productId?.name || 'Custom Request'}</span><span className="block truncate text-[10px] font-bold text-[var(--text)]/55">ID: {String(selectedRequest._id).slice(-6).toUpperCase()}</span></span>
+                                </button>
+                                <button onClick={() => openWhatsAppChat(selectedRequest)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366]/12 text-[#128C4A]"><svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+                            </div>
+                        )}
                         {/* Desktop Header */}
-                        <div className="msg-chat-header hidden lg:flex items-center justify-between px-4 md:px-6 py-3 border-b border-[var(--secondary)]/10 bg-[var(--bg)]">
-                            <div className="flex items-center gap-3 min-w-0">
-                                <div className="relative cursor-pointer" onClick={() => openProduct(selectedRequest.productId?._id)}>
-                                    <div className="w-11 h-11 rounded-full overflow-hidden bg-[var(--secondary)]/10 border border-[var(--secondary)]/15 shadow-sm shrink-0"><img src={productImage(selectedRequest)} loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }} className="w-full h-full object-cover" alt="" /></div>
-                                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[var(--bg)] rounded-full"></div>
-                                </div>
-                                <div className="min-w-0 cursor-pointer" onClick={() => openProduct(selectedRequest.productId?._id)}>
-                                    <h3 className="font-bold text-[var(--text)] text-[16px] leading-tight truncate hover:text-[var(--primary)] transition-colors">{selectedRequest.productId?.name || 'Custom Request'}</h3>
-                                    <span className="text-[11px] font-medium text-[var(--text)]/60 block">Online • ID: {String(selectedRequest._id).slice(-6).toUpperCase()}</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-1.5 relative shrink-0">
-                                <button onClick={() => openWhatsAppChat(selectedRequest)} className="flex h-9 items-center gap-1.5 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 px-3 rounded-full text-[11px] font-bold transition-colors"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg><span className="hidden sm:inline">WhatsApp</span></button>
-                                <button onClick={() => setShowDropdown(!showDropdown)} className="w-10 h-10 text-[var(--text)]/60 hover:text-[var(--text)] hover:bg-[var(--secondary)]/10 rounded-full transition-colors flex items-center justify-center"><MoreVertical size={20} /></button>
-                                <AnimatePresence>{showDropdown && (<motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="absolute top-12 right-0 bg-[var(--bg)] border border-[var(--secondary)]/20 shadow-2xl rounded-2xl p-2 w-48 z-50 flex flex-col"><button onClick={() => { setShowDropdown(false); setShowUpdateModal(true); }} className="w-full text-left px-4 py-2.5 text-sm font-bold text-[var(--text)] hover:bg-[var(--secondary)]/10 rounded-xl transition-colors flex items-center gap-2"><Edit3 size={16} /> Update</button><button onClick={() => { setShowDropdown(false); setShowDeleteModal(true); }} className="w-full text-left px-4 py-2.5 text-sm font-bold hover:bg-red-500/10 text-red-500 rounded-xl transition-colors flex items-center gap-2 mt-1"><Trash2 size={16} /> Delete</button></motion.div>)}</AnimatePresence>
-                            </div>
-                        </div>
-                        {/* Progress */}
-                        <div className="msg-progress bg-[var(--bg)]/90 px-3 sm:px-5 pt-3 pb-3 border-b border-[var(--secondary)]/5 flex justify-center overflow-x-auto no-scrollbar">
-                            {(() => {
-                                const steps = getWorkflowSteps(selectedRequest.requestType);
-                                const labels = getWorkflowLabels(selectedRequest.requestType);
-                                const currentStep = Math.max(0, steps.indexOf(selectedRequest.requestStatus));
-                                return (
-                                    <div className="flex items-start justify-between w-full min-w-[380px] max-w-xl">
-                                        {labels.map((step, idx) => {
-                                            const isActive = idx <= currentStep;
-                                            const isConnectorActive = idx < currentStep;
-                                            return (
-                                                <div key={idx} className="relative flex w-14 shrink-0 flex-col items-center text-center">
-                                                    <div className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-black shadow-sm ${isActive ? 'bg-[var(--text)] text-[var(--bg)]' : 'bg-[var(--secondary)]/20 text-[var(--text)]/40'}`}>
-                                                        {isActive && idx === 0 ? <Check size={12}/> : (idx + 1)}
-                                                    </div>
-                                                    <span className={`mt-1.5 block text-[8px] sm:text-[9px] font-black leading-none ${isActive ? 'text-[var(--text)]' : 'text-[var(--text)]/40'}`}>
-                                                        {step}
-                                                    </span>
-                                                    {idx < labels.length - 1 && (
-                                                        <div className={`absolute left-1/2 top-3 h-0.5 w-full ${isConnectorActive ? 'bg-[var(--text)]' : 'bg-[var(--secondary)]/20'}`}></div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
+                        {selectedRequest.requestType === 'support' ? (
+                            <div className="msg-chat-header hidden lg:flex items-center justify-between px-4 md:px-6 py-3 border-b border-[var(--secondary)]/10 bg-[var(--bg)]">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div className="relative">
+                                        <div className="w-11 h-11 rounded-full overflow-hidden bg-emerald-500/10 border border-emerald-500/20 shadow-sm shrink-0 flex items-center justify-center">
+                                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600">
+                                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[var(--bg)] rounded-full animate-pulse z-10"></div>
                                     </div>
-                                );
-                            })()}
-                        </div>
+                                    <div className="min-w-0">
+                                        <h3 className="font-bold text-[var(--text)] text-[16px] leading-tight truncate">Live Support Team</h3>
+                                        <span className="text-[11px] font-medium text-emerald-600 block flex items-center gap-1">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-ping"></span>
+                                            Online • Help Desk
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-1.5 relative shrink-0">
+                                    <button onClick={() => openWhatsAppChat(selectedRequest)} className="flex h-9 items-center gap-1.5 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 px-3 rounded-full text-[11px] font-bold transition-colors"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg><span className="hidden sm:inline">WhatsApp</span></button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="msg-chat-header hidden lg:flex items-center justify-between px-4 md:px-6 py-3 border-b border-[var(--secondary)]/10 bg-[var(--bg)]">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div className="relative cursor-pointer" onClick={() => openProduct(selectedRequest.productId?._id)}>
+                                        <div className="w-11 h-11 rounded-full overflow-hidden bg-[var(--secondary)]/10 border border-[var(--secondary)]/15 shadow-sm shrink-0"><img src={productImage(selectedRequest)} loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }} className="w-full h-full object-cover" alt="" /></div>
+                                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-[var(--bg)] rounded-full animate-pulse z-10"></div>
+                                    </div>
+                                    <div className="min-w-0 cursor-pointer" onClick={() => openProduct(selectedRequest.productId?._id)}>
+                                        <h3 className="font-bold text-[var(--text)] text-[16px] leading-tight truncate hover:text-[var(--primary)] transition-colors">{selectedRequest.productId?.name || 'Custom Request'}</h3>
+                                        <span className="text-[11px] font-medium text-[var(--text)]/60 block">Online • ID: {String(selectedRequest._id).slice(-6).toUpperCase()}</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-1.5 relative shrink-0">
+                                    <button onClick={() => openWhatsAppChat(selectedRequest)} className="flex h-9 items-center gap-1.5 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 px-3 rounded-full text-[11px] font-bold transition-colors"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg><span className="hidden sm:inline">WhatsApp</span></button>
+                                    <button onClick={() => setShowDropdown(!showDropdown)} className="w-10 h-10 text-[var(--text)]/60 hover:text-[var(--text)] hover:bg-[var(--secondary)]/10 rounded-full transition-colors flex items-center justify-center"><MoreVertical size={20} /></button>
+                                    <AnimatePresence>{showDropdown && (<motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="absolute top-12 right-0 bg-[var(--bg)] border border-[var(--secondary)]/20 shadow-2xl rounded-2xl p-2 w-48 z-50 flex flex-col"><button onClick={() => { setShowDropdown(false); setShowUpdateModal(true); }} className="w-full text-left px-4 py-2.5 text-sm font-bold text-[var(--text)] hover:bg-[var(--secondary)]/10 rounded-xl transition-colors flex items-center gap-2"><Edit3 size={16} /> Update</button><button onClick={() => { setShowDropdown(false); setShowDeleteModal(true); }} className="w-full text-left px-4 py-2.5 text-sm font-bold hover:bg-red-500/10 text-red-500 rounded-xl transition-colors flex items-center gap-2 mt-1"><Trash2 size={16} /> Delete</button></motion.div>)}</AnimatePresence>
+                                </div>
+                            </div>
+                        )}
+                        {/* Progress */}
+                        {selectedRequest.requestType !== 'support' && (
+                            <div className="msg-progress bg-[var(--bg)]/90 px-3 sm:px-5 pt-3 pb-3 border-b border-[var(--secondary)]/5 flex justify-center overflow-x-auto no-scrollbar">
+                                {(() => {
+                                    const steps = getWorkflowSteps(selectedRequest.requestType);
+                                    const labels = getWorkflowLabels(selectedRequest.requestType);
+                                    const currentStep = Math.max(0, steps.indexOf(selectedRequest.requestStatus));
+                                    return (
+                                        <div className="flex items-start justify-between w-full min-w-[380px] max-w-xl">
+                                            {labels.map((step, idx) => {
+                                                const isActive = idx <= currentStep;
+                                                const isConnectorActive = idx < currentStep;
+                                                return (
+                                                    <div key={idx} className="relative flex w-14 shrink-0 flex-col items-center text-center">
+                                                        <div className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-black shadow-sm ${isActive ? 'bg-[var(--text)] text-[var(--bg)]' : 'bg-[var(--secondary)]/20 text-[var(--text)]/40'}`}>
+                                                            {isActive && idx === 0 ? <Check size={12}/> : (idx + 1)}
+                                                        </div>
+                                                        <span className={`mt-1.5 block text-[8px] sm:text-[9px] font-black leading-none ${isActive ? 'text-[var(--text)]' : 'text-[var(--text)]/40'}`}>
+                                                            {step}
+                                                        </span>
+                                                        {idx < labels.length - 1 && (
+                                                            <div className={`absolute left-1/2 top-3 h-0.5 w-full ${isConnectorActive ? 'bg-[var(--text)]' : 'bg-[var(--secondary)]/20'}`}></div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+                        )}
                         {/* Payment Warning */}
-                        {selectedRequest.paymentStatus !== 'paid' && (
+                        {selectedRequest.requestType !== 'support' && selectedRequest.paymentStatus !== 'paid' && (
                             <div className="msg-payment-bar bg-amber-50 border-b border-amber-200 px-3 sm:px-5 py-2.5">
                                 <div className="flex items-center justify-between gap-3">
                                     <div className="flex min-w-0 flex-1 items-center gap-2">
