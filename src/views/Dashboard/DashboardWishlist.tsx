@@ -36,47 +36,47 @@ export default function DashboardWishlist() {
                     </Link>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                     {wishlist.map(item => (
-                        <div key={item._id} className="group flex flex-col bg-[var(--bg)] border border-[var(--secondary)]/10 rounded-[2rem] p-5 shadow-sm hover:shadow-xl transition-all duration-300">
-                            <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[var(--secondary)]/5 mb-5 shrink-0 block">
+                        <div key={item._id} className="group flex flex-col bg-[var(--bg)] border border-[var(--secondary)]/10 rounded-2xl md:rounded-[2rem] p-3 md:p-5 shadow-sm hover:shadow-xl transition-all duration-300">
+                            <div className="relative aspect-square w-full rounded-xl md:rounded-2xl overflow-hidden bg-[var(--secondary)]/5 mb-3 md:mb-5 shrink-0 block">
                                 <Link href={`/product/${item.slug || item._id}`}>
                                     <img src={resolveImage(item.image)} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
                                 </Link>
                                 <button 
                                     onClick={(e) => { e.preventDefault(); removeFromWishlist(item._id); }}
-                                    className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm shadow-sm rounded-full flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all z-10"
+                                    className="absolute top-2 right-2 md:top-4 md:right-4 w-8 h-8 md:w-10 md:h-10 bg-white/90 backdrop-blur-sm shadow-sm rounded-full flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all z-10"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 md:w-5 md:h-5">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
                             </div>
 
-                            <div className="flex flex-col flex-1 px-2 pb-2">
+                            <div className="flex flex-col flex-1 px-1 md:px-2 pb-1 md:pb-2">
                                 <span className="text-[10px] font-black text-[var(--primary)] opacity-80 uppercase tracking-widest mb-1">{typeof item.category === 'object' ? item.category?.name : (item.categoryName || 'Product')}</span>
-                                <Link href={`/product/${item.slug || item._id}`} className="block mb-3">
-                                    <h3 className="text-lg font-black line-clamp-1 group-hover:text-[var(--primary)] transition-colors">{item.name}</h3>
+                                <Link href={`/product/${item.slug || item._id}`} className="block mb-2 md:mb-3">
+                                    <h3 className="text-sm md:text-lg font-black line-clamp-1 group-hover:text-[var(--primary)] transition-colors">{item.name}</h3>
                                 </Link>
-                                <div className="text-2xl font-black mb-6 mt-auto text-[var(--primary)]">₹{item.price}</div>
+                                <div className="text-base md:text-2xl font-black mb-4 md:mb-6 mt-auto text-[var(--primary)]">₹{item.price}</div>
                                 
-                                <div className="flex gap-3">
+                                <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
                                     <button 
                                         onClick={() => moveWishlistToCart(item)}
-                                        className="flex-1 bg-[var(--secondary)]/10 text-[var(--text)] font-bold py-3 rounded-xl hover:bg-[var(--secondary)]/20 transition-all flex items-center justify-center gap-2"
+                                        className="w-full bg-[var(--secondary)]/10 text-[var(--text)] font-bold py-2 md:py-3 rounded-lg md:rounded-xl hover:bg-[var(--secondary)]/20 transition-all flex items-center justify-center gap-1.5 md:gap-2 text-xs md:text-sm"
                                         title="Move to Cart"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 md:w-5 md:h-5 shrink-0">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
                                         </svg>
                                         Cart
                                     </button>
                                     <button 
                                         onClick={() => handleBuyNow(item)}
-                                        className="flex-[1.5] bg-[var(--primary)] text-[var(--bg)] font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2 hover:opacity-90 transition-all border-2 border-transparent"
+                                        className="w-full bg-[var(--primary)] text-[var(--bg)] font-bold py-2 md:py-3 rounded-lg md:rounded-xl shadow-md flex items-center justify-center gap-1.5 md:gap-2 hover:opacity-90 transition-all border-2 border-transparent text-xs md:text-sm"
                                     >
                                         Buy Now
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                                         </svg>
                                     </button>

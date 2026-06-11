@@ -50,10 +50,10 @@ export default function Wishlist() {
                 </div>
 
                 {/* Grid Matches the New Arrivals style for visual consistency */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
                     {wishlist.map((item) => (
                         <div key={item._id} className="group relative flex flex-col w-full max-w-[300px] mx-auto sm:max-w-none">
-                            <Link href={`/product/${item.slug || item._id}`} className="block relative aspect-[4/5] overflow-hidden rounded-2xl bg-[var(--secondary)]/5 mb-4 group-hover:shadow-xl transition-all duration-300">
+                            <Link href={`/product/${item.slug || item._id}`} className="block relative aspect-[4/5] overflow-hidden rounded-xl sm:rounded-2xl bg-[var(--secondary)]/5 mb-3 sm:mb-4 group-hover:shadow-xl transition-all duration-300">
                                 <img 
                                     src={resolveImage(item.image)} 
                                     alt={item.name}
@@ -61,36 +61,36 @@ export default function Wishlist() {
                                 />
                                 {/* Remove Icon Overlay */}
                                 <button 
-                                    className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm z-10"
+                                    className="absolute top-2 right-2 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm z-10"
                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeFromWishlist(item._id); }}
                                     title="Remove from Wishlist"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 sm:w-5 sm:h-5">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
                             </Link>
-
+ 
                             <div className="flex flex-col flex-1 pl-1">
-                                <span className="text-xs font-medium text-[var(--primary)] opacity-80 uppercase tracking-widest mb-1 block">
+                                <span className="text-[10px] sm:text-xs font-medium text-[var(--primary)] opacity-80 uppercase tracking-widest mb-1 block">
                                     {typeof item.category === 'object' ? item.category?.name : (item.categoryName || 'Product')}
                                 </span>
                                 <Link href={`/product/${item.slug || item._id}`} className="block mb-auto">
-                                    <h3 className="text-lg font-bold line-clamp-1 hover:text-[var(--primary)] transition-colors">
+                                    <h3 className="text-sm sm:text-lg font-bold line-clamp-1 hover:text-[var(--primary)] transition-colors">
                                         {item.name}
                                     </h3>
-                                    <p className="mt-1 text-[11px] font-medium leading-snug text-[var(--text)] opacity-60 line-clamp-1">
+                                    <p className="mt-1 text-[10px] sm:text-[11px] font-medium leading-snug text-[var(--text)] opacity-60 line-clamp-1">
                                         {item.shortDescription || "Premium bespoke custom printing."}
                                     </p>
                                 </Link>
-                                <div className="mt-4 flex flex-col gap-3">
-                                    <span className="text-xl font-extrabold">₹{item.price}</span>
+                                <div className="mt-3 sm:mt-4 flex flex-col gap-2.5 sm:gap-3">
+                                    <span className="text-base sm:text-xl font-extrabold">₹{item.price}</span>
                                     {/* Action Button */}
                                     <button 
-                                        className="w-full bg-[var(--primary)] text-[var(--bg)] font-bold py-3 rounded-xl shadow-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                                        className="w-full bg-[var(--primary)] text-[var(--bg)] font-bold py-2 sm:py-3 rounded-lg sm:rounded-xl shadow-md hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base"
                                         onClick={(e) => { e.preventDefault(); moveWishlistToCart(item); }}
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 sm:w-5 sm:h-5">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                                         </svg>
                                         Move to Cart

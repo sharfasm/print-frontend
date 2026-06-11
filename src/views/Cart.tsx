@@ -65,35 +65,35 @@ export default function Cart() {
                 <div className="flex flex-col lg:flex-row gap-10">
                     {/* Cart Items List */}
                     <div className="flex-1 overflow-hidden">
-                        <div className="flex flex-col gap-6">
+                        <div className="grid grid-cols-1 gap-4 md:gap-6">
                             {cart.map((item) => (
-                                <div key={item._id} className="group flex flex-col sm:flex-row items-center gap-6 bg-[var(--bg)] border border-[var(--secondary)]/10 p-4 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300">
-                                    <Link href={`/product/${item.slug || item._id}`} className="shrink-0 relative h-32 w-32 md:h-40 md:w-40 bg-[var(--secondary)]/5 rounded-2xl overflow-hidden block">
+                                <div key={item._id} className="group flex flex-col md:flex-row items-center gap-4 md:gap-6 bg-[var(--bg)] border border-[var(--secondary)]/10 p-3 md:p-6 rounded-2xl md:rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300">
+                                    <Link href={`/product/${item.slug || item._id}`} className="shrink-0 relative w-full aspect-square md:h-40 md:w-40 bg-[var(--secondary)]/5 rounded-xl md:rounded-2xl overflow-hidden block">
                                         <img src={resolveImage(item.image)} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
                                     </Link>
                                     
-                                    <div className="flex-1 flex flex-col w-full">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <div>
-                                                <h3 className="text-xl font-bold line-clamp-1 group-hover:text-[var(--primary)] transition-colors">{item.name}</h3>
-                                                <p className="text-sm opacity-60 font-medium">{typeof item.category === 'object' ? item.category?.name : (item.categoryName || 'Product')}</p>
+                                    <div className="flex-1 flex flex-col w-full text-left">
+                                        <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="text-sm md:text-xl font-bold line-clamp-1 group-hover:text-[var(--primary)] transition-colors">{item.name}</h3>
+                                                <p className="text-[10px] md:text-sm opacity-60 font-semibold truncate mt-0.5">{typeof item.category === 'object' ? item.category?.name : (item.categoryName || 'Product')}</p>
                                             </div>
-                                            <span className="text-xl font-black text-[var(--primary)]">₹{item.price}</span>
+                                            <span className="text-sm md:text-xl font-black text-[var(--primary)] mt-1 md:mt-0 shrink-0">₹{item.price}</span>
                                         </div>
 
-                                        <div className="mt-auto pt-4 flex items-center justify-between border-t border-[var(--secondary)]/10">
+                                        <div className="mt-auto pt-2.5 md:pt-4 flex flex-col md:flex-row md:items-center justify-between border-t border-[var(--secondary)]/10 gap-2.5 w-full">
                                             {/* Quantity Stepper */}
-                                            <div className="flex items-center gap-4 bg-[var(--secondary)]/5 rounded-full px-4 py-2 border border-[var(--secondary)]/10">
+                                            <div className="flex items-center justify-between w-full md:w-auto gap-2 md:gap-4 bg-[var(--secondary)]/5 rounded-full px-2.5 py-1 md:px-4 md:py-2 border border-[var(--secondary)]/10">
                                                 <button 
                                                     onClick={() => updateCartQuantity(item._id, item.quantity - 1)}
-                                                    className="w-6 h-6 flex items-center justify-center font-bold hover:text-[var(--primary)] transition-colors"
+                                                    className="w-4 h-4 md:w-6 md:h-6 flex items-center justify-center font-black text-xs md:text-base hover:text-[var(--primary)] transition-colors"
                                                 >
                                                     -
                                                 </button>
-                                                <span className="font-bold w-4 text-center">{item.quantity}</span>
+                                                <span className="font-bold w-4 text-center text-xs md:text-base">{item.quantity}</span>
                                                 <button 
                                                     onClick={() => updateCartQuantity(item._id, item.quantity + 1)}
-                                                    className="w-6 h-6 flex items-center justify-center font-bold hover:text-[var(--primary)] transition-colors"
+                                                    className="w-4 h-4 md:w-6 md:h-6 flex items-center justify-center font-black text-xs md:text-base hover:text-[var(--primary)] transition-colors"
                                                 >
                                                     +
                                                 </button>
@@ -102,7 +102,7 @@ export default function Cart() {
                                             {/* Delete Button */}
                                             <button 
                                                 onClick={() => removeFromCart(item._id)}
-                                                className="text-red-500/70 hover:text-red-500 font-bold text-sm tracking-wider uppercase transition-colors px-3 py-1"
+                                                className="text-red-500/70 hover:text-red-500 font-bold text-[10px] md:text-sm tracking-wider uppercase transition-colors py-1 text-center w-full md:w-auto"
                                             >
                                                 Remove
                                             </button>
