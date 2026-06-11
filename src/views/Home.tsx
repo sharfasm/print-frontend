@@ -27,9 +27,9 @@ export default function Home({ initialSettings }) {
 
             <CategoryUI/>
 
-            <BestSellers />
-
             <NewArrivals />
+
+            <BestSellers />
 
             <SpecialOffers />
 

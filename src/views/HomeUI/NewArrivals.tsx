@@ -108,13 +108,9 @@ export default function NewArrivals() {
                                         alt={product.name}
                                         className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-in-out"
                                     />
-                                    {/* New Badge */}
-                                    <div className="absolute top-4 left-4 bg-[var(--primary)] text-white text-xs font-black px-3 py-1.5 rounded uppercase tracking-wider shadow-lg">
-                                        Just In
-                                    </div>
                                     {/* Wishlist Heart Icon */}
                                     <button 
-                                        className={`absolute top-4 right-4 w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all shadow-sm z-10 pointer-events-auto opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0
+                                        className={`absolute top-4 right-4 w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all shadow-sm z-10 pointer-events-auto
                                             ${isInWishlist(product._id) ? 'bg-red-50 text-red-500' : 'bg-white/80 text-[var(--text)] hover:text-red-500 hover:bg-white'}
                                             ${animatingWishlist[product._id] ? 'scale-125 bg-red-100' : ''}
                                         `}
