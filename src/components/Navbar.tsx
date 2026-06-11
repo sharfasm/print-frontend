@@ -1047,11 +1047,20 @@ const Navbar = () => {
                                     <Link href="/about" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
                                         <IconInfo className="w-[18px] h-[18px] opacity-60" /> About Us
                                     </Link>
-                                    <Link href="/about" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
+                                    <Link href="/privacy-policy" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
                                         <IconInfo className="w-[18px] h-[18px] opacity-60" /> Privacy Policy
                                     </Link>
-                                    <Link href="/about" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
+                                    <Link href="/terms-and-conditions" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
                                         <IconInfo className="w-[18px] h-[18px] opacity-60" /> Terms & Conditions
+                                    </Link>
+                                    <Link href="/refund-policy" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
+                                        <IconInfo className="w-[18px] h-[18px] opacity-60" /> Refund Policy
+                                    </Link>
+                                    <Link href="/shipping-policy" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
+                                        <IconInfo className="w-[18px] h-[18px] opacity-60" /> Shipping Policy
+                                    </Link>
+                                    <Link href="/faq" onClick={closeDrawer} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--secondary)]/8 transition-colors text-sm font-medium touch-manipulation">
+                                        <IconInfo className="w-[18px] h-[18px] opacity-60" /> FAQs
                                     </Link>
                                 </div>
                             </div>

@@ -7,6 +7,20 @@
     --secondary: #A7AA63;
     --bg: #EAE6D2;
     --text: #121A1B;
+    /* Surface/card colors for the privacy policy and similar pages */
+    --surface: rgba(255, 255, 255, 0.70);
+    --surface-light: rgba(255, 255, 255, 0.50);
+    --surface-card: rgba(255, 255, 255, 0.60);
+    --surface-elevated: rgba(255, 255, 255, 0.80);
+    --surface-panel: rgba(255, 255, 255, 0.60);
+    --alert-bg: rgba(255, 251, 235, 0.6);
+    --alert-border: rgba(252, 211, 77, 0.4);
+    --alert-title: #92400e;
+    --alert-text: rgba(180, 83, 9, 0.7);
+    --alert-icon: #f59e0b;
+    --success-bg: rgba(240, 253, 244, 1);
+    --success-icon: #16a34a;
+    --success-check: #22c55e;
 }
 
 [data-theme='dark'] {
@@ -14,6 +28,20 @@
     --secondary: #505039;
     --bg: #121A1B;
     --text: #EAE6D2;
+    /* Dark surfaces — elevated with subtle warmth */
+    --surface: rgba(30, 38, 39, 0.85);
+    --surface-light: rgba(30, 38, 39, 0.60);
+    --surface-card: rgba(35, 43, 44, 0.70);
+    --surface-elevated: rgba(38, 46, 47, 0.85);
+    --surface-panel: rgba(32, 40, 41, 0.70);
+    --alert-bg: rgba(45, 38, 20, 0.6);
+    --alert-border: rgba(120, 90, 30, 0.35);
+    --alert-title: #fbbf24;
+    --alert-text: rgba(252, 211, 77, 0.7);
+    --alert-icon: #fbbf24;
+    --success-bg: rgba(20, 45, 30, 0.5);
+    --success-icon: #4ade80;
+    --success-check: #4ade80;
 }
 
 body {
