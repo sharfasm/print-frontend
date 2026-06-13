@@ -3,6 +3,7 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 import HeroSection from "../components/HeroSection";
+import TrustCredibility from "./HomeUI/TrustCredibility";
 import CategoryUI from "./HomeUI/CategoryUI";
 import BestSellers from "./HomeUI/BestSellers";
 import NewArrivals from "./HomeUI/NewArrivals";
@@ -12,8 +13,11 @@ import FeaturedCollection from "./HomeUI/FeaturedCollection";
 import AllProducts from "./HomeUI/AllProducts";
 
 const WhyChooseUs = dynamic(() => import("./HomeUI/WhyChooseUs"), { ssr: true });
+const HowItWorks = dynamic(() => import("./HomeUI/HowItWorks"), { ssr: true });
 const OurStory = dynamic(() => import("./HomeUI/OurStory"), { ssr: true });
+const PortfolioShowcase = dynamic(() => import("./HomeUI/PortfolioShowcase"), { ssr: true });
 const CustomerReviews = dynamic(() => import("./HomeUI/CustomerReviews"), { ssr: true });
+const BulkOrderCta = dynamic(() => import("./HomeUI/BulkOrderCta"), { ssr: true });
 const FAQ = dynamic(() => import("./HomeUI/FAQ"), { ssr: true });
 const Newsletter = dynamic(() => import("./HomeUI/Newsletter"), { ssr: true });
 const Footer = dynamic(() => import("../components/Footer"), { ssr: true });
@@ -22,6 +26,8 @@ export default function Home({ initialSettings }) {
     return(
         <div>
             <HeroSection initialSettings={initialSettings} />
+
+            <TrustCredibility />
 
             {/* <LogoLoopHome/> */}
 
@@ -41,9 +47,15 @@ export default function Home({ initialSettings }) {
 
             <WhyChooseUs />
 
+            <HowItWorks />
+
             <OurStory />
 
+            <PortfolioShowcase />
+
             <CustomerReviews />
+
+            <BulkOrderCta />
 
             <FAQ faqs={initialSettings?.faqs} />
 

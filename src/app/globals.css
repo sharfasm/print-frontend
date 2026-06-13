@@ -96,6 +96,18 @@ body {
     scrollbar-width: none;
 }
 
+/* --- HELP CENTER: rich-text FAQ answers --- */
+.prose-faq p { margin: 0.5rem 0; }
+.prose-faq a { color: var(--primary); text-decoration: underline; font-weight: 600; }
+.prose-faq ul { list-style: disc; padding-left: 1.4rem; margin: 0.6rem 0; }
+.prose-faq ol { list-style: decimal; padding-left: 1.4rem; margin: 0.6rem 0; }
+.prose-faq li { margin: 0.25rem 0; }
+.prose-faq h2 { font-size: 1.15rem; font-weight: 700; margin: 0.9rem 0 0.4rem; }
+.prose-faq h3 { font-size: 1.02rem; font-weight: 700; margin: 0.8rem 0 0.3rem; }
+.prose-faq strong { font-weight: 700; }
+.prose-faq img { border-radius: 0.75rem; margin: 0.6rem 0; max-width: 100%; height: auto; }
+.prose-faq blockquote { border-left: 3px solid var(--secondary); padding-left: 1rem; opacity: 0.85; margin: 0.6rem 0; }
+
 /* Premium thin scrollbar for chat areas */
 .custom-scrollbar {
     scrollbar-width: thin;
