@@ -2,45 +2,71 @@
 import { Metadata } from 'next'
 import { generateMetadata as genMeta } from '@/lib/seo/metadata'
 import JsonLd from '@/components/seo/JsonLd'
-import Breadcrumbs from '@/components/seo/Breadcrumbs'
-import { generateFAQSchema } from '@/lib/seo/schemas'
-import FAQ from '@/views/HomeUI/FAQ'
+import { generateFAQSchema, generateBreadcrumbSchema } from '@/lib/seo/schemas'
+import config from '@/brand/config'
 import Footer from '@/components/Footer'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+import HelpCenter from '@/views/HelpCenter/HelpCenter'
 
 export const metadata: Metadata = genMeta({
-  title: 'Frequently Asked Questions — Printvoz Printing Services',
+  title: 'Help Center & FAQ — PrintVoz Customer Support',
   description:
-    'Find answers to common questions about Printvoz printing services — shipping times, return policy, international delivery, order tracking, warranty and more.',
+    'Find answers about orders, custom printing, products, payments, shipping, refunds and bulk orders. Search the PrintVoz Help Center, ask a question, or contact our support team.',
   path: '/faq',
   keywords: [
-    'printing services FAQ',
-    'Printvoz FAQ',
-    'printing help',
-    'printing questions Kerala',
+    'PrintVoz help center',
+    'PrintVoz FAQ',
+    'printing support Kerala',
+    'order status printing',
+    'bulk order printing quote',
+    'printing refund policy',
   ],
 })
 
-export default async function FAQPage() {
-  let faqs = [];
+// Strip HTML so the FAQ schema text stays clean
+const stripHtml = (html = '') =>
+  String(html).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+async function fetchJson(url: string) {
   try {
-    const res = await fetch(`${API_URL}/home-settings`, {
-      next: { revalidate: 3600 },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      faqs = data.faqs || [];
-    }
-  } catch (err) {
-    console.error("Failed to fetch home settings for FAQ page server-side:", err);
+    const res = await fetch(url, { next: { revalidate: 60 } })
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
   }
+}
+
+export default async function FAQPage() {
+  const [hero, categories, faqs, popularSearches] = await Promise.all([
+    fetchJson(`${config.api}/help/hero`),
+    fetchJson(`${config.api}/help/categories`),
+    fetchJson(`${config.api}/help/faqs`),
+    fetchJson(`${config.api}/help/popular-searches`),
+  ])
+
+  const faqList = Array.isArray(faqs) ? faqs : []
+
+  const faqSchema = generateFAQSchema(
+    faqList.slice(0, 50).map((f: any) => ({
+      question: f.question,
+      answer: stripHtml(f.answer),
+    }))
+  )
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Help Center', url: '/faq' },
+  ])
 
   return (
     <>
-      <JsonLd schema={generateFAQSchema(faqs)} />
-      <Breadcrumbs items={[{ name: 'FAQ', href: '/faq' }]} className="max-w-4xl mx-auto px-4 pt-28" />
-      <FAQ faqs={faqs} />
+      <JsonLd schema={[faqSchema, breadcrumbSchema]} />
+      <HelpCenter
+        initialHero={hero || null}
+        initialCategories={Array.isArray(categories) ? categories : []}
+        initialFaqs={faqList}
+        initialPopularSearches={Array.isArray(popularSearches) ? popularSearches : []}
+      />
       <Footer />
     </>
   )
