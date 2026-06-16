@@ -38,7 +38,7 @@ export default function TrustCredibility() {
   return (
     <section
       aria-labelledby="trust-heading"
-      className="relative z-20 -mt-16 sm:-mt-20 lg:-mt-24 pb-4"
+      className="relative z-20 pt-12 sm:pt-16 lg:pt-20 pb-4"
     >
       <h2 id="trust-heading" className="sr-only">
         India&apos;s Trusted Premium Printing Services Partner

@@ -16,6 +16,9 @@ import CustomizationModal from '../components/CustomizationModal';
 import { io } from 'socket.io-client';
 import ProductFAQ from '../components/product/ProductFAQ';
 import RelatedCategories from '../components/product/RelatedCategories';
+import RecentlyViewed from '../components/product/RecentlyViewed';
+import CategoryUI from './HomeUI/CategoryUI';
+import Reveal from '../components/Reveal';
 
 export default function ProductDetails() {
     const params = useParams();
@@ -351,7 +354,7 @@ export default function ProductDetails() {
     return (
         <div className="flex flex-col min-h-screen bg-[var(--bg)] font-sans text-[var(--text)]">
             
-            <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-6 md:pb-10 pt-28 md:pt-32">
+            <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-10 md:pb-16 pt-24 sm:pt-28 md:pt-32">
                 
                 {/* Breakcrumb Section */}
                 <div className="mb-8 flex items-center justify-between">
@@ -387,7 +390,7 @@ export default function ProductDetails() {
                 </div>
 
                 {/* Main Product Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 mb-24">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 mb-16 sm:mb-20 lg:mb-24">
                     
                     {/* Left: Product Images */}
                     <div className="flex flex-col gap-4">
@@ -435,7 +438,7 @@ export default function ProductDetails() {
                             {categoryName}
                         </span>
                         
-                        <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-4 leading-tight">{product.name}</h1>
+                        <h1 className="text-[26px] sm:text-4xl lg:text-5xl font-black tracking-tight mb-3 sm:mb-4 leading-[1.12]">{product.name}</h1>
                         
                         <div className="flex items-center gap-3 mb-6 pb-6 border-b border-[var(--secondary)]/10">
                             {renderStars(Math.round(reviewStats.averageRating || 5))}
@@ -444,7 +447,7 @@ export default function ProductDetails() {
                         
                         <div className="mb-6 flex flex-col gap-1">
                             <div className="flex items-baseline gap-4">
-                                <span className="text-4xl font-black text-[var(--primary)] drop-shadow-sm">
+                                <span className="text-3xl sm:text-4xl font-black text-[var(--primary)] drop-shadow-sm">
                                     ₹{product.offerPrice || product.price}
                                 </span>
                                 {product.offerPrice && (
@@ -499,8 +502,8 @@ export default function ProductDetails() {
 
                         {/* Quantity & Actions */}
                         <div className="space-y-4 mb-10">
-                            <div className="flex gap-4 items-center">
-                                <div className="h-14 flex items-center border-2 border-[var(--secondary)]/20 rounded-xl overflow-hidden w-36 bg-[var(--bg)] shadow-sm">
+                            <div className="flex flex-wrap gap-3 sm:gap-4 items-center">
+                                <div className="h-14 flex items-center border-2 border-[var(--secondary)]/20 rounded-xl overflow-hidden w-32 sm:w-36 bg-[var(--bg)] shadow-sm">
                                     <button 
                                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                         className="flex-1 h-full flex items-center justify-center hover:bg-[var(--secondary)]/10 transition-colors font-bold text-xl pb-1"
@@ -523,7 +526,7 @@ export default function ProductDetails() {
                                 {product.hasCustomization && (
                                     <button 
                                         onClick={() => setIsCustomModalOpen(true)}
-                                        className="relative w-full h-14 bg-[var(--text)] text-[var(--bg)] font-black rounded-xl hover:opacity-95 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 shadow-xl shadow-black/10 flex items-center justify-center gap-2 overflow-hidden group/custom"
+                                        className="relative w-full h-14 bg-[var(--text)] text-[var(--bg)] text-sm sm:text-base font-black rounded-xl hover:opacity-95 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98] transition-all duration-300 shadow-xl shadow-black/10 flex items-center justify-center gap-2 overflow-hidden group/custom"
                                     >
                                         <div className="absolute inset-0 -translate-x-full group-hover/custom:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"></div>
                                         <span className="relative z-10 flex items-center gap-2 group-hover/custom:scale-105 transition-transform">
@@ -532,7 +535,7 @@ export default function ProductDetails() {
                                     </button>
                                 )}
                                 
-                                <div className="flex flex-col sm:flex-row gap-4">
+                                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                                     <button 
                                         onClick={() => {
                                             if (customizationFields.length > 0 && isCustomizing) {
@@ -543,7 +546,7 @@ export default function ProductDetails() {
                                             }
                                         }}
                                         disabled={isAdding || added}
-                                        className={`relative flex-1 h-14 border-2 font-bold rounded-xl transition-all duration-300 shadow-sm flex items-center justify-center gap-2 overflow-hidden group
+                                        className={`relative w-full sm:flex-1 h-14 border-2 text-sm sm:text-base font-black rounded-xl transition-all duration-300 shadow-sm flex items-center justify-center gap-2 overflow-hidden group active:scale-[0.98]
                                             ${added 
                                                 ? 'bg-green-500 border-green-500 text-white' 
                                                 : 'bg-[var(--secondary)]/10 text-[var(--text)] border-[var(--secondary)]/20 hover:bg-[var(--secondary)]/20 hover:border-[var(--secondary)]/40 hover:-translate-y-0.5'
@@ -579,7 +582,7 @@ export default function ProductDetails() {
                                             }
                                         }}
                                         disabled={isBuying}
-                                        className="relative flex-1 h-14 bg-[var(--primary)] text-[var(--bg)] font-black rounded-xl hover:opacity-95 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 shadow-xl shadow-[var(--primary)]/20 flex items-center justify-center gap-2 overflow-hidden group/buy"
+                                        className="relative w-full sm:flex-1 h-14 bg-[var(--primary)] text-[var(--bg)] text-sm sm:text-base font-black rounded-xl hover:opacity-95 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98] transition-all duration-300 shadow-xl shadow-[var(--primary)]/20 flex items-center justify-center gap-2 overflow-hidden group/buy"
                                     >
                                         <div className="absolute inset-0 -translate-x-full group-hover/buy:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"></div>
                                         
@@ -827,7 +830,7 @@ export default function ProductDetails() {
                 </div>
 
                 {/* Mobile Vertically Stacked UI (Hidden on desktop) */}
-                <div className="block md:hidden mb-24 px-4 sm:px-0 max-w-4xl mx-auto space-y-24 border-t border-[var(--secondary)]/10 pt-20">
+                <div className="block md:hidden mb-16 px-4 sm:px-0 max-w-4xl mx-auto space-y-16 border-t border-[var(--secondary)]/10 pt-16">
                     {/* Description Section */}
                     <div className="group flex flex-col items-center">
                         <h3 className="text-3xl md:text-4xl font-black mb-8 relative inline-block text-center transition-transform duration-500 hover:scale-105 hover:text-[var(--primary)]">
@@ -913,9 +916,12 @@ export default function ProductDetails() {
                 </div>
                 </>
 
+                {/* FAQs Section */}
+                <ProductFAQ faqs={product.faqs} />
+
                 {/* Related Products */}
                 {relatedProducts.length > 0 && (
-                    <div className="mb-10 pt-16 border-t border-[var(--secondary)]/20">
+                    <Reveal className="mb-10 pt-16 border-t border-[var(--secondary)]/20">
                         <div className="flex items-end justify-between mb-10">
                             <div>
                                 <h2 className="text-3xl md:text-4xl font-black tracking-tight uppercase mb-2">
@@ -978,14 +984,21 @@ export default function ProductDetails() {
                                 </svg>
                             </button>
                         </div>
-                    </div>
+                    </Reveal>
                 )}
 
-                {/* Printvoz Phase 2 SEO Sections */}
-                <ProductFAQ faqs={product.faqs} />
+                {/* Recently Viewed */}
+                <RecentlyViewed product={product} />
+
+                {/* Printvoz Phase 2 SEO Sections (RelatedCategories is hidden) */}
                 <RelatedCategories categories={product.relatedCategories} />
 
             </main>
+
+            {/* Our Product Categories (reused home page component) */}
+            <Reveal>
+                <CategoryUI />
+            </Reveal>
 
             <CustomizationModal 
                 isOpen={isCustomModalOpen} 

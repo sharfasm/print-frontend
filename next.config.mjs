@@ -13,6 +13,34 @@ if (process.env.NEXT_PUBLIC_BACKEND_URL) {
   }
 }
 
+// Build a Content-Security-Policy from the configured backend origin. Shipped in
+// REPORT-ONLY mode: violations are reported to the console but nothing is
+// blocked, so there is zero risk of breaking images/sockets/inline styles.
+// Promote to the enforcing `Content-Security-Policy` header once reports are clean.
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+let backendOrigin = '';
+let wsOrigin = '';
+try {
+  const u = new URL(backendUrl);
+  backendOrigin = u.origin;
+  wsOrigin = `${u.protocol === 'https:' ? 'wss' : 'ws'}://${u.host}`;
+} catch (e) {
+  // Ignore invalid URL
+}
+
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  `img-src 'self' data: blob: https: ${backendOrigin}`.trim(),
+  "font-src 'self' data: https://fonts.gstatic.com",
+  `connect-src 'self' ${backendOrigin} ${wsOrigin}`.trim(),
+  "frame-ancestors 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "object-src 'none'",
+].join('; ');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -81,6 +109,8 @@ const nextConfig = {
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
+          { key: 'Content-Security-Policy-Report-Only', value: contentSecurityPolicy },
         ],
       },
       {
