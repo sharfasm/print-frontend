@@ -1,6 +1,7 @@
 import React from 'react';
 import JsonLd from '@/components/seo/JsonLd';
 import { generateFAQSchema } from '@/lib/seo/schemas';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
 
 interface FAQItem {
   question: string;
@@ -58,7 +59,7 @@ export default function CategoryFAQ({ entity, faqs }: CategoryFAQProps) {
               </summary>
               <div 
                 className="mt-4 text-base opacity-80 leading-relaxed text-[var(--text)] border-t border-[var(--secondary)]/10 pt-4"
-                dangerouslySetInnerHTML={{ __html: faq.answer }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(faq.answer) }}
               />
             </details>
           ))}

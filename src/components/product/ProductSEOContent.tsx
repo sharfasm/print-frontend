@@ -1,4 +1,5 @@
 import React from 'react';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
 
 interface ProductSEOContentProps {
   product: {
@@ -24,7 +25,7 @@ export default function ProductSEOContent({ product }: ProductSEOContentProps) {
                      prose-p:text-base prose-p:leading-relaxed prose-p:opacity-85 prose-p:mb-6
                      prose-ul:list-disc prose-ul:pl-6 prose-ul:mb-6
                      prose-li:text-base prose-li:opacity-85 prose-li:mb-2"
-          dangerouslySetInnerHTML={{ __html: product.seoContent }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.seoContent) }}
         />
       </div>
     </section>

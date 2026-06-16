@@ -44,22 +44,23 @@ export const ShopProvider = ({ children }) => {
     useEffect(() => {
         const fetchBrandInfo = async () => {
             try {
-                const response = await api.get('/info');
+                const response = await api.get('/settings');
                 const data = response.data;
                 setBrandInfo(data);
-                    
-                    // Update CSS variables if theme exists in fetched data
-                    if (data.theme) {
-                        const mode = "light"; 
-                        const theme = data.theme[mode];
-                        if (theme) {
-                            document.documentElement.style.setProperty("--primary", theme.primary);
-                            document.documentElement.style.setProperty("--secondary", theme.secondary);
-                            document.documentElement.style.setProperty("--bg", theme.bg);
-                            document.documentElement.style.setProperty("--text", theme.text);
-                        }
+
+                // Apply theme colors based on user preference
+                if (data.theme) {
+                    const currentTheme = localStorage.getItem("theme-mode") ||
+                        (typeof window !== 'undefined' && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+                    const theme = data.theme[currentTheme];
+                    if (theme) {
+                        document.documentElement.style.setProperty("--primary", theme.primary);
+                        document.documentElement.style.setProperty("--secondary", theme.secondary);
+                        document.documentElement.style.setProperty("--bg", theme.bg);
+                        document.documentElement.style.setProperty("--text", theme.text);
                     }
                 }
+            }
             catch (error) {
                 console.error("Error fetching brand info:", error);
             }
@@ -242,7 +243,7 @@ export const ShopProvider = ({ children }) => {
     };
 
     const isInWishlist = (productId) => {
-        return wishlist.some(item => item._id === productId);
+        return (wishlist || []).some(item => item._id === productId);
     };
 
     const moveWishlistToCart = (product) => {

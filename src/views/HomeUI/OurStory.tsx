@@ -1,10 +1,12 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Reveal from "../AboutUI/shared/Reveal";
 import useCountUp from "../AboutUI/shared/useCountUp";
+import { resolveImage } from "../../lib/imageUtils";
+import api from "../../lib/axios";
 
 // All trust-card statistics live here — edit values/labels without touching the UI below.
 const TRUST_STATS = [
@@ -13,10 +15,13 @@ const TRUST_STATS = [
   { value: 150, decimals: 0, suffix: "+", label: "Cities Reached", compact: false },
 ];
 
-const HERITAGE_IMAGE =
+// Fallbacks shown until an admin uploads the two "Our Heritage" images.
+const FALLBACK_IMAGE_1 =
   "https://images.unsplash.com/photo-1503694978374-8a2fa686963a?auto=format&fit=crop&q=80&w=1200";
+const FALLBACK_IMAGE_2 =
+  "https://plus.unsplash.com/premium_photo-1672883551901-caa4758abba7?auto=format&fit=crop&q=80&w=1000";
 
-function CardStat({ stat }: { stat: (typeof TRUST_STATS)[number] }) {
+function HeritageStat({ stat }: { stat: (typeof TRUST_STATS)[number] }) {
   const scale = 10 ** stat.decimals;
   const { ref, value } = useCountUp(Math.round(stat.value * scale));
   const raw = value / scale;
@@ -29,20 +34,40 @@ function CardStat({ stat }: { stat: (typeof TRUST_STATS)[number] }) {
       : `${Math.round(raw)}`;
 
   return (
-    <div className="py-3 first:pt-0 last:pb-0">
-      <p className="text-2xl sm:text-3xl font-black tracking-tight tabular-nums leading-none">
+    <div>
+      <p className="text-3xl sm:text-4xl font-black tracking-tight tabular-nums leading-none">
         <span ref={ref}>{display}</span>
         <span className="text-[var(--primary)]">{stat.suffix}</span>
       </p>
-      <p className="mt-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text)]/55">
+      <p className="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text)]/55">
         {stat.label}
       </p>
     </div>
   );
 }
 
-export default function OurStory() {
+export default function OurStory({ initialSettings }: { initialSettings?: any }) {
   const reduce = !!useReducedMotion();
+  const [settings, setSettings] = useState<any>(initialSettings || null);
+
+  // Always refresh from the API on mount. The home page is ISR-cached
+  // (revalidate 3600), so the server-passed `initialSettings` can be stale and
+  // miss newly uploaded heritage images — this client fetch picks up the latest.
+  useEffect(() => {
+    let mounted = true;
+    api
+      .get("/home-settings")
+      .then(({ data }) => {
+        if (mounted && data) setSettings(data);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const image1 = settings?.heritageImage1 ? resolveImage(settings.heritageImage1) : FALLBACK_IMAGE_1;
+  const image2 = settings?.heritageImage2 ? resolveImage(settings.heritageImage2) : FALLBACK_IMAGE_2;
 
   return (
     <section
@@ -56,9 +81,9 @@ export default function OurStory() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-24">
-          {/* Left: editorial image + floating trust card */}
-          <div className="w-full lg:w-1/2 relative mb-12 lg:mb-0">
+        <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+          {/* Left: two overlapping editorial images */}
+          <div className="w-full lg:w-1/2 relative mb-16 sm:mb-12 lg:mb-0">
             {/* Dashed brand mark accent */}
             <div aria-hidden="true" className="absolute -top-8 -left-8 z-0 hidden md:block">
               <svg
@@ -74,11 +99,11 @@ export default function OurStory() {
             </div>
 
             <div className="relative max-w-[540px] mx-auto lg:mx-0">
-              {/* Image with scale-reveal */}
+              {/* Main image with scale-reveal */}
               <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-2xl aspect-[4/5]">
                 <motion.img
-                  src={HERITAGE_IMAGE}
-                  alt="PrintVoz printing production floor"
+                  src={image1}
+                  alt="PrintVoz heritage — our craft"
                   loading="lazy"
                   initial={reduce ? false : { scale: 1.12 }}
                   whileInView={{ scale: 1 }}
@@ -89,21 +114,26 @@ export default function OurStory() {
                 <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
               </div>
 
-              {/* Floating glass trust card */}
+              {/* Second image — overlaps the main image, with entrance + gentle float */}
               <motion.div
-                animate={reduce ? undefined : { y: [0, -8, 0] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -bottom-8 right-2 sm:-right-4 lg:-right-8 z-20 w-48 sm:w-56"
+                initial={reduce ? false : { opacity: 0, y: 40, scale: 0.92 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.9, delay: 0.25, ease: [0.21, 0.47, 0.32, 0.98] }}
+                className="absolute -bottom-10 right-2 sm:-right-4 lg:-right-10 z-20 w-40 sm:w-48 lg:w-60"
               >
-                <Reveal delay={0.2}>
-                  <div className="rounded-3xl p-[1.5px] bg-gradient-to-br from-[var(--primary)]/35 via-[var(--secondary)]/25 to-[var(--primary)]/10 shadow-[0_24px_50px_-18px_rgba(18,26,27,0.45)]">
-                    <div className="rounded-[calc(1.5rem-1.5px)] bg-[var(--bg)]/85 dark:bg-[#161f20]/90 backdrop-blur-xl p-5 sm:p-6 divide-y divide-[var(--text)]/8">
-                      {TRUST_STATS.map((stat) => (
-                        <CardStat key={stat.label} stat={stat} />
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
+                <motion.div
+                  animate={reduce ? undefined : { y: [0, -10, 0] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                  className="rounded-[1.75rem] overflow-hidden shadow-[0_24px_55px_-18px_rgba(18,26,27,0.5)] border-4 border-[var(--bg)] aspect-square"
+                >
+                  <img
+                    src={image2}
+                    alt="PrintVoz heritage — finished work"
+                    loading="lazy"
+                    className="w-full h-full object-cover object-center"
+                  />
+                </motion.div>
               </motion.div>
             </div>
           </div>
@@ -141,6 +171,15 @@ export default function OurStory() {
                   materials, and genuine craftsmanship to help brands make a lasting impression — one
                   perfect print at a time.
                 </p>
+              </div>
+            </Reveal>
+
+            {/* Stats row with brand accent rule */}
+            <Reveal delay={0.2}>
+              <div className="flex items-stretch gap-8 sm:gap-12 mb-10 border-l-2 border-[var(--primary)]/70 pl-6">
+                {TRUST_STATS.map((stat) => (
+                  <HeritageStat key={stat.label} stat={stat} />
+                ))}
               </div>
             </Reveal>
 

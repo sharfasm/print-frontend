@@ -7,6 +7,7 @@ import LocationProductGrid from '@/components/seo/LocationProductGrid';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import { resolveImage } from '@/lib/imageUtils';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
 import { notFound } from 'next/navigation';
 import { SITE_CONFIG } from '@/lib/seo/constants';
 
@@ -117,7 +118,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
               [&_h3]:text-sm [&_h3]:sm:text-base [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2
               [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1
               [&_p_strong]:font-semibold [&_a]:text-[var(--primary)] [&_a]:underline"
-            dangerouslySetInnerHTML={{ __html: blog.content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(blog.content) }}
           />
 
           {/* FAQ Schema Accordions */}

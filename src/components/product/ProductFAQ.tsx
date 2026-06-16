@@ -1,6 +1,8 @@
 import React from 'react';
+import Reveal from '@/components/Reveal';
 import JsonLd from '@/components/seo/JsonLd';
 import { generateFAQSchema } from '@/lib/seo/schemas';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
 
 interface FAQItem {
   question: string;
@@ -22,7 +24,7 @@ export default function ProductFAQ({ faqs }: ProductFAQProps) {
       className="w-full py-16 border-t border-[var(--secondary)]/20 bg-gradient-to-b from-transparent to-[var(--secondary)]/5"
     >
       <JsonLd schema={faqSchema} />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Reveal className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-3xl md:text-4xl font-serif font-black tracking-tight uppercase mb-2 text-center text-[var(--text)]">
           Frequently Asked Questions
         </h2>
@@ -55,12 +57,12 @@ export default function ProductFAQ({ faqs }: ProductFAQProps) {
               </summary>
               <div 
                 className="mt-4 text-base opacity-80 leading-relaxed text-[var(--text)] border-t border-[var(--secondary)]/10 pt-4"
-                dangerouslySetInnerHTML={{ __html: faq.answer }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(faq.answer) }}
               />
             </details>
           ))}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

@@ -4,7 +4,8 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Loader2, CheckCircle2, AlertCircle, Phone, Mail, MapPin, Clock } from "lucide-react";
+import { Send, Loader2, CheckCircle2, AlertCircle, Phone, Mail, MapPin, Clock, MessageCircle, MessagesSquare } from "lucide-react";
+import Link from "next/link";
 import api from "@/lib/axios";
 import Reveal from "../AboutUI/shared/Reveal";
 import SectionHeading from "../AboutUI/shared/SectionHeading";
@@ -49,6 +50,7 @@ export default function ContactForm({ contactInfo }) {
   const phone = contactInfo?.primaryPhone || "+91 98765 43210";
   const email = contactInfo?.primaryEmail || "hello@printvoz.com";
   const address = contactInfo?.address || "Kerala, India";
+  const whatsapp = (contactInfo?.secondaryPhone || phone).replace(/[^0-9]/g, "");
 
   return (
     <section
@@ -272,6 +274,24 @@ export default function ContactForm({ contactInfo }) {
                       <p className="text-sm font-medium text-[var(--text)]/70">{contactInfo?.workingHours || "Mon–Sat: 9 AM – 7 PM"}</p>
                     </div>
                   </div>
+                </div>
+
+                {/* Instant channels */}
+                <div className="grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-[var(--text)]/8">
+                  <Link
+                    href="/dashboard/requests?type=support"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-500/10 text-teal-600 hover:bg-teal-500/20 px-3 py-3 text-xs font-bold transition-colors active:scale-[0.98]"
+                  >
+                    <MessagesSquare size={16} /> Live Chat
+                  </Link>
+                  <a
+                    href={`https://wa.me/${whatsapp}?text=${encodeURIComponent("Hi Printvoz! I'd like to know more about your services.")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-500/10 text-green-600 hover:bg-green-500/20 px-3 py-3 text-xs font-bold transition-colors active:scale-[0.98]"
+                  >
+                    <MessageCircle size={16} /> WhatsApp
+                  </a>
                 </div>
               </div>
 

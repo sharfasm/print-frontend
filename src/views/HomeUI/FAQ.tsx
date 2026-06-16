@@ -6,6 +6,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Plus } from "lucide-react";
 import config from "../../brand/config";
 import Reveal from "../AboutUI/shared/Reveal";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 
 // Curated fallback shown when no FAQs are managed in the admin (home-settings).
 // Each entry covers one support category. Admin-managed FAQs always take priority.
@@ -148,7 +149,7 @@ export default function FAQ({ faqs: initialFaqs }) {
                       >
                         <div
                           className="px-6 md:px-8 pb-7 text-base text-[var(--text)]/70 leading-relaxed"
-                          dangerouslySetInnerHTML={{ __html: faq.answer }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHtml(faq.answer) }}
                         />
                       </motion.div>
                     )}

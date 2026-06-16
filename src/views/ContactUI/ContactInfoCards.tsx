@@ -2,7 +2,8 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, MessageCircle, Mail, MapPin, Clock, Copy, Check, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { Phone, MessageCircle, MessagesSquare, Mail, MapPin, Clock, Copy, Check, ExternalLink } from "lucide-react";
 import Reveal from "../AboutUI/shared/Reveal";
 import SectionHeading from "../AboutUI/shared/SectionHeading";
 
@@ -13,7 +14,7 @@ function copyToClipboard(text, setCopied) {
   });
 }
 
-function ContactCard({ icon: Icon, title, value, action, actionLabel, color, index, subValue }) {
+function ContactCard({ icon: Icon, title, value, action, actionLabel, color, index, subValue, hideCopy }) {
   const [copied, setCopied] = useState(false);
 
   return (
@@ -51,26 +52,39 @@ function ContactCard({ icon: Icon, title, value, action, actionLabel, color, ind
           {/* Actions */}
           <div className="flex items-center gap-2 mt-4">
             {action && (
-              <a
-                href={action}
-                target={action.startsWith("http") ? "_blank" : undefined}
-                rel={action.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-4 py-2.5 transition-all duration-300 hover:scale-105"
-                style={{ backgroundColor: `${color}15`, color }}
-              >
-                {action.startsWith("http") ? <ExternalLink size={13} /> : <Icon size={13} />}
-                {actionLabel}
-              </a>
+              action.startsWith("/") ? (
+                <Link
+                  href={action}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-4 py-2.5 transition-all duration-300 hover:scale-105"
+                  style={{ backgroundColor: `${color}15`, color }}
+                >
+                  <Icon size={13} />
+                  {actionLabel}
+                </Link>
+              ) : (
+                <a
+                  href={action}
+                  target={action.startsWith("http") ? "_blank" : undefined}
+                  rel={action.startsWith("http") ? "noopener noreferrer" : undefined}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-4 py-2.5 transition-all duration-300 hover:scale-105"
+                  style={{ backgroundColor: `${color}15`, color }}
+                >
+                  {action.startsWith("http") ? <ExternalLink size={13} /> : <Icon size={13} />}
+                  {actionLabel}
+                </a>
+              )
             )}
-            <button
-              type="button"
-              onClick={() => copyToClipboard(value, setCopied)}
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-[var(--text)]/40 hover:text-[var(--text)]/70 rounded-full px-3 py-2 hover:bg-[var(--text)]/5 transition-colors"
-              title="Copy to clipboard"
-            >
-              {copied ? <Check size={13} className="text-green-600" /> : <Copy size={13} />}
-              {copied ? "Copied!" : "Copy"}
-            </button>
+            {!hideCopy && (
+              <button
+                type="button"
+                onClick={() => copyToClipboard(value, setCopied)}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-[var(--text)]/40 hover:text-[var(--text)]/70 rounded-full px-3 py-2 hover:bg-[var(--text)]/5 transition-colors"
+                title="Copy to clipboard"
+              >
+                {copied ? <Check size={13} className="text-green-600" /> : <Copy size={13} />}
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -106,6 +120,16 @@ export default function ContactInfoCards({ data }) {
       subValue: "Typically replies in 5 min",
     },
     {
+      icon: MessagesSquare,
+      title: "Live Chat",
+      value: "Chat with our support team",
+      action: "/dashboard/requests?type=support",
+      actionLabel: "Start Chat",
+      color: "#14b8a6",
+      subValue: "Online now — avg. reply < 2 min",
+      hideCopy: true,
+    },
+    {
       icon: Mail,
       title: "Email Us",
       value: email,
@@ -134,7 +158,7 @@ export default function ContactInfoCards({ data }) {
           align="center"
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 md:gap-6">
           {cards.map((card, i) => (
             <ContactCard key={card.title} {...card} index={i} />
           ))}

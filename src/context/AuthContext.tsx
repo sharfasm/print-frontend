@@ -19,11 +19,14 @@ export const AuthProvider = ({ children }) => {
     // Handle Socket connection based on user state
     useEffect(() => {
         if (user && user._id) {
-            // Connect to backend socket server
+            // Connect to backend socket server. The token lets the server verify
+            // the identity on the handshake instead of trusting the emitted id.
+            const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
             socketRef.current = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
                 withCredentials: true,
+                auth: { token },
             });
-            
+
             // Emit user connected event
             socketRef.current.emit('user_connected', user._id);
         } else if (!user && socketRef.current) {

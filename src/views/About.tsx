@@ -21,11 +21,9 @@ import ProcessTimeline from "./AboutUI/ProcessTimeline";
 import IndustriesGrid from "./AboutUI/IndustriesGrid";
 import TestimonialsCarousel from "./AboutUI/TestimonialsCarousel";
 import TrustedByWall from "./AboutUI/TrustedByWall";
-import AwardsGrid from "./AboutUI/AwardsGrid";
 import ValuesCards from "./AboutUI/ValuesCards";
 import TeamGrid from "./AboutUI/TeamGrid";
 import Sustainability from "./AboutUI/Sustainability";
-import CareersBanner from "./AboutUI/CareersBanner";
 import DeliveryNetworkMap from "./AboutUI/DeliveryNetworkMap";
 import FaqAccordion from "./AboutUI/FaqAccordion";
 import FinalCta from "./AboutUI/FinalCta";
@@ -131,7 +129,6 @@ export default function About({ initialData = null }) {
                 <TestimonialsCarousel data={data.testimonials} />
             )}
             {show("trustedBy") && data.trustedBy?.logos?.length > 0 && <TrustedByWall data={data.trustedBy} />}
-            {show("awards") && data.awards?.items?.length > 0 && <AwardsGrid data={data.awards} />}
 
             {/* ── Company Culture ── */}
             {show("ourValues") && data.ourValues?.values?.length > 0 && <ValuesCards data={data.ourValues} />}
@@ -139,7 +136,6 @@ export default function About({ initialData = null }) {
             {show("sustainability") && data.sustainability?.initiatives?.length > 0 && (
                 <Sustainability data={data.sustainability} />
             )}
-            {show("careers") && <CareersBanner data={data.careers} />}
 
             {/* ── Customer Support ── */}
             {show("deliveryNetwork") && <DeliveryNetworkMap data={data.deliveryNetwork} />}

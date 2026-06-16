@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, SearchX, Star } from "lucide-react";
 import { Highlight } from "./helpers";
 import api from "@/lib/axios";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 
 function AccordionItem({ faq, query, isOpen, onToggle }: any) {
   return (
@@ -41,7 +42,7 @@ function AccordionItem({ faq, query, isOpen, onToggle }: any) {
           >
             <div
               className="px-5 sm:px-6 pb-5 sm:pb-6 pt-1 text-[var(--text)]/75 leading-relaxed prose-faq"
-              dangerouslySetInnerHTML={{ __html: faq.answer }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(faq.answer) }}
             />
             {faq.tags?.length > 0 && (
               <div className="px-5 sm:px-6 pb-5 flex flex-wrap gap-2">

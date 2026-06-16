@@ -49,7 +49,7 @@ export default function Home({ initialSettings }) {
 
             <HowItWorks />
 
-            <OurStory />
+            <OurStory initialSettings={initialSettings} />
 
             <PortfolioShowcase />
 
