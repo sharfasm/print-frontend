@@ -12,7 +12,7 @@ import {
 // Import the existing product page UI component UNCHANGED
 import ProductDetails from '@/views/ProductDetails'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+const API_URL = process.env.NEXT_PUBLIC_API_URL 
 
 async function getProduct(slug: string) {
   try {

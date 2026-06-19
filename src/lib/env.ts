@@ -8,8 +8,8 @@
  * than throwing, so production builds/SSR are never broken — in production these
  * are always set, so the fallbacks never trigger and behaviour is unchanged.
  */
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ;
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 if (typeof window !== "undefined") {
   if (!process.env.NEXT_PUBLIC_API_URL) {
