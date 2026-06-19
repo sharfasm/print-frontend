@@ -15,6 +15,18 @@ const Footer = () => {
     const brandPhone = brandInfo?.phone || "+91 98765 43210";
     const brandAddress = brandInfo?.address || "123, Print Street, Koduvally, Kerala, India";
     const brandSocials = brandInfo?.socials || {};
+    // Resolve a usable iframe map URL from admin input.
+    // Handles: full <iframe> code, a /maps/embed URL, OR falls back to an
+    // address-based embed (normal share links can't be iframed by Google).
+    const resolveMapSrc = (embed, address) => {
+        const t = String(embed || "").trim();
+        const m = t.match(/src=["']([^"']+)["']/i);
+        if (m) return m[1];                               // full <iframe> code
+        if (/\/maps\/embed/i.test(t)) return t;           // proper embed URL
+        const q = address || t;                           // fallback to address/text
+        return q ? `https://maps.google.com/maps?q=${encodeURIComponent(q)}&output=embed` : "";
+    };
+    const mapSrc = resolveMapSrc(brandInfo?.mapEmbedUrl, brandAddress);
 
     return (
         <footer className="bg-[var(--bg)] text-[var(--text)] border-t border-[var(--secondary)]/10 pt-20 pb-10 px-6 md:px-10 lg:px-14 mt-auto font-sans relative overflow-hidden">
@@ -101,6 +113,19 @@ const Footer = () => {
                                 {brandAddress}
                             </span>
                         </div>
+                        {mapSrc && (
+                            <div className="mt-2 rounded-xl overflow-hidden border border-[var(--secondary)]/20 shadow-sm">
+                                <iframe
+                                    src={mapSrc}
+                                    title={`${brandName} location map`}
+                                    className="w-full h-40 block"
+                                    style={{ border: 0 }}
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                    allowFullScreen
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
 

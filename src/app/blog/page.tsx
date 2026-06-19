@@ -4,6 +4,7 @@ import Breadcrumbs from '@/components/seo/Breadcrumbs';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import { resolveImage } from '@/lib/imageUtils';
+import { logPrefetchFailure } from '@/lib/prefetch';
 
 export const metadata: Metadata = genMeta({
   title: 'Printvoz Blog — Custom Printing Tips & Advice',
@@ -22,7 +23,7 @@ export default async function BlogIndexPage() {
       blogs = await res.json();
     }
   } catch (err) {
-    console.error("Failed to load blog posts:", err);
+    logPrefetchFailure("blog posts", err);
   }
 
   return (

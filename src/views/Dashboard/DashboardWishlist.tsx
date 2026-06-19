@@ -11,6 +11,9 @@ export default function DashboardWishlist() {
     const { wishlist, removeFromWishlist, moveWishlistToCart } = useShop();
     const navigate = useRouter();
 
+    // Guard: API/context can briefly yield a non-array — coerce to a safe list.
+    const items = Array.isArray(wishlist) ? wishlist : [];
+
     const handleBuyNow = (item) => {
         // Automatically add to cart and redirect to checkout
         moveWishlistToCart(item);
@@ -22,7 +25,7 @@ export default function DashboardWishlist() {
             <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-2 uppercase">My Wishlist</h1>
             <p className="opacity-70 font-medium mb-10">Products you've saved for later.</p>
 
-            {wishlist.length === 0 ? (
+            {items.length === 0 ? (
                 <div className="bg-[var(--secondary)]/5 border border-[var(--secondary)]/10 rounded-3xl p-12 text-center flex flex-col items-center justify-center shadow-inner">
                     <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-red-500/50">
@@ -37,7 +40,7 @@ export default function DashboardWishlist() {
                 </div>
             ) : (
                 <div className="grid grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                    {wishlist.map(item => (
+                    {items.map(item => (
                         <div key={item._id} className="group flex flex-col bg-[var(--bg)] border border-[var(--secondary)]/10 rounded-2xl md:rounded-[2rem] p-3 md:p-5 shadow-sm hover:shadow-xl transition-all duration-300">
                             <div className="relative aspect-square w-full rounded-xl md:rounded-2xl overflow-hidden bg-[var(--secondary)]/5 mb-3 md:mb-5 shrink-0 block">
                                 <Link href={`/product/${item.slug || item._id}`}>

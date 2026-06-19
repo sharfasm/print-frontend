@@ -325,6 +325,7 @@ export default function DashboardRequests() {
         if (!query) return true;
         return (
             req.productId?.name?.toLowerCase().includes(query) ||
+            req.designIdea?.toLowerCase().includes(query) ||
             req.requestStatus?.toLowerCase().includes(query) ||
             req.paymentStatus?.toLowerCase().includes(query) ||
             String(req._id || "").toLowerCase().includes(query) ||
@@ -567,6 +568,8 @@ export default function DashboardRequests() {
                         const latestMsg = req.messages?.[req.messages.length - 1];
                         const unreadCount = req.messages?.filter((m: any) => m.sender === 'admin' && !m.isRead)?.length || 0;
                         const isSupport = req.requestType === 'support';
+                        const isMessage = req.requestType === 'message';
+                        const isPlain = isSupport || isMessage; // no product / workflow / payment
                         return (
                             <motion.div 
                                 whileHover={{ scale: 1.005 }}
@@ -578,10 +581,14 @@ export default function DashboardRequests() {
                                 <div className="flex items-start gap-3.5 sm:gap-4">
                                     <div className="relative shrink-0">
                                         {/* Product image with proper fallback */}
-                                        {isSupport ? (
-                                            <div className="w-14 h-14 rounded-[1rem] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-md transition-transform group-hover:scale-105 group-active:scale-95">
-                                                <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600">
-                                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        {isPlain ? (
+                                            <div className={`w-14 h-14 rounded-[1rem] flex items-center justify-center shadow-md transition-transform group-hover:scale-105 group-active:scale-95 ${isMessage ? 'bg-indigo-500/10 border border-indigo-500/20' : 'bg-emerald-500/10 border border-emerald-500/20'}`}>
+                                                <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className={isMessage ? 'text-indigo-600' : 'text-emerald-600'}>
+                                                    {isMessage ? (
+                                                        <><path d="M4 4h16v12H5.17L4 17.17V4z"></path><path d="M8 9h8M8 12h5"></path></>
+                                                    ) : (
+                                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                                    )}
                                                 </svg>
                                             </div>
                                         ) : (
@@ -604,7 +611,7 @@ export default function DashboardRequests() {
                                     </div>
                                     <div className="flex-1 min-w-0 flex flex-col justify-center min-h-[56px] py-0.5">
                                         <div className="flex justify-between items-baseline mb-1">
-                                            <h4 className="font-bold text-[15px] sm:text-[14px] truncate pr-2 text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">{isSupport ? 'Live Support' : (req.productId?.name || 'Custom Product')}</h4>
+                                            <h4 className="font-bold text-[15px] sm:text-[14px] truncate pr-2 text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">{isSupport ? 'Live Support' : isMessage ? (req.designIdea || 'Message') : (req.productId?.name || 'Custom Product')}</h4>
                                             <span className={`text-[11px] font-semibold whitespace-nowrap shrink-0 ${unreadCount > 0 && !isSelected ? 'text-[#00A884]' : 'text-[var(--text)]/40'}`}>
                                                 {isMounted ? timeAgo(latestMsg?.createdAt || req.updatedAt) : ''}
                                             </span>
@@ -623,6 +630,13 @@ export default function DashboardRequests() {
                                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
                                                     Online Support
                                                 </span>
+                                            ) : isMessage ? (
+                                                <>
+                                                    <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-600 border border-indigo-100">
+                                                        Message
+                                                    </span>
+                                                    {getStatusBadge(req.requestStatus)}
+                                                </>
                                             ) : (
                                                 <>
                                                     <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${req.requestType === 'bulk' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
@@ -657,7 +671,7 @@ export default function DashboardRequests() {
                 {selectedRequest && (
                     <>
                         {/* Mobile Header */}
-                        {selectedRequest.requestType === 'support' ? (
+                        {(selectedRequest.requestType === 'support' || selectedRequest.requestType === 'message') ? (
                             <div className="msg-chat-header lg:hidden flex items-center justify-between gap-2 border-b border-[var(--secondary)]/15 bg-[var(--bg)] px-2.5 py-2">
                                 <button aria-label="Back" onClick={() => setSelectedRequest(null)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--secondary)]/10 text-[var(--text)] active:bg-[var(--secondary)]/20"><ChevronLeft size={24} strokeWidth={2.6} /></button>
                                 <div className="flex min-w-0 flex-1 items-center gap-2 text-left">
@@ -668,8 +682,8 @@ export default function DashboardRequests() {
                                         <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border border-[var(--bg)] rounded-full animate-pulse shadow-sm z-10"></div>
                                     </span>
                                     <span className="min-w-0">
-                                        <span className="block truncate text-sm font-black leading-tight text-[var(--text)]">Live Support Team</span>
-                                        <span className="block truncate text-[10px] font-bold text-emerald-600">Online • Live Chat</span>
+                                        <span className="block truncate text-sm font-black leading-tight text-[var(--text)]">{selectedRequest.requestType === 'message' ? (selectedRequest.designIdea || 'Message') : 'Live Support Team'}</span>
+                                        <span className="block truncate text-[10px] font-bold text-emerald-600">{selectedRequest.requestType === 'message' ? 'Inquiry • We reply within 24h' : 'Online • Live Chat'}</span>
                                     </span>
                                 </div>
                                 <button onClick={() => openWhatsAppChat(selectedRequest)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366]/12 text-[#128C4A]"><svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
@@ -685,7 +699,7 @@ export default function DashboardRequests() {
                             </div>
                         )}
                         {/* Desktop Header */}
-                        {selectedRequest.requestType === 'support' ? (
+                        {(selectedRequest.requestType === 'support' || selectedRequest.requestType === 'message') ? (
                             <div className="msg-chat-header hidden lg:flex items-center justify-between px-4 md:px-6 py-3 border-b border-[var(--secondary)]/10 bg-[var(--bg)]">
                                 <div className="flex items-center gap-3 min-w-0">
                                     <div className="relative">
@@ -697,10 +711,10 @@ export default function DashboardRequests() {
                                         <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[var(--bg)] rounded-full animate-pulse z-10"></div>
                                     </div>
                                     <div className="min-w-0">
-                                        <h3 className="font-bold text-[var(--text)] text-[16px] leading-tight truncate">Live Support Team</h3>
+                                        <h3 className="font-bold text-[var(--text)] text-[16px] leading-tight truncate">{selectedRequest.requestType === 'message' ? (selectedRequest.designIdea || 'Message') : 'Live Support Team'}</h3>
                                         <span className="text-[11px] font-medium text-emerald-600 block flex items-center gap-1">
                                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-ping"></span>
-                                            Online • Help Desk
+                                            {selectedRequest.requestType === 'message' ? 'Inquiry • We reply within 24h' : 'Online • Help Desk'}
                                         </span>
                                     </div>
                                 </div>
@@ -728,7 +742,7 @@ export default function DashboardRequests() {
                             </div>
                         )}
                         {/* Progress */}
-                        {selectedRequest.requestType !== 'support' && (
+                        {selectedRequest.requestType !== 'support' && selectedRequest.requestType !== 'message' && (
                             <div className="msg-progress bg-[var(--bg)]/90 px-3 sm:px-5 pt-3 pb-3 border-b border-[var(--secondary)]/5 flex justify-center overflow-x-auto no-scrollbar">
                                 {(() => {
                                     const steps = getWorkflowSteps(selectedRequest.requestType);
@@ -759,7 +773,7 @@ export default function DashboardRequests() {
                             </div>
                         )}
                         {/* Payment Warning */}
-                        {selectedRequest.requestType !== 'support' && selectedRequest.paymentStatus !== 'paid' && (
+                        {selectedRequest.requestType !== 'support' && selectedRequest.requestType !== 'message' && selectedRequest.paymentStatus !== 'paid' && (
                             <div className="msg-payment-bar bg-amber-50 border-b border-amber-200 px-3 sm:px-5 py-2.5">
                                 <div className="flex items-center justify-between gap-3">
                                     <div className="flex min-w-0 flex-1 items-center gap-2">

@@ -10,6 +10,7 @@ import {
 } from '@/lib/seo/schemas'
 import { resolveImage } from '@/lib/imageUtils'
 import Contact from '../../views/Contact'
+import { logPrefetchFailure } from '@/lib/prefetch'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
 
@@ -19,7 +20,7 @@ async function getContactPage() {
     if (!res.ok) return null
     return await res.json()
   } catch (err) {
-    console.error('Failed to prefetch contact page on server:', err)
+    logPrefetchFailure('contact page', err)
     return null
   }
 }

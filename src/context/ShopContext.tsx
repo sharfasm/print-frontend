@@ -78,9 +78,10 @@ export const ShopProvider = ({ children }) => {
                         api.get('/wishlist'),
                         api.get('/address')
                     ]);
-                    setCart(cartRes.data);
-                    setWishlist(wishRes.data);
-                    setAddresses(addrRes.data);
+                    // Coerce to arrays — API may return an object/error payload.
+                    setCart(Array.isArray(cartRes.data) ? cartRes.data : []);
+                    setWishlist(Array.isArray(wishRes.data) ? wishRes.data : []);
+                    setAddresses(Array.isArray(addrRes.data) ? addrRes.data : []);
                 } catch (error) {
                     console.error("Failed to fetch backend shop data", error);
                 }

@@ -7,6 +7,7 @@ import config from '../brand/config';
 import { useShop } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
 import { resolveImage } from '../lib/imageUtils';
+import { resolveMapEmbedSrc, resolveMapLink } from '../lib/mapUtils';
 import api from '../lib/axios';
 import AuthNotification from './AuthNotification';
 import AuthModal from './AuthModal';
@@ -298,6 +299,23 @@ const Navbar = () => {
     const cartCount = (cart || []).reduce((acc, item) => acc + item.quantity, 0);
     const wishlistCount = (wishlist || []).length;
 
+    // Uploaded logo (light/dark). Falls back to the stylized "P" mark when absent.
+    const brandLogo = mode === "dark"
+        ? (brandInfo?.logoDark || brandInfo?.logoLight)
+        : (brandInfo?.logoLight || brandInfo?.logoDark);
+
+    // ── Contact info from admin Settings (falls back to defaults) ──
+    const contactPhone = brandInfo?.phone || "+91 97477 23150";
+    const contactWhatsapp = brandInfo?.whatsapp || brandInfo?.phone || "+91 97477 23150";
+    const contactAddress = brandInfo?.address || "123, Print Street, Koduvally, Kerala, India";
+    // Strip non-digits for tel:/wa.me links
+    const phoneDigits = contactPhone.replace(/\D/g, "");
+    const whatsappDigits = contactWhatsapp.replace(/\D/g, "");
+    // Map embed → iframe src + "Open in Maps" link (opens the exact place, not a
+    // coordinate pin). Shared logic in lib/mapUtils.
+    const mapSrc = resolveMapEmbedSrc(brandInfo?.mapEmbedUrl, contactAddress);
+    const mapLink = resolveMapLink(brandInfo?.mapEmbedUrl, contactAddress);
+
     // ── Transparent page check ──
     const isTransparentPage = pathname === '/' || pathname === '/about' || pathname === '/lookbook' || pathname === '/contact' || pathname === '/news' || pathname === '/products';
 
@@ -531,10 +549,18 @@ const Navbar = () => {
                         </button>
 
                         <Link href="/" className="flex items-center gap-2 min-w-0 group">
-                            {/* Logo mark - stylized P */}
-                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[var(--primary)] flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                                <span className="text-white text-sm sm:text-base font-black leading-none">P</span>
-                            </div>
+                            {/* Logo mark - uploaded image or stylized P fallback */}
+                            {brandLogo ? (
+                                <img
+                                    src={resolveImage(brandLogo)}
+                                    alt={brandName}
+                                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg object-contain shrink-0 shadow-sm group-hover:scale-105 transition-transform"
+                                />
+                            ) : (
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[var(--primary)] flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                                    <span className="text-white text-sm sm:text-base font-black leading-none">P</span>
+                                </div>
+                            )}
                             <span className="text-base sm:text-lg font-black tracking-tight uppercase truncate group-hover:opacity-80 transition-opacity">
                                 {brandName}
                             </span>
@@ -682,9 +708,17 @@ const Navbar = () => {
                         {/* ── Drawer Header ── */}
                         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--secondary)]/10 shrink-0">
                             <div className="flex items-center gap-2.5">
-                                <div className="w-9 h-9 rounded-lg bg-[var(--primary)] flex items-center justify-center shadow-sm">
-                                    <span className="text-white text-base font-black leading-none">P</span>
-                                </div>
+                                {brandLogo ? (
+                                    <img
+                                        src={resolveImage(brandLogo)}
+                                        alt={brandName}
+                                        className="w-9 h-9 rounded-lg object-contain shadow-sm"
+                                    />
+                                ) : (
+                                    <div className="w-9 h-9 rounded-lg bg-[var(--primary)] flex items-center justify-center shadow-sm">
+                                        <span className="text-white text-base font-black leading-none">P</span>
+                                    </div>
+                                )}
                                 <span className="text-lg font-black tracking-tight uppercase">{brandName}</span>
                             </div>
                             <button
@@ -988,9 +1022,9 @@ const Navbar = () => {
                                                 </Link>
 
                                                 {/* WhatsApp Card */}
-                                                <a 
-                                                    href="https://wa.me/919747723150" 
-                                                    target="_blank" 
+                                                <a
+                                                    href={`https://wa.me/${whatsappDigits}`}
+                                                    target="_blank"
                                                     rel="noopener noreferrer" 
                                                     className="flex items-center gap-3 p-2.5 rounded-xl bg-white hover:bg-[var(--primary)]/[0.02] transition-all duration-300 group/btn active:scale-[0.98] shadow-sm border border-l-4 overflow-hidden text-left w-full"
                                                     style={{ borderColor: 'rgba(80, 80, 57, 0.08)', borderLeftColor: '#25D366' }}
@@ -1008,8 +1042,8 @@ const Navbar = () => {
                                                 </a>
 
                                                 {/* Call Card */}
-                                                <a 
-                                                    href="tel:+919747723150" 
+                                                <a
+                                                    href={`tel:${phoneDigits}`}
                                                     className="flex items-center gap-3 p-2.5 rounded-xl bg-white hover:bg-[var(--primary)]/[0.02] transition-all duration-300 group/btn active:scale-[0.98] shadow-sm border border-l-4 overflow-hidden text-left w-full"
                                                     style={{ borderColor: 'rgba(80, 80, 57, 0.08)', borderLeftColor: 'var(--primary)' }}
                                                 >
@@ -1018,7 +1052,7 @@ const Navbar = () => {
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <span className="text-[9px] font-black uppercase tracking-wider text-[var(--text)]/40 leading-none">Call Support Desk</span>
-                                                        <p className="text-[13.5px] font-black mt-1 text-[var(--text)] tracking-wide leading-none">+91 97477 23150</p>
+                                                        <p className="text-[13.5px] font-black mt-1 text-[var(--text)] tracking-wide leading-none">{contactPhone}</p>
                                                     </div>
                                                     <span className="text-[9px] font-black uppercase tracking-widest text-[var(--primary)] shrink-0 opacity-0 group-hover/btn:opacity-100 transition-opacity">Call →</span>
                                                 </a>
@@ -1038,14 +1072,26 @@ const Navbar = () => {
                                                         <div className="flex flex-col">
                                                             <span className="text-[9px] font-black uppercase tracking-wider text-[var(--text)]/40 mb-1">Office Address</span>
                                                             <span className="font-bold text-[11px] leading-normal text-[var(--text)]/85">
-                                                                123, Print Street,<br />
-                                                                Koduvally, Kerala, India
+                                                                {contactAddress}
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    <a 
-                                                        href="https://maps.google.com/?q=Koduvally,Kerala,India" 
-                                                        target="_blank" 
+                                                    {mapSrc && (
+                                                        <div className="rounded-lg overflow-hidden border border-[var(--secondary)]/15">
+                                                            <iframe
+                                                                src={mapSrc}
+                                                                title="Office location map"
+                                                                className="w-full h-32 block"
+                                                                style={{ border: 0 }}
+                                                                loading="lazy"
+                                                                referrerPolicy="no-referrer-when-downgrade"
+                                                                allowFullScreen
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <a
+                                                        href={mapLink}
+                                                        target="_blank"
                                                         rel="noopener noreferrer" 
                                                         className="flex items-center justify-center gap-2 py-2 rounded-lg bg-[var(--primary)] hover:opacity-95 text-white text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all w-full shadow-md shadow-[var(--primary)]/10"
                                                     >

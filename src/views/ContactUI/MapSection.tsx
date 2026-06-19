@@ -5,18 +5,28 @@ import { useState } from "react";
 import { MapPin, ExternalLink } from "lucide-react";
 import SectionHeading from "../AboutUI/shared/SectionHeading";
 import Reveal from "../AboutUI/shared/Reveal";
+import { useShop } from "../../context/ShopContext";
+import { extractEmbedUrl, resolveMapLink } from "../../lib/mapUtils";
 
 export default function MapSection({ data }: { data: any }) {
   const [isLoading, setIsLoading] = useState(true);
+  const { brandInfo } = useShop();
 
-  if (!data || !data.embedUrl) return null;
+  // Prefer the office map set in admin Settings → Contact over the CMS default.
+  const adminEmbed = extractEmbedUrl(brandInfo?.mapEmbedUrl);
+  const hasAdminEmbed = /\/maps\/embed/i.test(adminEmbed);
+  const embedUrl = hasAdminEmbed ? adminEmbed : data?.embedUrl;
 
-  const showDirections = data.showDirectionsButton !== false;
-  const directionsUrl =
-    data.directionsUrl ||
-    (data.latitude && data.longitude
-      ? `https://www.google.com/maps/dir/?api=1&destination=${data.latitude},${data.longitude}`
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.markerTitle || "PrintVoz")}`);
+  if (!embedUrl) return null;
+
+  // Directions: open the exact place from the admin embed when present.
+  const showDirections = data?.showDirectionsButton !== false;
+  const directionsUrl = hasAdminEmbed
+    ? resolveMapLink(brandInfo?.mapEmbedUrl, brandInfo?.address)
+    : data?.directionsUrl ||
+      (data?.latitude && data?.longitude
+        ? `https://www.google.com/maps/dir/?api=1&destination=${data.latitude},${data.longitude}`
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data?.markerTitle || "PrintVoz")}`);
 
   return (
     <section id="map" className="py-16 md:py-24 bg-[var(--bg)] overflow-hidden">
@@ -36,7 +46,7 @@ export default function MapSection({ data }: { data: any }) {
           )}
 
           <iframe
-            src={data.embedUrl}
+            src={embedUrl}
             width="100%"
             height="100%"
             style={{ border: 0 }}
