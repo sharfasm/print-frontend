@@ -8,6 +8,8 @@ import { AuthProvider } from "../context/AuthContext";
 import RouteTransition from "./RouteTransition";
 import AnnouncementBar from "./AnnouncementBar";
 import { ReactLenis } from 'lenis/react';
+import ScrollEngine from "./scroll/ScrollEngine";
+import ScrollProgress from "./scroll/ScrollProgress";
 import config from "@/brand/config";
 
 const Navbar = dynamic(() => import('./Navbar'), { ssr: false });
@@ -44,9 +46,12 @@ function MaintenanceGuard({ children }: { children: React.ReactNode }) {
           router.push('/maintenance');
           return;
         }
-      } catch (error) {
-        // API is down or unreachable - allow app to work anyway
-        console.error('Maintenance check failed (API unavailable), continuing:', error.message);
+      } catch (error: any) {
+        // API is down or unreachable - allow app to work anyway.
+        // Use warn (not error) so a transient backend outage isn't a red overlay.
+        if (error.name !== 'AbortError') {
+          console.warn('Maintenance check skipped (API unavailable), continuing:', error?.message);
+        }
       }
       setChecked(true);
     };
@@ -64,7 +69,19 @@ function MaintenanceGuard({ children }: { children: React.ReactNode }) {
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ReactLenis root options={{ lerp: 0.1, duration: 1.5, smoothTouch: true }}>
+    <ReactLenis
+      root
+      options={{
+        lerp: 0.09,
+        duration: 1.2,
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 1.6,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      }}
+    >
+      <ScrollProgress />
+      <ScrollEngine />
       <AuthProvider>
         <ShopProvider>
           <MaintenanceGuard>

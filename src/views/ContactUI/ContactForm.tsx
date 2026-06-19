@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Loader2, CheckCircle2, AlertCircle, Phone, Mail, MapPin, Clock, MessageCircle, MessagesSquare } from "lucide-react";
 import Link from "next/link";
 import api from "@/lib/axios";
+import { useAuth } from "../../context/AuthContext";
 import Reveal from "../AboutUI/shared/Reveal";
 import SectionHeading from "../AboutUI/shared/SectionHeading";
 
@@ -27,6 +28,7 @@ const errCls = "text-red-500 text-[11px] font-semibold mt-1.5";
 
 export default function ContactForm({ contactInfo }) {
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const { isLoggedIn } = useAuth();
   const {
     register,
     handleSubmit,
@@ -37,7 +39,29 @@ export default function ContactForm({ contactInfo }) {
   const onSubmit = async (formData) => {
     setStatus("loading");
     try {
-      await api.post("/contact-inquiries", formData);
+      if (isLoggedIn) {
+        // Logged-in users → create a tracked "message" request that shows in
+        // their dashboard → Requests AND the admin requests list.
+        await api.post("/customization/message", {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          inquiryType: formData.inquiryType,
+          message: formData.message,
+        });
+      } else {
+        // Guests → support inbox (visible to admin in Help Center → Support).
+        const type = formData.inquiryType === "bulk-order" ? "bulk_order" : "email_support";
+        await api.post("/help/support", {
+          type,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: `[${formData.inquiryType || "general"}] ${formData.message}`,
+        });
+      }
       setStatus("success");
       reset();
       setTimeout(() => setStatus("idle"), 5000);

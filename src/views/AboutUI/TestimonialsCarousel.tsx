@@ -5,10 +5,35 @@ import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import SectionHeading from "./shared/SectionHeading";
 import Reveal from "./shared/Reveal";
 import { resolveImage } from "@/lib/imageUtils";
+import api from "@/lib/axios";
 
 export default function TestimonialsCarousel({ data }: { data: any }) {
-  const items: any[] = Array.isArray(data?.items) ? data.items : [];
+  const [fetched, setFetched] = useState<any[]>([]);
   const [active, setActive] = useState(0);
+
+  // Prefer admin-managed Website Reviews; fall back to CMS items.
+  useEffect(() => {
+    let alive = true;
+    api.get("/reviews/website?page=about")
+      .then((res) => {
+        const list = Array.isArray(res.data) ? res.data : [];
+        if (alive && list.length) {
+          setFetched(list.map((r: any) => ({
+            _id: r._id,
+            name: r.username,
+            company: r.designation || "",
+            location: "",
+            text: r.message,
+            rating: r.rating || 5,
+            avatar: r.userImage || "",
+          })));
+        }
+      })
+      .catch(() => { /* keep CMS items */ });
+    return () => { alive = false; };
+  }, []);
+
+  const items: any[] = fetched.length ? fetched : (Array.isArray(data?.items) ? data.items : []);
 
   const prev = useCallback(() => {
     setActive((p) => (items.length ? (p - 1 + items.length) % items.length : 0));
@@ -26,7 +51,6 @@ export default function TestimonialsCarousel({ data }: { data: any }) {
     return () => clearInterval(id);
   }, [items.length]);
 
-  if (!data) return null;
   if (!items.length) return null;
 
   const index = active % items.length;
@@ -38,7 +62,7 @@ export default function TestimonialsCarousel({ data }: { data: any }) {
   return (
     <section id="testimonials" className="py-16 md:py-24 overflow-hidden bg-white/50 dark:bg-white/[0.03]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeading heading={data.heading} subheading={data.subheading} align="center" />
+        <SectionHeading heading={data?.heading || "What Our Customers Say"} subheading={data?.subheading || "Trusted by thousands of businesses and individuals across India."} align="center" />
 
         <Reveal>
           <div className="relative">

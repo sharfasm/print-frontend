@@ -3,6 +3,7 @@ import React from "react";
 import SectionHeading from "./shared/SectionHeading";
 import Reveal from "./shared/Reveal";
 import AboutIcon from "./shared/AboutIcon";
+import { resolveImage } from "@/lib/imageUtils";
 
 export default function IndustriesGrid({ data }: { data: any }) {
   if (!data) return null;
@@ -18,10 +19,19 @@ export default function IndustriesGrid({ data }: { data: any }) {
           {items.map((it: any, i: number) => (
             <Reveal key={it._id || i} delay={i * 0.05} className="h-full">
               <div className="group h-full rounded-3xl border border-[var(--text)]/10 bg-white/70 dark:bg-white/5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 py-8 md:py-10 px-4 flex flex-col items-center justify-center gap-4 text-center cursor-default hover:bg-[var(--primary)] hover:border-[var(--primary)]">
-                <AboutIcon
-                  name={it.icon}
-                  className="w-8 h-8 md:w-9 md:h-9 text-[var(--primary)] group-hover:text-white transition-colors"
-                />
+                {it.image ? (
+                  <img
+                    src={resolveImage(it.image)}
+                    alt={it.name || "Industry"}
+                    loading="lazy"
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-2xl object-cover shadow-sm"
+                  />
+                ) : (
+                  <AboutIcon
+                    name={it.icon}
+                    className="w-8 h-8 md:w-9 md:h-9 text-[var(--primary)] group-hover:text-white transition-colors"
+                  />
+                )}
                 {it.name && (
                   <h3 className="font-bold text-sm md:text-base text-[var(--text)] group-hover:text-white transition-colors">
                     {it.name}

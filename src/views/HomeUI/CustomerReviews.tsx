@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Quote, Star } from "lucide-react";
 import Reveal from "../AboutUI/shared/Reveal";
+import api from "../../lib/axios";
 
-// All testimonials live here — edit copy without touching the UI below.
-const TESTIMONIALS = [
+// Fallback testimonials — shown until/unless admin adds approved Website Reviews.
+const FALLBACK_TESTIMONIALS = [
   {
     name: "Rahul Menon",
     business: "Retail Business Owner · Kochi",
@@ -42,7 +43,7 @@ function StarRow({ rating }: { rating: number }) {
   );
 }
 
-function TestimonialCard({ t }: { t: (typeof TESTIMONIALS)[number] }) {
+function TestimonialCard({ t }: { t: (typeof FALLBACK_TESTIMONIALS)[number] }) {
   return (
     <figure className="h-full rounded-[2rem] bg-white/60 dark:bg-white/5 backdrop-blur border border-[var(--text)]/8 p-7 md:p-9 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:border-[var(--primary)]/30 hover:shadow-[0_22px_50px_-18px_rgba(80,80,57,0.45)]">
       <div className="flex items-start justify-between gap-4">
@@ -71,6 +72,26 @@ function TestimonialCard({ t }: { t: (typeof TESTIMONIALS)[number] }) {
 }
 
 export default function CustomerReviews() {
+  const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
+
+  useEffect(() => {
+    let active = true;
+    api.get("/reviews/website?page=home")
+      .then((res) => {
+        const list = Array.isArray(res.data) ? res.data : [];
+        if (active && list.length) {
+          setTestimonials(list.map((r: any) => ({
+            name: r.username,
+            business: r.designation || "",
+            rating: r.rating || 5,
+            text: r.message,
+          })));
+        }
+      })
+      .catch(() => { /* keep fallback */ });
+    return () => { active = false; };
+  }, []);
+
   return (
     <section
       aria-labelledby="testimonials-heading"
@@ -92,9 +113,9 @@ export default function CustomerReviews() {
 
         {/* Tablet + desktop grid */}
         <ul className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 list-none">
-          {TESTIMONIALS.map((t, i) => (
+          {testimonials.map((t, i) => (
             <li
-              key={t.name}
+              key={`${t.name}-${i}`}
               className={i === 2 ? "md:col-span-2 lg:col-span-1" : ""}
             >
               <Reveal delay={i * 0.08} className="h-full">
@@ -107,8 +128,8 @@ export default function CustomerReviews() {
         {/* Mobile: swipeable carousel */}
         <div className="md:hidden">
           <ul className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 list-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {TESTIMONIALS.map((t, i) => (
-              <li key={t.name} className="w-[85%] shrink-0 snap-center">
+            {testimonials.map((t, i) => (
+              <li key={`${t.name}-${i}`} className="w-[85%] shrink-0 snap-center">
                 <Reveal delay={i * 0.06} className="h-full">
                   <TestimonialCard t={t} />
                 </Reveal>

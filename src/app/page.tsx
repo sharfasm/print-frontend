@@ -4,6 +4,7 @@ import { generateMetadata as genMeta } from '@/lib/seo/metadata'
 import JsonLd from '@/components/seo/JsonLd'
 import { generateFAQSchema } from '@/lib/seo/schemas'
 import Home from '../views/Home'
+import { logPrefetchFailure } from '@/lib/prefetch'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
 
@@ -52,7 +53,7 @@ export default async function HomePage() {
       initialSettings = await res.json();
     }
   } catch (err) {
-    console.error("Failed to prefetch home settings on server:", err);
+    logPrefetchFailure("home settings", err);
   }
 
   const faqs = (initialSettings && initialSettings.faqs && initialSettings.faqs.length > 0)

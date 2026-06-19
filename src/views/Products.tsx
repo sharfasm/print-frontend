@@ -659,7 +659,7 @@ export default function Products({ initialCategory, initialSubcategory, initialS
         <div className="flex flex-col min-h-screen bg-[var(--bg)] text-[var(--text)] transition-colors duration-300">
             
             {/* ========== 1. HERO BANNER ========== */}
-            <div data-hero-sentinel className="relative w-full h-[35vh] sm:h-[40vh] md:h-[45vh] min-h-[280px] sm:min-h-[320px] md:min-h-[350px] flex flex-col items-center justify-center pt-20 sm:pt-24 pb-6 sm:pb-8 overflow-hidden">
+            <div data-hero-sentinel className="relative w-full h-[42vh] sm:h-[46vh] md:h-[54vh] lg:h-[56vh] min-h-[300px] sm:min-h-[380px] md:min-h-[480px] max-h-[560px] flex flex-col items-center justify-center pt-20 sm:pt-24 pb-8 sm:pb-10 overflow-hidden">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeBanner.bannerMedia}
@@ -676,17 +676,22 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                                 muted
                                 loop
                                 playsInline
-                                className="w-full h-full object-cover scale-105 filter brightness-45 contrast-105"
+                                className="w-full h-full object-cover scale-105 filter brightness-[0.72] contrast-105"
                             />
                         ) : (
                             <img 
                                 src={resolveImage(activeBanner.bannerMedia)!} 
                                 alt={`${brandName} Products Header`} 
-                                className="w-full h-full object-cover scale-105 filter brightness-45 contrast-105"
+                                className="w-full h-full object-cover scale-105 filter brightness-[0.72] contrast-105"
                                 loading="eager"
                             />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/45 to-[var(--bg)] transition-colors duration-300" />
+                        {/* Lighter premium overlay — keeps text readable while the media stays clearly visible */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/10 transition-colors duration-300" />
+                        {/* Subtle cinematic vignette */}
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.32)_100%)]" />
+                        {/* Reduced bottom fade (~28% height) — smooth blend into the page background */}
+                        <div className="absolute inset-x-0 bottom-0 h-[28%] bg-gradient-to-b from-transparent to-[var(--bg)]" />
                     </motion.div>
                 </AnimatePresence>
 
@@ -697,15 +702,22 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.3 }}
-                        className="relative z-10 text-center text-white space-y-3 sm:space-y-4 px-5 sm:px-6 max-w-4xl flex flex-col items-center mt-4 sm:mt-6"
+                        className="relative z-10 text-center text-white space-y-4 sm:space-y-5 px-5 sm:px-6 max-w-4xl flex flex-col items-center mt-4 sm:mt-6"
                     >
-                        <div className="flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] sm:text-xs font-bold tracking-widest text-[#A7AA63] uppercase border border-white/10">
+                        {/* Premium glass pill badge */}
+                        <div className="flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-[10px] sm:text-xs font-bold tracking-widest text-[#A7AA63] uppercase border border-white/20 shadow-lg shadow-black/25">
                             <Sparkles size={12} className="animate-pulse sm:w-3.5 sm:h-3.5" /> Custom Premium Printing
                         </div>
-                        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-serif font-black tracking-tight drop-shadow-xl uppercase leading-tight">
+                        <h1
+                            className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-serif font-black tracking-tight uppercase leading-[1.05]"
+                            style={{ textShadow: "0 2px 28px rgba(0,0,0,0.55)" }}
+                        >
                             {activeBanner.bannerHeading}
                         </h1>
-                        <p className="text-xs sm:text-sm md:text-xl font-medium opacity-90 drop-shadow-lg tracking-wide max-w-2xl text-gray-200 leading-relaxed px-2">
+                        <p
+                            className="text-sm sm:text-base md:text-xl font-medium opacity-95 tracking-wide max-w-xl md:max-w-2xl text-gray-100 leading-relaxed px-2"
+                            style={{ textShadow: "0 1px 14px rgba(0,0,0,0.5)" }}
+                        >
                             {activeBanner.bannerSubtitle}
                         </p>
                     </motion.div>
@@ -1158,20 +1170,20 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                                             </div>
 
                                             {/* Subcategory Grid Cards */}
-                                            <div className="flex overflow-x-auto snap-x snap-mandatory lg:grid lg:grid-cols-3 xl:grid-cols-4 lg:gap-8 gap-6 pb-6 lg:pb-0 scroll-smooth custom-scrollbar lg:overflow-x-visible pt-2">
+                                            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 lg:gap-8 pt-2">
                                                 {categorySubs.map((sub) => {
                                                     const subProductCount = allProducts.filter(p => {
                                                         const pSubId = typeof p.subcategory === 'object' ? p.subcategory?._id : p.subcategory;
                                                         return String(pSubId) === String(sub._id);
                                                     }).length;
                                                     return (
-                                                        <div 
+                                                        <div
                                                             key={sub._id}
                                                             onClick={() => {
                                                                 setSelectedSubcategory(sub);
                                                                 setShowAllProducts(false);
                                                             }}
-                                                            className="group cursor-pointer flex-shrink-0 w-[280px] sm:w-[320px] lg:w-auto snap-start flex flex-col"
+                                                            className="group cursor-pointer flex flex-col"
                                                         >
                                                             {/* Image wrapper */}
                                                             <div className={`relative overflow-hidden rounded-2xl aspect-[4/5] bg-[#A7AA63]/10 border transition-all duration-300 border-[var(--secondary)]/15 group-hover:border-[var(--secondary)]/40 shadow-md group-hover:shadow-xl`}>
@@ -1186,8 +1198,8 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                                                                 )}
                                                                 
                                                                 {/* Hover overlay with smooth gradient fade */}
-                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 text-white">
-                                                                    <h4 className="text-xl font-bold tracking-wide transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 delay-75">{sub.name}</h4>
+                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 sm:p-6 text-white">
+                                                                    <h4 className="text-sm sm:text-xl font-bold tracking-wide transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 delay-75">{sub.name}</h4>
                                                                     <p className="text-[11px] font-bold text-[#A7AA63] uppercase tracking-wider mt-0.5 transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 delay-100">
                                                                         {subProductCount} {subProductCount === 1 ? 'Product' : 'Products'}
                                                                     </p>
@@ -1203,11 +1215,11 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                                                             </div>
 
                                                             {/* Outer text details */}
-                                                            <div className="mt-4 flex flex-col items-start">
-                                                                <h3 className="text-lg font-serif font-black tracking-tight text-[var(--text)] group-hover:text-[var(--primary)] transition-colors leading-tight">
+                                                            <div className="mt-2 sm:mt-4 flex flex-col items-start">
+                                                                <h3 className="text-sm sm:text-lg font-serif font-black tracking-tight text-[var(--text)] group-hover:text-[var(--primary)] transition-colors leading-tight line-clamp-2">
                                                                     {sub.name}
                                                                 </h3>
-                                                                <div className="mt-1 flex items-center gap-1 text-[11px] font-bold text-gray-400 dark:text-gray-500 group-hover:text-[var(--primary)] transition-colors group/explore-link">
+                                                                <div className="mt-1 flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-gray-400 dark:text-gray-500 group-hover:text-[var(--primary)] transition-colors group/explore-link">
                                                                     <span>Explore</span>
                                                                     <span className="transition-transform group-hover/explore-link:translate-x-1">&rarr;</span>
                                                                 </div>

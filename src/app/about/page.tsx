@@ -12,9 +12,13 @@ import About from '../../views/About'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
 
+// Render on every request so admin-managed content is always up to date.
+export const dynamic = 'force-dynamic'
+
 async function getAboutPage() {
   try {
-    const res = await fetch(`${API_URL}/about-page`, { next: { revalidate: 300 } })
+    // Always fetch fresh so admin edits (text + images) reflect immediately.
+    const res = await fetch(`${API_URL}/about-page`, { cache: 'no-store' })
     if (!res.ok) return null
     return await res.json()
   } catch (err) {

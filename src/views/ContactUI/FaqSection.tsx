@@ -1,19 +1,31 @@
 // @ts-nocheck
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import SectionHeading from "../AboutUI/shared/SectionHeading";
 import Reveal from "../AboutUI/shared/Reveal";
+import api from "@/lib/axios";
 
 export default function FaqSection({ data }: { data: any }) {
   const [open, setOpen] = useState<number | null>(0);
+  const [fetched, setFetched] = useState<any[]>([]);
 
-  if (!data) return null;
+  // Prefer admin-managed Contact FAQs; fall back to CMS items.
+  useEffect(() => {
+    let alive = true;
+    api.get("/faqs/public?faqType=contact")
+      .then((res) => {
+        const list = Array.isArray(res.data) ? res.data : [];
+        if (alive && list.length) setFetched(list);
+      })
+      .catch(() => { /* keep CMS items */ });
+    return () => { alive = false; };
+  }, []);
 
-  const allItems: any[] = Array.isArray(data.items) ? data.items : [];
+  const allItems: any[] = fetched.length ? fetched : (Array.isArray(data?.items) ? data.items : []);
   // Limit to max 5 FAQ items as per specs
   const items = allItems.slice(0, 5);
 

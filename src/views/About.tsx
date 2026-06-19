@@ -24,7 +24,7 @@ import TrustedByWall from "./AboutUI/TrustedByWall";
 import ValuesCards from "./AboutUI/ValuesCards";
 import TeamGrid from "./AboutUI/TeamGrid";
 import Sustainability from "./AboutUI/Sustainability";
-import DeliveryNetworkMap from "./AboutUI/DeliveryNetworkMap";
+import PanIndiaNetworkSection from "./AboutUI/PanIndiaNetworkSection";
 import FaqAccordion from "./AboutUI/FaqAccordion";
 import FinalCta from "./AboutUI/FinalCta";
 
@@ -138,7 +138,7 @@ export default function About({ initialData = null }) {
             )}
 
             {/* ── Customer Support ── */}
-            {show("deliveryNetwork") && <DeliveryNetworkMap data={data.deliveryNetwork} />}
+            {show("deliveryNetwork") && <PanIndiaNetworkSection data={data.deliveryNetwork} />}
             {show("faq") && data.faq?.items?.length > 0 && <FaqAccordion data={data.faq} />}
 
             {/* ── Conversion ── */}

@@ -11,7 +11,10 @@ export default function Wishlist() {
     const { wishlist, removeFromWishlist, moveWishlistToCart } = useShop();
     const navigate = useRouter();
 
-    if (wishlist.length === 0) {
+    // Guard: API/context can briefly yield a non-array — coerce to a safe list.
+    const items = Array.isArray(wishlist) ? wishlist : [];
+
+    if (items.length === 0) {
         return (
             <section className="py-24 bg-[var(--bg)] text-[var(--text)] min-h-[60vh] flex flex-col items-center justify-center">
                 <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
@@ -45,13 +48,13 @@ export default function Wishlist() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
                     <div>
                         <h1 className="text-3xl md:text-5xl font-black tracking-tight uppercase mb-2">My Wishlist</h1>
-                        <p className="opacity-70 font-medium">({wishlist.length} saved {wishlist.length === 1 ? 'item' : 'items'})</p>
+                        <p className="opacity-70 font-medium">({items.length} saved {items.length === 1 ? 'item' : 'items'})</p>
                     </div>
                 </div>
 
                 {/* Grid Matches the New Arrivals style for visual consistency */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
-                    {wishlist.map((item) => (
+                    {items.map((item) => (
                         <div key={item._id} className="group relative flex flex-col w-full max-w-[300px] mx-auto sm:max-w-none">
                             <Link href={`/product/${item.slug || item._id}`} className="block relative aspect-[4/5] overflow-hidden rounded-xl sm:rounded-2xl bg-[var(--secondary)]/5 mb-3 sm:mb-4 group-hover:shadow-xl transition-all duration-300">
                                 <img 

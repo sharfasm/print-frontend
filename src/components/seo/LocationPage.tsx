@@ -6,6 +6,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import Breadcrumbs from '@/components/seo/Breadcrumbs';
 import LocationProductGrid from './LocationProductGrid';
 import Footer from '@/components/Footer';
+import { logPrefetchFailure } from '@/lib/prefetch';
 
 interface LocationPageProps {
   city: string;
@@ -42,7 +43,7 @@ export default async function LocationPage({
     if (cRes.ok) categories = await cRes.ok ? await cRes.json() : [];
     if (bRes.ok) blogs = await bRes.json();
   } catch (err) {
-    console.error("Failed to fetch location page data:", err);
+    logPrefetchFailure("location page data", err);
   }
 
   // Filter out non-active products and limit to 8
