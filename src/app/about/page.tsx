@@ -10,7 +10,7 @@ import {
 import { resolveImage } from '@/lib/imageUtils'
 import About from '../../views/About'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+const API_URL = process.env.NEXT_PUBLIC_API_URL 
 
 // Render on every request so admin-managed content is always up to date.
 export const dynamic = 'force-dynamic'

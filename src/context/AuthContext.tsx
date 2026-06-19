@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
             // Connect to backend socket server. The token lets the server verify
             // the identity on the handshake instead of trusting the emitted id.
             const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-            socketRef.current = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
+            socketRef.current = io(process.env.NEXT_PUBLIC_BACKEND_URL , {
                 withCredentials: true,
                 auth: { token },
             });

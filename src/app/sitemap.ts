@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { SITE_CONFIG } from '@/lib/seo/constants'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://printvoz.com'
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+const API_URL = process.env.NEXT_PUBLIC_API_URL 
 
 async function fetchSitemapData() {
   try {

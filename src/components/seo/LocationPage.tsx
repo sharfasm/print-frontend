@@ -26,7 +26,7 @@ export default async function LocationPage({
   deliveryTimeline,
 }: LocationPageProps) {
   // Fetch products and categories on the server side
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL 
   
   let products = [];
   let categories = [];

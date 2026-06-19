@@ -6,7 +6,7 @@ import JsonLd from '@/components/seo/JsonLd'
 import { generateCollectionPageSchema, generateBreadcrumbSchema, generateFAQSchema } from '@/lib/seo/schemas'
 import Products from '@/views/Products'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+const API_URL = process.env.NEXT_PUBLIC_API_URL 
 
 async function getCategorySEO(slug: string) {
   try {

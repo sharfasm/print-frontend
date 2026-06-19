@@ -12,7 +12,7 @@ import { resolveImage } from '@/lib/imageUtils'
 import Contact from '../../views/Contact'
 import { logPrefetchFailure } from '@/lib/prefetch'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+const API_URL = process.env.NEXT_PUBLIC_API_URL 
 
 async function getContactPage() {
   try {
