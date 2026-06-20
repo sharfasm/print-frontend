@@ -39,7 +39,11 @@ export default function Checkout() {
     const [couponInput, setCouponInput] = useState('');
     const [promoExpanded, setPromoExpanded] = useState(!!appliedCoupon);
     const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false);
-    const { user } = useAuth();
+    const { user, register, login } = useAuth();
+
+    // Guest-checkout account creation state.
+    const [accountBusy, setAccountBusy] = useState(false);
+    const [accountError, setAccountError] = useState('');
 
     useEffect(() => {
         if (appliedCoupon) {
@@ -109,6 +113,9 @@ export default function Checkout() {
         country: 'India',
         paymentMethod: 'upi', // upi, whatsapp
         saveAddress: false,
+        // Guests set these so we can create their account at checkout.
+        password: '',
+        confirmPassword: '',
     });
 
     const handleInputChange = (e) => {
@@ -130,6 +137,13 @@ export default function Checkout() {
             if (!formData.email) newErrors.email = 'Email is required';
             else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email format';
             if (!formData.phone) newErrors.phone = 'Phone number is required';
+            // Guests create an account here, so name + password are required too.
+            if (!user) {
+                if (!formData.fullName) newErrors.fullName = 'Full name is required';
+                if (!formData.password) newErrors.password = 'Create a password';
+                else if (formData.password.length < 6) newErrors.password = 'Min 6 characters';
+                if (formData.confirmPassword !== formData.password) newErrors.confirmPassword = 'Passwords do not match';
+            }
         } else if (step === 2) {
             if (!formData.fullName) newErrors.fullName = 'Full name is required';
             if (!formData.address1) newErrors.address1 = 'Address line 1 is required';
@@ -142,8 +156,50 @@ export default function Checkout() {
         return Object.keys(newErrors).length === 0;
     };
 
+    // Guests get an account created from their checkout details (+ password) the
+    // moment they finish step 1 — no login wall. If the email already exists we
+    // treat the password as a sign-in attempt, so returning customers continue
+    // with the same form instead of being bounced to a login page.
+    const ensureAccount = async () => {
+        setAccountError('');
+        setAccountBusy(true);
+        try {
+            await register({ name: formData.fullName, email: formData.email, password: formData.password });
+            return true;
+        } catch (regErr) {
+            const msg = String(regErr?.message || '');
+            if (/exist/i.test(msg)) {
+                try {
+                    await login(formData.email, formData.password);
+                    return true;
+                } catch {
+                    setErrors(prev => ({ ...prev, password: 'Check your password' }));
+                    setAccountError('An account with this email already exists. Enter your existing password to continue, or log in above.');
+                    return false;
+                }
+            }
+            setAccountError(msg || 'Could not create your account. Please try again.');
+            return false;
+        } finally {
+            setAccountBusy(false);
+        }
+    };
+
     const nextStep = async () => {
-        if (validateStep(currentStep)) {
+        if (!validateStep(currentStep)) return;
+
+        // Step 1 → for guests, create (or sign in to) the account before advancing.
+        if (currentStep === 1) {
+            if (!user) {
+                const ok = await ensureAccount();
+                if (!ok) return;
+            }
+            setCurrentStep(2);
+            window.scrollTo(0, 0);
+            return;
+        }
+
+        {
             if (currentStep === 2) {
                 // Create Pending Order on navigating to Payment Step
                 try {
@@ -180,7 +236,9 @@ export default function Checkout() {
                     window.scrollTo(0, 0);
                 } catch (err) {
                     console.error(err);
-                    alert("Failed to initialize payment. Please try again.");
+                    // Surface the server reason (e.g. a coupon that expired or hit
+                    // its limit between applying and ordering) instead of a generic message.
+                    alert(err?.response?.data?.message || "Failed to initialize payment. Please try again.");
                 }
             } else {
                 setCurrentStep(prev => Math.min(prev + 1, 3));
@@ -578,17 +636,35 @@ export default function Checkout() {
                             )}
                             
                             <div className="bg-[var(--secondary)]/5 rounded-3xl p-6 sm:p-8 border border-[var(--secondary)]/10 shadow-sm space-y-5">
+                                {!user && (
+                                    <div>
+                                        <label className="block text-sm font-bold mb-2 flex items-center justify-between">
+                                            <span>Full Name <span className="text-red-500">*</span></span>
+                                            {errors.fullName && <span className="text-xs font-bold text-red-500">{errors.fullName}</span>}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="fullName"
+                                            value={formData.fullName}
+                                            onChange={handleInputChange}
+                                            placeholder="Enter your full name"
+                                            autoComplete="name"
+                                            className="w-full bg-[var(--bg)] border border-[var(--secondary)]/25 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium"
+                                        />
+                                    </div>
+                                )}
                                 <div>
                                     <label className="block text-sm font-bold mb-2 flex items-center justify-between">
                                         <span>Email Address <span className="text-red-500">*</span></span>
                                         {errors.email && <span className="text-xs font-bold text-red-500">{errors.email}</span>}
                                     </label>
-                                    <input 
-                                        type="email" 
-                                        name="email" 
-                                        value={formData.email} 
-                                        onChange={handleInputChange} 
-                                        className="w-full bg-[var(--bg)] border border-[var(--secondary)]/25 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium" 
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                        autoComplete="email"
+                                        className="w-full bg-[var(--bg)] border border-[var(--secondary)]/25 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium"
                                     />
                                 </div>
                                 <div>
@@ -596,20 +672,72 @@ export default function Checkout() {
                                         <span>Phone Number <span className="text-red-500">*</span></span>
                                         {errors.phone && <span className="text-xs font-bold text-red-500">{errors.phone}</span>}
                                     </label>
-                                    <input 
-                                        type="tel" 
-                                        name="phone" 
-                                        value={formData.phone} 
-                                        onChange={handleInputChange} 
-                                        className="w-full bg-[var(--bg)] border border-[var(--secondary)]/25 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium" 
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleInputChange}
+                                        autoComplete="tel"
+                                        className="w-full bg-[var(--bg)] border border-[var(--secondary)]/25 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium"
                                     />
                                 </div>
+
+                                {!user && (
+                                    <>
+                                        <div className="pt-1 flex items-center gap-3">
+                                            <div className="flex-1 h-px bg-[var(--secondary)]/15" />
+                                            <span className="text-[11px] font-black uppercase tracking-wider opacity-50">Create your account</span>
+                                            <div className="flex-1 h-px bg-[var(--secondary)]/15" />
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-bold mb-2 flex items-center justify-between">
+                                                    <span>Password <span className="text-red-500">*</span></span>
+                                                    {errors.password && <span className="text-xs font-bold text-red-500">{errors.password}</span>}
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    name="password"
+                                                    value={formData.password}
+                                                    onChange={handleInputChange}
+                                                    placeholder="Min 6 characters"
+                                                    autoComplete="new-password"
+                                                    className="w-full bg-[var(--bg)] border border-[var(--secondary)]/25 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold mb-2 flex items-center justify-between">
+                                                    <span>Confirm Password <span className="text-red-500">*</span></span>
+                                                    {errors.confirmPassword && <span className="text-xs font-bold text-red-500">{errors.confirmPassword}</span>}
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    name="confirmPassword"
+                                                    value={formData.confirmPassword}
+                                                    onChange={handleInputChange}
+                                                    placeholder="Re-enter password"
+                                                    autoComplete="new-password"
+                                                    className="w-full bg-[var(--bg)] border border-[var(--secondary)]/25 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 focus:border-[var(--primary)]/50 transition-all font-medium"
+                                                />
+                                            </div>
+                                        </div>
+                                        <p className="text-xs font-medium opacity-60 flex items-center gap-1.5">
+                                            <CheckCircle2 size={14} className="text-[var(--primary)] shrink-0" />
+                                            We'll set up your account automatically so you can track this order and check out faster next time.
+                                        </p>
+                                        {accountError && (
+                                            <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm font-bold animate-in fade-in">
+                                                {accountError}
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                             </div>
-                            
+
                             <div className="mt-8 flex justify-end">
-                                <button onClick={nextStep} className="px-8 py-4 bg-[var(--primary)] text-[var(--bg)] font-black rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2">
-                                    Continue to Shipping
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                <button onClick={nextStep} disabled={accountBusy} className="px-8 py-4 bg-[var(--primary)] text-[var(--bg)] font-black rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-60 disabled:pointer-events-none">
+                                    {accountBusy ? 'Creating your account…' : 'Continue to Shipping'}
+                                    {!accountBusy && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>}
                                 </button>
                             </div>
                         </div>

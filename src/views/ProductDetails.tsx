@@ -260,10 +260,8 @@ export default function ProductDetails() {
     };
 
     const handleBuyNow = (data = {}) => {
-        if (!isLoggedIn) {
-            triggerAuthGuard("Login to proceed with your purchase");
-            return;
-        }
+        // No login wall: guests proceed to checkout, where their account is created
+        // automatically from the details (+ password) they enter.
         setIsBuying(true);
         setBuyNowItem({ ...product, quantity, categoryName, customization: data });
         setTimeout(() => {

@@ -155,7 +155,7 @@ export default function Contact({ initialData = null }) {
   }
 
   return (
-    <div className={`bg-[var(--bg)] min-h-screen flex flex-col ${show("hero") ? "" : "pt-24"} pb-16 md:pb-0`}>
+    <div className={`bg-[var(--bg)] min-h-screen flex flex-col ${show("hero") ? "" : "pt-24"} pb-24 md:pb-0`}>
       {/* Hero Section */}
       {show("hero") && <ContactHero data={data.hero} />}
 

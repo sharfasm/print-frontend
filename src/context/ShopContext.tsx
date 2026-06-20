@@ -468,10 +468,9 @@ export const ShopProvider = ({ children }) => {
     };
 
     const applyCouponCode = async (code, customTotal?: number) => {
-        if (!user) {
-            triggerAuthGuard("Login to apply coupons");
-            return;
-        }
+        // Coupons work for everyone — guests included (it's a gift for buyers).
+        // The backend applies first-order checks for logged-in users and
+        // re-validates the discount again server-side at order creation.
         setCouponLoading(true);
         setCouponError(null);
         try {

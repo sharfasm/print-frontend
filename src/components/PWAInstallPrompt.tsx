@@ -115,13 +115,14 @@ const PWAInstallPrompt = () => {
     const isIOSHint = device.isIOS && device.isSafari && !deferredPrompt;
     if (!deferredPrompt && !isIOSHint) return null;
 
-    // Sit above the BottomNav (h-16) on mobile; bottom-right card on desktop.
+    // Sit above the floating BottomNav on mobile (via --bottom-nav-space); on
+    // desktop / nav-less routes it drops to a small gap above the bottom edge.
     return (
         <div
             role="dialog"
             aria-label="Install Printvoz app"
             className="fixed left-3 right-3 z-[55] sm:left-auto sm:right-5 sm:max-w-sm animate-pwa-rise"
-            style={{ bottom: "calc(env(safe-area-inset-bottom) + 4.75rem)" }}
+            style={{ bottom: "calc(var(--bottom-nav-space) + 0.75rem)" }}
         >
             <div className="relative rounded-2xl bg-[var(--bg)]/95 backdrop-blur-xl border border-[var(--secondary)]/25 shadow-2xl p-4 pr-10 text-[var(--text)]">
                 <button

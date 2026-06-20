@@ -207,7 +207,7 @@ export default function HelpCenter({
       {/* Sticky mobile support CTA */}
       <a
         href="#support"
-        className="lg:hidden fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[var(--primary)] text-[var(--bg)] font-bold shadow-2xl shadow-[var(--primary)]/30 active:scale-95 transition-transform"
+        className="lg:hidden fixed over-bottom-nav right-4 z-40 inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[var(--primary)] text-[var(--bg)] font-bold shadow-2xl shadow-[var(--primary)]/30 active:scale-95 transition-transform"
       >
         <Headset className="w-5 h-5" /> Support
       </a>
