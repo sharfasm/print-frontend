@@ -65,6 +65,8 @@ export default function Checkout() {
     
     // Payment Specific State
     const [pendingOrderId, setPendingOrderId] = useState(null);
+    // Server-computed total of the created order (authoritative ₹ the gateway charges).
+    const [pendingOrderTotal, setPendingOrderTotal] = useState(null);
     const [transactionLast4, setTransactionLast4] = useState('');
     const [paymentProof, setPaymentProof] = useState<File | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -235,6 +237,8 @@ export default function Checkout() {
                     };
                     const res = await api.post('/orders', orderData);
                     setPendingOrderId(res.data._id);
+                    // Prefer the server-computed total for what we charge/display.
+                    setPendingOrderTotal(typeof res.data.totalAmount === 'number' ? res.data.totalAmount : null);
                     setCurrentStep(3);
                     window.scrollTo(0, 0);
                 } catch (err) {
@@ -997,7 +1001,7 @@ export default function Checkout() {
                                     </label>
                                     {formData.paymentMethod === 'razorpay' && (
                                         <div className="p-6 bg-[var(--secondary)]/5 border-t border-[var(--secondary)]/10 animate-in fade-in slide-in-from-top-2">
-                                            <p className="font-bold mb-1">Amount to pay: ₹{finalTotal}</p>
+                                            <p className="font-bold mb-1">Amount to pay: ₹{pendingOrderTotal ?? finalTotal}</p>
                                             <p className="text-sm opacity-70 font-medium">
                                                 Click <span className="font-bold">Pay Securely</span> below to open Razorpay's secure checkout. Your card and bank details are never shared with us.
                                             </p>
@@ -1115,7 +1119,7 @@ export default function Checkout() {
                                         disabled={razorpayProcessing}
                                         className="w-full sm:w-auto px-8 py-4 bg-[var(--primary)] text-[var(--bg)] font-black rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
                                     >
-                                        {razorpayProcessing ? 'Processing…' : `Pay Securely ₹${finalTotal}`}
+                                        {razorpayProcessing ? 'Processing…' : `Pay Securely ₹${pendingOrderTotal ?? finalTotal}`}
                                     </button>
                                 ) : (
                                     <button
