@@ -274,7 +274,10 @@ const Navbar = () => {
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const seen = localStorage.getItem("navbarHintSeen");
-            if (!seen) {
+            // The hinted icon buttons only exist on desktop now (mobile uses the
+            // BottomNav), so only run the onboarding hint at lg+.
+            const isDesktop = window.innerWidth >= 1024;
+            if (!seen && isDesktop) {
                 const startTimer = setTimeout(() => {
                     setShowOnboarding(true);
                 }, 100);
@@ -596,44 +599,53 @@ const Navbar = () => {
                         </div>
                     </div>
 
-                    {/* ── RIGHT: Icon buttons ── */}
+                    {/* ── RIGHT: Icon buttons ──
+                         On mobile (< lg) Products / Wishlist / Cart / Account move to the
+                         fixed BottomNav for thumb reach — only the theme toggle stays in the
+                         header. The desktop (lg+) cluster is unchanged. */}
                     <div className="flex items-center gap-0.5 sm:gap-1 shrink-0 lg:w-[280px] lg:justify-end">
-                        <NavIconBtn href="/products" label="Products" isTransparentPage={isTransparentPage} heroExited={heroExited} showOnboarding={showOnboarding}>
-                            <IconGrid />
-                        </NavIconBtn>
+                        <div className="hidden lg:flex">
+                            <NavIconBtn href="/products" label="Products" isTransparentPage={isTransparentPage} heroExited={heroExited} showOnboarding={showOnboarding}>
+                                <IconGrid />
+                            </NavIconBtn>
+                        </div>
+
+                        <div className="hidden lg:flex">
+                            <NavIconBtn
+                                label="Wishlist"
+                                badge={wishlistCount}
+                                badgeAnimate={wishAnimate}
+                                onClick={() => {
+                                    if (!isLoggedIn) { triggerAuthGuard("Login to view your saved wishlist"); }
+                                    else { navigate.push("/wishlist"); }
+                                }}
+                                isTransparentPage={isTransparentPage}
+                                heroExited={heroExited}
+                                showOnboarding={showOnboarding}
+                            >
+                                <IconHeart />
+                            </NavIconBtn>
+                        </div>
+
+                        <div className="hidden lg:flex">
+                            <NavIconBtn
+                                label="Cart"
+                                badge={cartCount}
+                                badgeAnimate={cartAnimate}
+                                onClick={() => {
+                                    if (!isLoggedIn) { triggerAuthGuard("Login to view your shopping cart"); }
+                                    else { navigate.push("/cart"); }
+                                }}
+                                isTransparentPage={isTransparentPage}
+                                heroExited={heroExited}
+                                showOnboarding={showOnboarding}
+                            >
+                                <IconCart />
+                            </NavIconBtn>
+                        </div>
 
                         <NavIconBtn
-                            label="Wishlist"
-                            badge={wishlistCount}
-                            badgeAnimate={wishAnimate}
-                            onClick={() => {
-                                if (!isLoggedIn) { triggerAuthGuard("Login to view your saved wishlist"); }
-                                else { navigate.push("/wishlist"); }
-                            }}
-                            isTransparentPage={isTransparentPage}
-                            heroExited={heroExited}
-                            showOnboarding={showOnboarding}
-                        >
-                            <IconHeart />
-                        </NavIconBtn>
-
-                        <NavIconBtn
-                            label="Cart"
-                            badge={cartCount}
-                            badgeAnimate={cartAnimate}
-                            onClick={() => {
-                                if (!isLoggedIn) { triggerAuthGuard("Login to view your shopping cart"); }
-                                else { navigate.push("/cart"); }
-                            }}
-                            isTransparentPage={isTransparentPage}
-                            heroExited={heroExited}
-                            showOnboarding={showOnboarding}
-                        >
-                            <IconCart />
-                        </NavIconBtn>
-
-                        <NavIconBtn 
-                            label="Theme" 
+                            label="Theme"
                             onClick={toggleTheme}
                             isTransparentPage={isTransparentPage}
                             heroExited={heroExited}
@@ -642,19 +654,21 @@ const Navbar = () => {
                             {mode === "light" ? <IconMoon /> : <IconSun />}
                         </NavIconBtn>
 
-                        <NavIconBtn
-                            label="Account"
-                            href={isLoggedIn ? "/dashboard" : "/login"}
-                            isTransparentPage={isTransparentPage}
-                            heroExited={heroExited}
-                            showOnboarding={showOnboarding}
-                        >
-                            {isLoggedIn && user?.avatar ? (
-                                <img src={user.avatar} alt={user.name} className="w-6 h-6 rounded-full border border-white/20 shadow-sm" />
-                            ) : (
-                                <IconUser />
-                            )}
-                        </NavIconBtn>
+                        <div className="hidden lg:flex">
+                            <NavIconBtn
+                                label="Account"
+                                href={isLoggedIn ? "/dashboard" : "/login"}
+                                isTransparentPage={isTransparentPage}
+                                heroExited={heroExited}
+                                showOnboarding={showOnboarding}
+                            >
+                                {isLoggedIn && user?.avatar ? (
+                                    <img src={user.avatar} alt={user.name} className="w-6 h-6 rounded-full border border-white/20 shadow-sm" />
+                                ) : (
+                                    <IconUser />
+                                )}
+                            </NavIconBtn>
+                        </div>
                     </div>
                 </div>
 

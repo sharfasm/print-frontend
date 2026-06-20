@@ -87,6 +87,31 @@ body {
     animation-play-state: paused;
 }
 
+/* ─── Mobile bottom navigation ───
+   Reserve space so the fixed BottomNav never covers the footer / last content.
+   Toggled by the `has-bottom-nav` body class (set in BottomNav.tsx), and only
+   below the lg breakpoint where the bar is shown. */
+@media (max-width: 1023px) {
+    body.has-bottom-nav {
+        /* floating bar height (~4.25rem) + bottom gap (0.5rem) + breathing room */
+        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    }
+}
+
+/* PWA install prompt entrance */
+@keyframes pwaRise {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-pwa-rise {
+    animation: pwaRise 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-pwa-rise { animation: none; }
+}
+
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }

@@ -7,6 +7,9 @@ import { ShopProvider } from "../context/ShopContext";
 import { AuthProvider } from "../context/AuthContext";
 import RouteTransition from "./RouteTransition";
 import AnnouncementBar from "./AnnouncementBar";
+import BottomNav from "./BottomNav";
+import PWAInstallPrompt from "./PWAInstallPrompt";
+import ServiceWorkerRegister from "./ServiceWorkerRegister";
 import { ReactLenis } from 'lenis/react';
 import ScrollEngine from "./scroll/ScrollEngine";
 import ScrollProgress from "./scroll/ScrollProgress";
@@ -90,6 +93,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             <RouteTransition>
               {children}
             </RouteTransition>
+            <BottomNav />
+            <PWAInstallPrompt />
+            <ServiceWorkerRegister />
           </MaintenanceGuard>
         </ShopProvider>
       </AuthProvider>
