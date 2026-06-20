@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 ;
 import { useShop } from '../context/ShopContext';
 import { resolveImage } from '../lib/imageUtils';
+import InlineAuthPrompt from '../components/InlineAuthPrompt';
 
 import { useState } from 'react';
 import { Tag, X, HelpCircle, Truck } from 'lucide-react';
@@ -28,19 +29,31 @@ export default function Cart() {
     const [couponInput, setCouponInput] = useState('');
     const [promoExpanded, setPromoExpanded] = useState(false);
 
-    if (cart.length === 0) {
+    // Guard: API/context can briefly yield a non-array — coerce to a safe list so a
+    // bad/failed response can never crash the cart with `.map`/`.reduce is not a function`.
+    const items = Array.isArray(cart) ? cart : [];
+
+    if (items.length === 0) {
         return (
-            <section className="py-24 bg-[var(--bg)] text-[var(--text)] min-h-[60vh] flex flex-col items-center justify-center">
-                <div className="w-24 h-24 bg-[var(--secondary)]/10 rounded-full flex items-center justify-center mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 opacity-50">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-                    </svg>
+            <section className="py-24 bg-[var(--bg)] text-[var(--text)] min-h-[60vh]">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <InlineAuthPrompt
+                        title="Save your cart to your account"
+                        message="Items you add stay on this device. Log in to sync your cart and check out from anywhere."
+                    />
                 </div>
-                <h2 className="text-3xl font-black tracking-tight mb-2">Your Cart is Empty</h2>
-                <p className="opacity-70 font-medium mb-8">Ready to print something amazing today?</p>
-                <Link href="/products" className="bg-[var(--primary)] text-[var(--bg)] font-bold px-8 py-3 rounded-full hover:opacity-90 transition-opacity">
-                    Start Shopping
-                </Link>
+                <div className="flex flex-col items-center justify-center pt-8">
+                    <div className="w-24 h-24 bg-[var(--secondary)]/10 rounded-full flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 opacity-50">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-3xl font-black tracking-tight mb-2">Your Cart is Empty</h2>
+                    <p className="opacity-70 font-medium mb-8">Ready to print something amazing today?</p>
+                    <Link href="/products" className="bg-[var(--primary)] text-[var(--bg)] font-bold px-8 py-3 rounded-full hover:opacity-90 transition-opacity">
+                        Start Shopping
+                    </Link>
+                </div>
             </section>
         );
     }
@@ -60,13 +73,18 @@ export default function Cart() {
                 </button>
 
                 <h1 className="text-3xl md:text-5xl font-black tracking-tight uppercase mb-2">Shopping Cart</h1>
-                <p className="opacity-70 font-medium mb-12">Review your items before checkout.</p>
+                <p className="opacity-70 font-medium mb-8">Review your items before checkout.</p>
+
+                <InlineAuthPrompt
+                    title="You're shopping as a guest"
+                    message="Your cart is saved on this device. Log in to sync it to your account and check out securely."
+                />
 
                 <div className="flex flex-col lg:flex-row gap-10">
                     {/* Cart Items List */}
                     <div className="flex-1 overflow-hidden">
                         <div className="grid grid-cols-1 gap-4 md:gap-6">
-                            {cart.map((item) => (
+                            {items.map((item) => (
                                 <div key={item._id} className="group flex flex-col md:flex-row items-center gap-4 md:gap-6 bg-[var(--bg)] border border-[var(--secondary)]/10 p-3 md:p-6 rounded-2xl md:rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300">
                                     <Link href={`/product/${item.slug || item._id}`} className="shrink-0 relative w-full aspect-square md:h-40 md:w-40 bg-[var(--secondary)]/5 rounded-xl md:rounded-2xl overflow-hidden block">
                                         <img src={resolveImage(item.image)} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
@@ -196,7 +214,7 @@ export default function Cart() {
                             
                             <div className="space-y-4 mb-6">
                                 <div className="flex justify-between text-sm text-[var(--text)] opacity-80 font-medium">
-                                    <span>Subtotal ({cart.reduce((a,c) => a + c.quantity, 0)} items)</span>
+                                    <span>Subtotal ({items.reduce((a,c) => a + c.quantity, 0)} items)</span>
                                     <span>₹{cartTotal}</span>
                                 </div>
                                 <div className="flex justify-between text-sm text-green-600 dark:text-green-400 font-medium">

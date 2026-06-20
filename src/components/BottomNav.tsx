@@ -95,7 +95,6 @@ const BottomNav = () => {
             href: "/wishlist",
             Icon: IconHeart,
             badge: wishlistCount,
-            guard: "Login to view your saved wishlist",
             active: pathname.startsWith("/wishlist"),
         },
         {
@@ -104,7 +103,6 @@ const BottomNav = () => {
             href: "/cart",
             Icon: IconCart,
             badge: cartCount,
-            guard: "Login to view your shopping cart",
             active: pathname.startsWith("/cart"),
         },
         {

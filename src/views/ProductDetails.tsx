@@ -236,10 +236,7 @@ export default function ProductDetails() {
     const galleryImages = product.images && product.images.length > 0 ? product.images : [product.primaryImage || product.coverImage];
 
     const handleAddToCart = (data = {}) => {
-        if (!isLoggedIn) {
-            triggerAuthGuard("Login to build your shipping cart");
-            return;
-        }
+        // Guests can build a cart too — it's stored locally and synced on login.
         setIsAdding(true);
         // Premium artificial delay for feeling of work
         setTimeout(() => {

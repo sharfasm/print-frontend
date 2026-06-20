@@ -615,10 +615,7 @@ const Navbar = () => {
                                 label="Wishlist"
                                 badge={wishlistCount}
                                 badgeAnimate={wishAnimate}
-                                onClick={() => {
-                                    if (!isLoggedIn) { triggerAuthGuard("Login to view your saved wishlist"); }
-                                    else { navigate.push("/wishlist"); }
-                                }}
+                                onClick={() => { navigate.push("/wishlist"); }}
                                 isTransparentPage={isTransparentPage}
                                 heroExited={heroExited}
                                 showOnboarding={showOnboarding}
@@ -632,10 +629,7 @@ const Navbar = () => {
                                 label="Cart"
                                 badge={cartCount}
                                 badgeAnimate={cartAnimate}
-                                onClick={() => {
-                                    if (!isLoggedIn) { triggerAuthGuard("Login to view your shopping cart"); }
-                                    else { navigate.push("/cart"); }
-                                }}
+                                onClick={() => { navigate.push("/cart"); }}
                                 isTransparentPage={isTransparentPage}
                                 heroExited={heroExited}
                                 showOnboarding={showOnboarding}

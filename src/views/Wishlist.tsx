@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 ;
 import { useShop } from '../context/ShopContext';
 import { resolveImage } from '../lib/imageUtils';
+import InlineAuthPrompt from '../components/InlineAuthPrompt';
 
 export default function Wishlist() {
     const { wishlist, removeFromWishlist, moveWishlistToCart } = useShop();
@@ -16,17 +17,25 @@ export default function Wishlist() {
 
     if (items.length === 0) {
         return (
-            <section className="py-24 bg-[var(--bg)] text-[var(--text)] min-h-[60vh] flex flex-col items-center justify-center">
-                <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-red-500/50">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                    </svg>
+            <section className="py-24 bg-[var(--bg)] text-[var(--text)] min-h-[60vh]">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <InlineAuthPrompt
+                        title="Save your wishlist to your account"
+                        message="Items you save here stay on this device. Log in to sync your wishlist and keep it across all your devices."
+                    />
                 </div>
-                <h2 className="text-3xl font-black tracking-tight mb-2">Your Wishlist is Empty</h2>
-                <p className="opacity-70 font-medium mb-8">Save your favorite styles for later.</p>
-                <Link href="/products" className="bg-[var(--primary)] text-[var(--bg)] font-bold px-8 py-3 rounded-full hover:opacity-90 transition-opacity">
-                    Explore Products
-                </Link>
+                <div className="flex flex-col items-center justify-center pt-8">
+                    <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-red-500/50">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-3xl font-black tracking-tight mb-2">Your Wishlist is Empty</h2>
+                    <p className="opacity-70 font-medium mb-8">Save your favorite styles for later.</p>
+                    <Link href="/products" className="bg-[var(--primary)] text-[var(--bg)] font-bold px-8 py-3 rounded-full hover:opacity-90 transition-opacity">
+                        Explore Products
+                    </Link>
+                </div>
             </section>
         );
     }
@@ -45,12 +54,17 @@ export default function Wishlist() {
                     Back to Previous Page
                 </button>
 
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
                     <div>
                         <h1 className="text-3xl md:text-5xl font-black tracking-tight uppercase mb-2">My Wishlist</h1>
                         <p className="opacity-70 font-medium">({items.length} saved {items.length === 1 ? 'item' : 'items'})</p>
                     </div>
                 </div>
+
+                <InlineAuthPrompt
+                    title="You're browsing as a guest"
+                    message="Your wishlist is saved on this device. Log in to sync it to your account and keep it across all your devices."
+                />
 
                 {/* Grid Matches the New Arrivals style for visual consistency */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
