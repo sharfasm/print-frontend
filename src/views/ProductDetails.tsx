@@ -236,10 +236,7 @@ export default function ProductDetails() {
     const galleryImages = product.images && product.images.length > 0 ? product.images : [product.primaryImage || product.coverImage];
 
     const handleAddToCart = (data = {}) => {
-        if (!isLoggedIn) {
-            triggerAuthGuard("Login to build your shipping cart");
-            return;
-        }
+        // Guests can build a cart too — it's stored locally and synced on login.
         setIsAdding(true);
         // Premium artificial delay for feeling of work
         setTimeout(() => {
@@ -263,10 +260,8 @@ export default function ProductDetails() {
     };
 
     const handleBuyNow = (data = {}) => {
-        if (!isLoggedIn) {
-            triggerAuthGuard("Login to proceed with your purchase");
-            return;
-        }
+        // No login wall: guests proceed to checkout, where their account is created
+        // automatically from the details (+ password) they enter.
         setIsBuying(true);
         setBuyNowItem({ ...product, quantity, categoryName, customization: data });
         setTimeout(() => {

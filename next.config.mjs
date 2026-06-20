@@ -35,6 +35,9 @@ const contentSecurityPolicy = [
   `img-src 'self' data: blob: https: ${backendOrigin}`.trim(),
   "font-src 'self' data: https://fonts.gstatic.com",
   `connect-src 'self' ${backendOrigin} ${wsOrigin}`.trim(),
+  // Allow the Google Maps embed (e.g. the Contact page) so it isn't flagged under
+  // the default-src fallback. Without this, CSP reports a frame-src violation.
+  "frame-src 'self' https://www.google.com https://maps.google.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",

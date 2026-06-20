@@ -217,7 +217,7 @@ function MobileToc({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="lg:hidden fixed bottom-6 right-6 z-50">
+    <div className="lg:hidden fixed over-bottom-nav right-6 z-50">
       <AnimatePresence>
         {open && (
           <motion.div
@@ -1103,7 +1103,7 @@ export default function TermsConditions() {
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             aria-label="Back to top"
-            className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-xl backdrop-blur-md border border-[var(--secondary)]/15 shadow-md flex items-center justify-center text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all duration-300"
+            className="fixed over-bottom-nav left-6 z-50 w-11 h-11 rounded-xl backdrop-blur-md border border-[var(--secondary)]/15 shadow-md flex items-center justify-center text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all duration-300"
             style={{ background: 'var(--surface-elevated)' }}
           >
             <ArrowUp size={18} />

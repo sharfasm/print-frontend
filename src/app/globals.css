@@ -87,6 +87,47 @@ body {
     animation-play-state: paused;
 }
 
+/* ─── Mobile bottom navigation ───
+   Reserve space so the fixed BottomNav never covers the footer / last content,
+   and expose its visual footprint as `--bottom-nav-space` so page-level fixed
+   bottom bars / FABs (cart checkout bar, contact bar, policy FABs, …) can stack
+   ABOVE the floating bar instead of colliding with it.
+   Toggled by the `has-bottom-nav` body class (set in BottomNav.tsx), and only
+   below the lg breakpoint where the bar is shown. */
+:root {
+    /* 0 by default: desktop, and routes where the bar is suppressed (checkout,
+       login, …). Fixed bottom elements read this and fall back to flush-bottom. */
+    --bottom-nav-space: 0px;
+}
+@media (max-width: 1023px) {
+    body.has-bottom-nav {
+        /* floating bar height (~4.25rem) + bottom gap (0.5rem) */
+        --bottom-nav-space: calc(4.75rem + env(safe-area-inset-bottom));
+        /* + breathing room so the footer / last content clears the bar */
+        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    }
+}
+
+/* Lift a fixed bottom-anchored FAB above the floating BottomNav (with a gap).
+   On desktop / nav-less routes --bottom-nav-space is 0, so this is just bottom-6. */
+.over-bottom-nav {
+    bottom: calc(var(--bottom-nav-space) + 1.5rem);
+}
+
+/* PWA install prompt entrance */
+@keyframes pwaRise {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-pwa-rise {
+    animation: pwaRise 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-pwa-rise { animation: none; }
+}
+
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }

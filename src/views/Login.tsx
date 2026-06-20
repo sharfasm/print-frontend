@@ -28,8 +28,15 @@ export default function Login() {
         setIsLoading(true);
         try {
             await login(email, password);
-            // On successful login, redirect to Dashboard
-            navigate.push('/dashboard');
+            // If we arrived here from a guarded page (e.g. ?redirect=/cart), return
+            // there so the now-synced cart/wishlist is shown; otherwise go to Dashboard.
+            let redirect = '/dashboard';
+            try {
+                const target = new URLSearchParams(window.location.search).get('redirect');
+                // Only allow same-site relative paths to avoid open-redirects.
+                if (target && target.startsWith('/')) redirect = target;
+            } catch (e) { /* no-op */ }
+            navigate.push(redirect);
         } catch (err: any) {
             setError(err.message || 'Invalid credentials. Please try again.');
         } finally {

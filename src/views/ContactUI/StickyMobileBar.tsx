@@ -19,7 +19,10 @@ export default function StickyMobileBar({ data }: { data: any }) {
     : "";
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-black/80 backdrop-blur-lg border-t border-white/10 px-4 py-3 pb-safe shadow-2xl">
+    <div
+      className="fixed left-0 right-0 z-50 md:hidden bg-black/80 backdrop-blur-lg border-t border-white/10 px-4 py-3 shadow-2xl"
+      style={{ bottom: "var(--bottom-nav-space)" }}
+    >
       <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
         {phone && (
           <a

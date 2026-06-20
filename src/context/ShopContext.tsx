@@ -68,29 +68,111 @@ export const ShopProvider = ({ children }) => {
         fetchBrandInfo();
     }, []);
 
-    // Load data when user changes
+    // Fixed localStorage keys for the GUEST cart/wishlist. These are independent of
+    // the per-user storeKey so we can always find a guest's data at login time to
+    // merge it into their account.
+    const GUEST_CART_KEY = 'shop_data_guest_cart';
+    const GUEST_WISHLIST_KEY = 'shop_data_guest_wishlist';
+
+    // Normalize a product (full product OR an already-stored line) into the compact
+    // shape the cart/wishlist views render. Mirrors the backend's formatted payload
+    // so guest items and server items look identical to the UI.
+    const normalizeProduct = (product) => {
+        const image =
+            product.image ||
+            product.primaryImage ||
+            product.coverImage ||
+            (Array.isArray(product.images) ? product.images[0] : null);
+        return {
+            _id: product._id,
+            name: product.name,
+            price: product.price,
+            image,
+            slug: product.slug,
+            category: product.category,
+            categoryName:
+                product.categoryName ||
+                (product.category && typeof product.category === 'object' ? product.category.name : undefined),
+            shortDescription: product.shortDescription,
+        };
+    };
+
+    const persistGuest = (key, value) => {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {
+            // Storage may be unavailable (private mode / quota) — ignore.
+        }
+    };
+
+    // Resilience guard: an API may return an error object, HTML from a proxy, or
+    // null instead of the expected list. Coerce anything non-array to [] so the
+    // cart/wishlist views (which .map/.reduce/.length over state) can never crash.
+    const asArray = (v) => (Array.isArray(v) ? v : []);
+
+    // Load data when user changes.
+    //  - Logged in: merge any guest (localStorage) cart/wishlist into the account,
+    //    clear the guest copy, then load the authoritative server state.
+    //  - Guest: hydrate cart/wishlist from localStorage.
     useEffect(() => {
-        const fetchBackendData = async () => {
+        let cancelled = false;
+
+        const syncOnAuth = async () => {
             if (user) {
                 try {
+                    // 1. Read anything the user built while logged out.
+                    let guestCart = [];
+                    let guestWishlist = [];
+                    try {
+                        const c = localStorage.getItem(GUEST_CART_KEY);
+                        const w = localStorage.getItem(GUEST_WISHLIST_KEY);
+                        guestCart = c ? JSON.parse(c) : [];
+                        guestWishlist = w ? JSON.parse(w) : [];
+                    } catch (e) {
+                        guestCart = [];
+                        guestWishlist = [];
+                    }
+
+                    // 2. Push the guest data into the account (one round-trip each).
+                    if (Array.isArray(guestCart) && guestCart.length > 0) {
+                        await api.post('/cart/merge', {
+                            items: guestCart.map(i => ({
+                                productId: i._id,
+                                quantity: i.quantity || 1,
+                                customization: i.customization || {},
+                            })),
+                        }).catch(err => console.error("Cart merge failed", err));
+                    }
+                    if (Array.isArray(guestWishlist) && guestWishlist.length > 0) {
+                        await api.post('/wishlist/merge', {
+                            productIds: guestWishlist.map(i => i._id),
+                        }).catch(err => console.error("Wishlist merge failed", err));
+                    }
+
+                    // 3. Drop the guest copy so it never re-merges or leaks across accounts.
+                    localStorage.removeItem(GUEST_CART_KEY);
+                    localStorage.removeItem(GUEST_WISHLIST_KEY);
+
+                    // 4. Load the authoritative server state.
                     const [cartRes, wishRes, addrRes] = await Promise.all([
                         api.get('/cart'),
                         api.get('/wishlist'),
-                        api.get('/address')
+                        api.get('/address'),
                     ]);
+                    if (cancelled) return;
                     // Coerce to arrays — API may return an object/error payload.
                     setCart(Array.isArray(cartRes.data) ? cartRes.data : []);
                     setWishlist(Array.isArray(wishRes.data) ? wishRes.data : []);
                     setAddresses(Array.isArray(addrRes.data) ? addrRes.data : []);
                 } catch (error) {
-                    console.error("Failed to fetch backend shop data", error);
+                    console.error("Failed to sync backend shop data", error);
                 }
             } else {
                 try {
-                    const savedCart = localStorage.getItem(`${storeKey}_cart`);
+                    const savedCart = localStorage.getItem(GUEST_CART_KEY);
                     setCart(savedCart ? JSON.parse(savedCart) : []);
 
-                    const savedWishlist = localStorage.getItem(`${storeKey}_wishlist`);
+                    const savedWishlist = localStorage.getItem(GUEST_WISHLIST_KEY);
                     setWishlist(savedWishlist ? JSON.parse(savedWishlist) : []);
 
                     const savedOrders = localStorage.getItem(`${storeKey}_orders`);
@@ -114,20 +196,20 @@ export const ShopProvider = ({ children }) => {
                 }
             }
         };
-        fetchBackendData();
+
+        syncOnAuth();
+        return () => { cancelled = true; };
     }, [user, storeKey]);
 
-    // Save to localStorage on change
+    // Keep the cart subtotal in sync with the cart. Guest cart/wishlist are
+    // persisted write-through inside the mutation handlers below (not via a generic
+    // save-effect) which avoids a mount-time race that could wipe a guest's stored
+    // items before they hydrate, and lets an emptied guest cart persist correctly.
     useEffect(() => {
-        if (!user && cart.length === 0) return; // Prevent overwriting guest empty state unnecessarily
-        localStorage.setItem(`${storeKey}_cart`, JSON.stringify(cart));
-        calculateTotal();
-    }, [cart, storeKey]);
-
-    useEffect(() => {
-        if (!user && wishlist.length === 0) return;
-        localStorage.setItem(`${storeKey}_wishlist`, JSON.stringify(wishlist));
-    }, [wishlist, storeKey]);
+        const list = Array.isArray(cart) ? cart : [];
+        const total = list.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+        setCartTotal(total);
+    }, [cart]);
 
     useEffect(() => {
         if (!user && orders.length === 0) return;
@@ -149,11 +231,6 @@ export const ShopProvider = ({ children }) => {
         localStorage.setItem(`${storeKey}_walletTransactions`, JSON.stringify(walletTransactions));
     }, [walletTransactions, storeKey]);
 
-    const calculateTotal = () => {
-        const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-        setCartTotal(total);
-    };
-
     // --- AUTH GUARD TRIGGER ---
     const triggerAuthGuard = (message = "Please login to continue") => {
         // Step 1: Show Notification
@@ -166,45 +243,87 @@ export const ShopProvider = ({ children }) => {
     };
 
     // --- CART ACTIONS ---
-    const addToCart = async (product, quantity = 1) => {
+    // Guests mutate a local (localStorage) cart; logged-in users go through the API
+    // exclusively. Local state is never written for a logged-in user — the server is
+    // the single source of truth (guest data is merged in once, on login).
+    const addToCart = async (product, quantity = 1, customization) => {
+        const cust = customization ?? product.customization ?? {};
+
         if (!user) {
-            triggerAuthGuard("Login to add items to your cart");
+            // GUEST: write-through to the local cart.
+            setCart(prev => {
+                const list = Array.isArray(prev) ? prev : [];
+                const idx = list.findIndex(i =>
+                    i._id === product._id &&
+                    JSON.stringify(i.customization || {}) === JSON.stringify(cust || {})
+                );
+                let next;
+                if (idx > -1) {
+                    next = list.map((i, k) => k === idx ? { ...i, quantity: (i.quantity || 1) + quantity } : i);
+                } else {
+                    next = [...list, { ...normalizeProduct(product), quantity, customization: cust }];
+                }
+                persistGuest(GUEST_CART_KEY, next);
+                return next;
+            });
             return;
         }
+
         try {
-            const res = await api.post('/cart/add', { 
-                productId: product._id, 
+            const res = await api.post('/cart/add', {
+                productId: product._id,
                 quantity,
-                customization: product.customization || {} 
+                customization: cust,
             });
-            setCart(res.data);
+            setCart(asArray(res.data));
         } catch (err) {
             console.error("Failed to add to cart", err);
         }
     };
 
     const removeFromCart = async (productId) => {
-        if (!user) return;
+        if (!user) {
+            setCart(prev => {
+                const next = (Array.isArray(prev) ? prev : []).filter(i => i._id !== productId);
+                persistGuest(GUEST_CART_KEY, next);
+                return next;
+            });
+            return;
+        }
         try {
             const res = await api.delete(`/cart/remove/${productId}`);
-            setCart(res.data);
+            setCart(asArray(res.data));
         } catch (err) {
             console.error("Failed to remove from cart", err);
         }
     };
 
     const updateCartQuantity = async (productId, newQuantity) => {
-        if (!user || newQuantity < 1) return;
+        if (newQuantity < 1) return;
+        if (!user) {
+            setCart(prev => {
+                const next = (Array.isArray(prev) ? prev : []).map(i =>
+                    i._id === productId ? { ...i, quantity: newQuantity } : i
+                );
+                persistGuest(GUEST_CART_KEY, next);
+                return next;
+            });
+            return;
+        }
         try {
             const res = await api.patch('/cart/update', { productId, quantity: newQuantity });
-            setCart(res.data);
+            setCart(asArray(res.data));
         } catch (err) {
             console.error("Failed to update cart", err);
         }
     };
 
     const clearCart = async () => {
-        if (!user) return;
+        if (!user) {
+            setCart([]);
+            persistGuest(GUEST_CART_KEY, []);
+            return;
+        }
         try {
             await api.delete('/cart/clear');
             setCart([]);
@@ -216,17 +335,26 @@ export const ShopProvider = ({ children }) => {
     // --- WISHLIST ACTIONS ---
     const toggleWishlist = async (product) => {
         if (!user) {
-            triggerAuthGuard("Login to save items to your wishlist");
+            // GUEST: write-through to the local wishlist.
+            setWishlist(prev => {
+                const list = Array.isArray(prev) ? prev : [];
+                const exists = list.some(item => item._id === product._id);
+                const next = exists
+                    ? list.filter(item => item._id !== product._id)
+                    : [...list, normalizeProduct(product)];
+                persistGuest(GUEST_WISHLIST_KEY, next);
+                return next;
+            });
             return;
         }
         try {
-            const exists = wishlist.some(item => item._id === product._id);
+            const exists = (wishlist || []).some(item => item._id === product._id);
             if (exists) {
                 const res = await api.delete(`/wishlist/remove/${product._id}`);
-                setWishlist(res.data);
+                setWishlist(asArray(res.data));
             } else {
                 const res = await api.post('/wishlist/add', { productId: product._id });
-                setWishlist(res.data);
+                setWishlist(asArray(res.data));
             }
         } catch (err) {
             console.error("Failed to toggle wishlist", err);
@@ -234,10 +362,17 @@ export const ShopProvider = ({ children }) => {
     };
 
     const removeFromWishlist = async (productId) => {
-        if (!user) return;
+        if (!user) {
+            setWishlist(prev => {
+                const next = (Array.isArray(prev) ? prev : []).filter(i => i._id !== productId);
+                persistGuest(GUEST_WISHLIST_KEY, next);
+                return next;
+            });
+            return;
+        }
         try {
             const res = await api.delete(`/wishlist/remove/${productId}`);
-            setWishlist(res.data);
+            setWishlist(asArray(res.data));
         } catch (err) {
             console.error("Failed to remove from wishlist", err);
         }
@@ -263,7 +398,7 @@ export const ShopProvider = ({ children }) => {
         if (!user) return;
         try {
             const res = await api.post('/address', address);
-            setAddresses(res.data);
+            setAddresses(asArray(res.data));
         } catch (err) {
             console.error("Failed to add address", err);
         }
@@ -273,7 +408,7 @@ export const ShopProvider = ({ children }) => {
         if (!user) return;
         try {
             const res = await api.patch(`/address/${id}`, updatedAddress);
-            setAddresses(res.data);
+            setAddresses(asArray(res.data));
         } catch (err) {
             console.error("Failed to update address", err);
         }
@@ -283,7 +418,7 @@ export const ShopProvider = ({ children }) => {
         if (!user) return;
         try {
             const res = await api.delete(`/address/${id}`);
-            setAddresses(res.data);
+            setAddresses(asArray(res.data));
         } catch (err) {
             console.error("Failed to delete address", err);
         }
@@ -293,7 +428,7 @@ export const ShopProvider = ({ children }) => {
         if (!user) return;
         try {
             const res = await api.patch(`/address/${id}`, { isDefault: true });
-            setAddresses(res.data);
+            setAddresses(asArray(res.data));
         } catch (err) {
             console.error("Failed to set default address", err);
         }
@@ -333,10 +468,9 @@ export const ShopProvider = ({ children }) => {
     };
 
     const applyCouponCode = async (code, customTotal?: number) => {
-        if (!user) {
-            triggerAuthGuard("Login to apply coupons");
-            return;
-        }
+        // Coupons work for everyone — guests included (it's a gift for buyers).
+        // The backend applies first-order checks for logged-in users and
+        // re-validates the discount again server-side at order creation.
         setCouponLoading(true);
         setCouponError(null);
         try {

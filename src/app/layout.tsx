@@ -42,6 +42,18 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  applicationName: 'Printvoz',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Printvoz',
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: [{ url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' }],
+  },
   openGraph: {
     type: 'website',
     locale: 'en_IN',
@@ -84,6 +96,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: 'cover',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#505039' },
     { media: '(prefers-color-scheme: dark)', color: '#505039' },
