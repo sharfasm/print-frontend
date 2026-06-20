@@ -8,6 +8,8 @@ import { useShop } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
 import { resolveImage } from '../lib/imageUtils';
 import api from '../lib/axios';
+import loadRazorpay from '../lib/loadRazorpay';
+import { RAZORPAY_KEY_ID } from '../lib/env';
 
 const indianStates = [
   "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", 
@@ -66,6 +68,7 @@ export default function Checkout() {
     const [transactionLast4, setTransactionLast4] = useState('');
     const [paymentProof, setPaymentProof] = useState<File | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [razorpayProcessing, setRazorpayProcessing] = useState(false);
     const [customRequests, setCustomRequests] = useState([]);
 
     // Fetch user's customization requests to link them
@@ -111,7 +114,7 @@ export default function Checkout() {
         state: '',
         zip: '',
         country: 'India',
-        paymentMethod: 'upi', // upi, whatsapp
+        paymentMethod: 'razorpay', // razorpay, upi, whatsapp
         saveAddress: false,
         // Guests set these so we can create their account at checkout.
         password: '',
@@ -262,6 +265,107 @@ export default function Checkout() {
             }
         }
         window.open(`https://wa.me/919876543210?text=Hi,%20I%20want%20to%20pay%20for%20order%20%23${pendingOrderId}`, '_blank');
+    };
+
+    // Shared post-payment cleanup: optionally persist the address, clear the
+    // cart / buy-now item, then move to the confirmation page.
+    const finalizeOrderAndRedirect = () => {
+        if (formData.saveAddress && user) {
+            addAddress({
+                name: `${formData.fullName}'s Address`,
+                fullName: formData.fullName,
+                address1: formData.address1,
+                address2: formData.address2,
+                city: formData.city,
+                state: formData.state,
+                pin: formData.zip,
+                phone: formData.phone || user?.phone || '',
+                isDefault: false
+            });
+        }
+        if (buyNowItem && setBuyNowItem) {
+            setBuyNowItem(null);
+        } else {
+            clearCart();
+        }
+        navigate.push(`/order-confirmation?orderId=${pendingOrderId}`);
+    };
+
+    // Razorpay Standard Checkout: create a gateway order (amount computed
+    // server-side from the pending order), open the hosted modal, then verify the
+    // signature on the backend before treating the payment as successful.
+    const handleRazorpayPayment = async () => {
+        if (!pendingOrderId) {
+            setPaymentError('Order not initialized. Please go back and try again.');
+            return;
+        }
+
+        setPaymentError('');
+        setRazorpayProcessing(true);
+
+        try {
+            const ready = await loadRazorpay();
+            if (!ready) {
+                setPaymentError('Could not load the payment gateway. Check your connection and try again.');
+                setRazorpayProcessing(false);
+                return;
+            }
+
+            // 1. Create the Razorpay order on our backend (amount is authoritative).
+            const { data } = await api.post('/payments/razorpay/order', { orderId: pendingOrderId });
+
+            // 2. Open the Razorpay Standard Checkout modal.
+            const rzp = new window.Razorpay({
+                key: data.key || RAZORPAY_KEY_ID,
+                amount: data.amount,
+                currency: data.currency,
+                order_id: data.razorpayOrderId,
+                name: 'PrintVoz',
+                description: `Order #${pendingOrderId}`,
+                prefill: {
+                    name: formData.fullName,
+                    email: formData.email,
+                    contact: formData.phone,
+                },
+                theme: { color: '#000000' },
+                // 3. On success, verify the signature server-side before trusting it.
+                handler: async (response) => {
+                    try {
+                        await api.post('/payments/razorpay/verify', {
+                            orderId: pendingOrderId,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                        });
+                        finalizeOrderAndRedirect();
+                    } catch (verifyErr) {
+                        setRazorpayProcessing(false);
+                        setPaymentError(
+                            verifyErr?.response?.data?.message ||
+                            'Payment verification failed. If money was deducted it will be auto-refunded; please contact support.'
+                        );
+                    }
+                },
+                modal: {
+                    // User closed the modal without paying.
+                    ondismiss: () => {
+                        setRazorpayProcessing(false);
+                        setPaymentError('Payment was cancelled. You can try again whenever you are ready.');
+                    },
+                },
+            });
+
+            // Razorpay-reported payment failure (declined card, etc.).
+            rzp.on('payment.failed', (resp) => {
+                setRazorpayProcessing(false);
+                setPaymentError(resp?.error?.description || 'Payment failed. Please try again.');
+            });
+
+            rzp.open();
+        } catch (err) {
+            setRazorpayProcessing(false);
+            setPaymentError(err?.response?.data?.message || 'Could not start the payment. Please try again.');
+        }
     };
 
     const handleSubmitPayment = async () => {
@@ -868,9 +972,39 @@ export default function Checkout() {
                     {currentStep === 3 && (
                         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                             <h2 className="text-2xl font-black mb-6">Payment Details</h2>
-                            <p className="opacity-70 font-medium mb-6">Please complete your payment manually to confirm the order.</p>
-                            
+                            <p className="opacity-70 font-medium mb-6">
+                                {formData.paymentMethod === 'razorpay'
+                                    ? 'Pay securely online — cards, UPI, net banking & wallets, powered by Razorpay.'
+                                    : 'Please complete your payment manually to confirm the order.'}
+                            </p>
+
                             <div className="bg-[var(--secondary)]/5 rounded-2xl border border-[var(--secondary)]/20 overflow-hidden divide-y divide-[var(--secondary)]/20 mb-8">
+                                {/* Option: Razorpay (online gateway) */}
+                                <div>
+                                    <label className={`flex items-center gap-4 p-5 cursor-pointer transition-colors hover:bg-[var(--secondary)]/5`}>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${formData.paymentMethod === 'razorpay' ? 'border-[var(--primary)]' : 'border-[var(--secondary)]/40'}`}>
+                                            {formData.paymentMethod === 'razorpay' && <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]"></div>}
+                                        </div>
+                                        <span className="font-bold text-lg flex-1 flex items-center gap-2">
+                                            Pay Online
+                                            <span className="bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Recommended</span>
+                                        </span>
+                                        <div className="flex items-center gap-1">
+                                            <CreditCard size={18} className="opacity-70" />
+                                            <div className="px-2 h-6 bg-blue-600 rounded flex items-center justify-center font-bold text-white text-[10px]">Razorpay</div>
+                                        </div>
+                                        <input type="radio" name="paymentMethod" value="razorpay" checked={formData.paymentMethod === 'razorpay'} onChange={handleInputChange} className="sr-only" />
+                                    </label>
+                                    {formData.paymentMethod === 'razorpay' && (
+                                        <div className="p-6 bg-[var(--secondary)]/5 border-t border-[var(--secondary)]/10 animate-in fade-in slide-in-from-top-2">
+                                            <p className="font-bold mb-1">Amount to pay: ₹{finalTotal}</p>
+                                            <p className="text-sm opacity-70 font-medium">
+                                                Click <span className="font-bold">Pay Securely</span> below to open Razorpay's secure checkout. Your card and bank details are never shared with us.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
                                 {/* Option: UPI */}
                                 <div>
                                     <label className={`flex items-center gap-4 p-5 cursor-pointer transition-colors hover:bg-[var(--secondary)]/5`}>
@@ -915,9 +1049,10 @@ export default function Checkout() {
                                 </div>
                             </div>
 
+                            {(formData.paymentMethod === 'upi' || formData.paymentMethod === 'whatsapp') && (
                             <div className="bg-[var(--primary)]/5 p-6 rounded-2xl border border-[var(--primary)]/20 mb-6">
                                 <h3 className="font-black text-lg mb-4 text-[var(--primary)]">Submit Payment Details</h3>
-                                
+
                                 <label className="block text-sm font-bold mb-2">Last 4 Digits of Transaction ID <span className="text-red-500">*</span></label>
                                 <input 
                                     type="text" 
@@ -961,6 +1096,7 @@ export default function Checkout() {
                                 
                                 <p className="text-xs font-medium opacity-60 text-center mt-2">This helps us verify your payment quickly.</p>
                             </div>
+                            )}
 
                             {paymentError && (
                                 <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 animate-in fade-in">
@@ -973,13 +1109,23 @@ export default function Checkout() {
                                 <button onClick={() => navigate.push('/cart')} className="w-full sm:w-auto px-6 py-4 font-bold text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-all">
                                     Cancel Order
                                 </button>
-                                <button 
-                                    onClick={handleSubmitPayment} 
-                                    disabled={transactionLast4.length !== 4 || !paymentProof || isSubmitting}
-                                    className="w-full sm:w-auto px-8 py-4 bg-[var(--primary)] text-[var(--bg)] font-black rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
-                                >
-                                    {isSubmitting ? 'Verifying...' : 'Submit Payment Details'}
-                                </button>
+                                {formData.paymentMethod === 'razorpay' ? (
+                                    <button
+                                        onClick={handleRazorpayPayment}
+                                        disabled={razorpayProcessing}
+                                        className="w-full sm:w-auto px-8 py-4 bg-[var(--primary)] text-[var(--bg)] font-black rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+                                    >
+                                        {razorpayProcessing ? 'Processing…' : `Pay Securely ₹${finalTotal}`}
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={handleSubmitPayment}
+                                        disabled={transactionLast4.length !== 4 || !paymentProof || isSubmitting}
+                                        className="w-full sm:w-auto px-8 py-4 bg-[var(--primary)] text-[var(--bg)] font-black rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+                                    >
+                                        {isSubmitting ? 'Verifying...' : 'Submit Payment Details'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     )}

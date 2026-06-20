@@ -11,6 +11,10 @@
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ;
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+// Razorpay PUBLIC key id (safe to expose). The backend also returns this key in
+// the create-order response, which the checkout prefers; this is the fallback.
+export const RAZORPAY_KEY_ID = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
 if (typeof window !== "undefined") {
   if (!process.env.NEXT_PUBLIC_API_URL) {
     console.warn("[env] NEXT_PUBLIC_API_URL is not set — using fallback:", API_URL);
