@@ -37,18 +37,22 @@ export default function CategoryUI() {
   }, []);
 
   return (
-    <div style={{ height: '500px', position: 'relative' }} className="py-10">
+    <section className="py-10">
         <h1 className="text-3xl md:text-5xl font-black text-center text-[var(--text)] tracking-tight uppercase">
             Our Product Categories
         </h1>
         <hr className="w-24 h-1.5 mx-auto my-6 bg-[var(--primary)] border-0 rounded-full" />
-      <CategoryCards 
-        bend={0} 
-        textColor={textColor} 
-        borderRadius={0.05} 
-        scrollSpeed={2.2}
-        scrollEase={0.05}
-      />
-    </div>
+      {/* Canvas gets its own responsive height so the in-canvas name labels
+          (rendered just below each card) stay fully visible on every screen. */}
+      <div className="relative w-full h-[400px] sm:h-[460px] lg:h-[520px]">
+        <CategoryCards
+          bend={0}
+          textColor={textColor}
+          borderRadius={0.05}
+          scrollSpeed={2.2}
+          scrollEase={0.05}
+        />
+      </div>
+    </section>
   )
 }

@@ -98,7 +98,10 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    // Includes 2K/4K/TV widths so high-DPI and large displays get a crisp
+    // srcset candidate. The Cloudinary loader caps each request at the source
+    // size (c_limit), so banners are never upscaled past what was uploaded.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 2560, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 

@@ -11,7 +11,7 @@ const TRUST_STATS = [
   { value: 98, decimals: 0, suffix: "%", label: "Customer Satisfaction" },
 ];
 
-function StatCard({ stat, index }: { stat: (typeof TRUST_STATS)[number]; index: number }) {
+function Stat({ stat }: { stat: (typeof TRUST_STATS)[number] }) {
   const scale = 10 ** stat.decimals;
   const { ref, value } = useCountUp(Math.round(stat.value * scale));
   const display =
@@ -20,17 +20,24 @@ function StatCard({ stat, index }: { stat: (typeof TRUST_STATS)[number]; index: 
       : value.toLocaleString("en-IN");
 
   return (
-    <Reveal delay={index * 0.08} className="h-full">
-      <div className="h-full rounded-2xl md:rounded-3xl bg-white/60 dark:bg-white/5 border border-[var(--text)]/5 px-3 py-6 sm:p-7 lg:p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:border-[var(--primary)]/30 hover:shadow-[0_18px_40px_-14px_rgba(80,80,57,0.4)]">
-        <p className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[var(--text)] tabular-nums leading-none">
-          <span ref={ref}>{display}</span>
-          <span className="text-[var(--primary)]">{stat.suffix}</span>
-        </p>
-        <p className="mt-2 text-[11px] sm:text-xs lg:text-sm font-semibold uppercase tracking-wider text-[var(--text)]/60">
-          {stat.label}
-        </p>
-      </div>
-    </Reveal>
+    // Divider logic (brand-tinted hairlines):
+    // mobile 2x2 -> left border on right column, top border on bottom row
+    // desktop row -> left border on every item except the first
+    <div
+      className="group relative px-3 py-4 sm:px-6 sm:py-5 text-center
+        border-[var(--text)]/10
+        [&:nth-child(even)]:border-l
+        [&:nth-child(n+3)]:border-t
+        lg:border-l lg:[&:nth-child(1)]:border-l-0 lg:[&:nth-child(n+3)]:border-t-0"
+    >
+      <p className="text-2xl sm:text-3xl lg:text-[2.5rem] font-bold tracking-tight tabular-nums leading-none text-[var(--text)] transition-transform duration-300 ease-out group-hover:-translate-y-0.5">
+        <span ref={ref}>{display}</span>
+        <span className="text-[var(--primary)]">{stat.suffix}</span>
+      </p>
+      <p className="mt-1.5 text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--text)]/45 transition-colors duration-300 group-hover:text-[var(--text)]/70">
+        {stat.label}
+      </p>
+    </div>
   );
 }
 
@@ -38,30 +45,26 @@ export default function TrustCredibility() {
   return (
     <section
       aria-labelledby="trust-heading"
-      className="relative z-20 pt-12 sm:pt-16 lg:pt-20 pb-4"
+      className="relative z-20 py-8 sm:py-10"
     >
       <h2 id="trust-heading" className="sr-only">
         India&apos;s Trusted Premium Printing Services Partner
       </h2>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Reveal y={36}>
-          {/* Subtle brand-gradient hairline border around the glass card */}
-          <div className="rounded-[2rem] md:rounded-[2.5rem] p-[1.5px] bg-gradient-to-br from-[var(--primary)]/35 via-[var(--secondary)]/25 to-[var(--primary)]/10 shadow-[0_24px_60px_-20px_rgba(18,26,27,0.35)]">
-            <div className="rounded-[calc(2rem-1.5px)] md:rounded-[calc(2.5rem-1.5px)] bg-[var(--bg)]/80 dark:bg-[#161f20]/85 backdrop-blur-xl p-4 sm:p-6 lg:p-8">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
-                {TRUST_STATS.map((stat, i) => (
-                  <StatCard key={stat.label} stat={stat} index={i} />
-                ))}
-              </div>
-
-              <Reveal delay={0.35}>
-                <p className="mt-5 md:mt-7 text-center text-sm md:text-base text-[var(--text)]/60">
-                  Trusted by startups, businesses, creators, and brands across India.
-                </p>
-              </Reveal>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Reveal y={24}>
+          {/* Compact luxury trust bar — thin hairline border, no heavy shadow */}
+          <div className="rounded-2xl border border-[var(--text)]/10 bg-[var(--bg)]/50 dark:bg-white/[0.03] backdrop-blur-sm">
+            <div className="grid grid-cols-2 lg:grid-cols-4">
+              {TRUST_STATS.map((stat) => (
+                <Stat key={stat.label} stat={stat} />
+              ))}
             </div>
           </div>
+
+          <p className="mt-4 text-center text-xs sm:text-sm text-[var(--text)]/50">
+            Trusted by startups, businesses, creators, and brands across India.
+          </p>
         </Reveal>
       </div>
     </section>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import config from '../brand/config';
 import { useShop } from '../context/ShopContext';
 import api from '../lib/axios';
 import { resolveImage } from '../lib/imageUtils';
+import ResponsiveBanner from './ResponsiveBanner';
 
 interface HeroSectionProps {
     initialSettings?: any;
@@ -32,27 +32,32 @@ const HeroSection = ({ initialSettings }: HeroSectionProps) => {
     const bannerHeading = settings?.bannerHeading || brandName;
     const bannerSubtitle = settings?.bannerSubtitle || '';
 
+    // Desktop (2400×1000) for tablet/laptop/desktop/TV, mobile (1080×1350) for
+    // phones. Fall back to the legacy single image, then the stock placeholder.
+    const FALLBACK_BANNER =
+        "https://plus.unsplash.com/premium_photo-1672883551901-caa4758abba7?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+    const desktopSrc = settings?.bannerMediaDesktop || bannerMedia || FALLBACK_BANNER;
+    const mobileSrc = settings?.bannerMediaMobile || bannerMedia || FALLBACK_BANNER;
+
     return (
         <div data-hero-sentinel className="relative w-full h-screen overflow-hidden bg-black text-white font-sans">
             <div className="absolute inset-0 z-0">
                 {bannerMedia && bannerType === 'video' ? (
-                    <video 
-                        src={resolveImage(bannerMedia)!} 
+                    <video
+                        src={resolveImage(bannerMedia)!}
                         autoPlay
                         muted
                         loop
                         playsInline
-                        className="w-full h-full object-cover opacity-80" 
+                        className="w-full h-full object-cover opacity-80"
                     />
                 ) : (
-                    <Image 
-                        src={bannerMedia ? resolveImage(bannerMedia) : "https://plus.unsplash.com/premium_photo-1672883551901-caa4758abba7?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"} 
-                        alt="Hero Banner" 
-                        fill
+                    <ResponsiveBanner
+                        desktopSrc={desktopSrc}
+                        mobileSrc={mobileSrc}
+                        alt="Hero Banner"
                         priority
-                        unoptimized
-                        sizes="100vw"
-                        className="object-cover opacity-80" 
+                        className="object-cover opacity-80"
                     />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60"></div>

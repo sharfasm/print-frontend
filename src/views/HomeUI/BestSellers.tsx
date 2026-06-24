@@ -6,6 +6,7 @@ import config from '../../brand/config';
 import { useShop } from '../../context/ShopContext';
 import { resolveImage } from '../../lib/imageUtils';
 import api from '../../lib/axios';
+import AutoScrollRail from '../../components/AutoScrollRail';
 
 export default function BestSellers() {
     const [products, setProducts] = useState([]);
@@ -99,23 +100,9 @@ export default function BestSellers() {
                     <hr className="w-24 h-1.5 mx-auto my-6 bg-[var(--primary)] border-0 rounded-full" />
                 </div>
 
-                <style>{`
-                    @keyframes scrollBestSellers {
-                        0% { transform: translateX(0); }
-                        100% { transform: translateX(calc(-50% - 1rem)); }
-                    }
-                    .animate-scroll-best {
-                        animation: scrollBestSellers 40s linear infinite;
-                    }
-                    .animate-scroll-best:hover {
-                        animation-play-state: paused;
-                    }
-                `}</style>
-
-                {/* Slider */}
-                <div className="relative w-full overflow-hidden py-4 -mx-4 px-4 sm:mx-0 sm:px-0 mask-image-edges">
-                    <div className="flex w-max animate-scroll-best gap-8">
-                        {[...products, ...products].map((product, idx) => (
+                {/* Slider — auto-scrolls, drag/swipe to scroll, arrows to step */}
+                <AutoScrollRail ariaLabel="Best sellers">
+                    {[...products, ...products].map((product, idx) => (
                             <Link 
                                 href={`/product/${product.slug || product._id}`} 
                                 key={`${product._id}-${idx}`} 
@@ -194,8 +181,7 @@ export default function BestSellers() {
                                 </div>
                             </Link>
                         ))}
-                    </div>
-                </div>
+                </AutoScrollRail>
             </div>
         </section>
     );

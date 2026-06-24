@@ -48,7 +48,10 @@ export default async function HomePage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL ;
   let initialSettings = null;
   try {
-    const res = await fetch(`${API_URL}/home-settings`, { next: { revalidate: 3600 } });
+    // No Next.js fetch cache: the banner is admin-editable and must reflect
+    // saves immediately. The backend keeps its own in-memory cache (cleared on
+    // every admin save), so this stays fast without serving a stale hero.
+    const res = await fetch(`${API_URL}/home-settings`, { cache: "no-store" });
     if (res.ok) {
       initialSettings = await res.json();
     }

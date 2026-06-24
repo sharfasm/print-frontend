@@ -18,29 +18,71 @@ export const optimizeCloudinaryUrl = (url: string): string => {
 };
 
 /**
+ * Resolves a stored path/URL to a full absolute URL.
+ * Prepends the backend URL if the source is a relative path (e.g., /uploads/...).
+ * Does NOT add any Cloudinary transforms.
+ */
+const toAbsoluteUrl = (src: string): string => {
+    // If it's already a full URL (Cloudinary or absolute path), return as is
+    if (src.startsWith('http') || src.startsWith('blob:') || src.startsWith('data:')) {
+        return src;
+    }
+    if (src.startsWith('/uploads')) {
+        return `${config.backend}${src}`;
+    }
+    if (src.startsWith('uploads/')) {
+        return `${config.backend}/${src}`;
+    }
+    if (!src.startsWith('/') && !src.includes('://')) {
+        return `${config.backend}/uploads/${src}`;
+    }
+    return `${config.backend}${src}`;
+};
+
+/**
  * Resolves an image source to a full URL.
  * Prepends the backend URL if the source is a relative path (e.g., /uploads/...).
  * Returns a placeholder if the source is missing.
  */
 export const resolveImage = (src: string | null | undefined): string => {
     if (!src) return "https://placehold.co/600x800?text=No+Image";
-    
-    let resolved = src;
-
-    // If it's already a full URL (Cloudinary or absolute path), return as is
-    if (src.startsWith('http') || src.startsWith('blob:') || src.startsWith('data:')) {
-        resolved = src;
-    } else if (src.startsWith('/uploads')) {
-        resolved = `${config.backend}${src}`;
-    } else if (src.startsWith('uploads/')) {
-        resolved = `${config.backend}/${src}`;
-    } else if (!src.startsWith('/') && !src.includes('://')) {
-        resolved = `${config.backend}/uploads/${src}`;
-    } else {
-        resolved = `${config.backend}${src}`;
-    }
 
     // Safely encode URI to handle spaces and special characters without double-encoding %
-    return encodeURI(optimizeCloudinaryUrl(resolved));
+    return encodeURI(optimizeCloudinaryUrl(toAbsoluteUrl(src)));
 };
 
+/**
+ * Resolves a banner image source for rendering through next/image with the
+ * Cloudinary loader below. Unlike resolveImage(), it does NOT bake in any
+ * Cloudinary transforms — the loader appends f_auto, q_auto and the per-width
+ * sizing instead. Returns "" when no source is provided so callers can decide
+ * on a fallback.
+ */
+export const resolveBannerSrc = (src: string | null | undefined): string => {
+    if (!src) return "";
+    return encodeURI(toAbsoluteUrl(src));
+};
+
+interface CloudinaryLoaderProps {
+    src: string;
+    width: number;
+    quality?: number;
+}
+
+/**
+ * next/image loader that builds width-specific Cloudinary delivery URLs.
+ *
+ * Applies ONLY format (f_auto) + quality (q_auto) + width (w_<width>) and caps
+ * at the original size with c_limit, so images are never upscaled and never
+ * enhanced — colours, brightness, contrast and design stay exactly as uploaded.
+ * Non-Cloudinary URLs (local /uploads, Unsplash fallbacks) pass straight
+ * through unchanged.
+ */
+export const cloudinaryLoader = ({ src, width, quality }: CloudinaryLoaderProps): string => {
+    if (!src || !src.includes('res.cloudinary.com') || !src.includes('/image/upload/')) {
+        return src;
+    }
+    const q = quality ? `q_${quality}` : 'q_auto';
+    const transform = `f_auto,${q},w_${width},c_limit`;
+    return src.replace('/image/upload/', `/image/upload/${transform}/`);
+};

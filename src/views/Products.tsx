@@ -13,6 +13,7 @@ import CategorySEOContent from '../components/category/CategorySEOContent';
 import CategoryFAQ from '../components/category/CategoryFAQ';
 import RelatedCategories from '../components/category/RelatedCategories';
 import { resolveImage } from '../lib/imageUtils';
+import ResponsiveBanner from '../components/ResponsiveBanner';
 import api from '../lib/axios';
 import { 
   Filter, 
@@ -232,25 +233,32 @@ export default function Products({ initialCategory, initialSubcategory, initialS
     }, [selectedCategory, selectedSubcategory, initialCategory, initialSubcategory, initialSeoData]);
 
     const activeBanner = useMemo(() => {
-        if (selectedSubcategory && (selectedSubcategory.bannerMedia || selectedSubcategory.bannerHeading || selectedSubcategory.bannerSubtitle)) {
+        const FALLBACK_BANNER = "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop";
+        if (selectedSubcategory && (selectedSubcategory.bannerMedia || selectedSubcategory.bannerMediaDesktop || selectedSubcategory.bannerMediaMobile || selectedSubcategory.bannerHeading || selectedSubcategory.bannerSubtitle)) {
             return {
                 bannerType: selectedSubcategory.bannerType || selectedCategory?.bannerType || defaultBanner?.bannerType || "image",
-                bannerMedia: selectedSubcategory.bannerMedia || selectedCategory?.bannerMedia || defaultBanner?.bannerMedia || "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop",
+                bannerMedia: selectedSubcategory.bannerMedia || selectedCategory?.bannerMedia || defaultBanner?.bannerMedia || FALLBACK_BANNER,
+                bannerMediaDesktop: selectedSubcategory.bannerMediaDesktop || selectedCategory?.bannerMediaDesktop || defaultBanner?.bannerMediaDesktop || null,
+                bannerMediaMobile: selectedSubcategory.bannerMediaMobile || selectedCategory?.bannerMediaMobile || defaultBanner?.bannerMediaMobile || null,
                 bannerHeading: selectedSubcategory.bannerHeading || selectedSubcategory.name,
                 bannerSubtitle: selectedSubcategory.bannerSubtitle || selectedSubcategory.description || ""
             };
         }
-        if (selectedCategory && (selectedCategory.bannerMedia || selectedCategory.bannerHeading || selectedCategory.bannerSubtitle)) {
+        if (selectedCategory && (selectedCategory.bannerMedia || selectedCategory.bannerMediaDesktop || selectedCategory.bannerMediaMobile || selectedCategory.bannerHeading || selectedCategory.bannerSubtitle)) {
             return {
                 bannerType: selectedCategory.bannerType || defaultBanner?.bannerType || "image",
-                bannerMedia: selectedCategory.bannerMedia || defaultBanner?.bannerMedia || "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop",
+                bannerMedia: selectedCategory.bannerMedia || defaultBanner?.bannerMedia || FALLBACK_BANNER,
+                bannerMediaDesktop: selectedCategory.bannerMediaDesktop || defaultBanner?.bannerMediaDesktop || null,
+                bannerMediaMobile: selectedCategory.bannerMediaMobile || defaultBanner?.bannerMediaMobile || null,
                 bannerHeading: selectedCategory.bannerHeading || selectedCategory.name,
                 bannerSubtitle: selectedCategory.bannerSubtitle || ""
             };
         }
         return {
             bannerType: defaultBanner?.bannerType || "image",
-            bannerMedia: defaultBanner?.bannerMedia || "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2070&auto=format&fit=crop",
+            bannerMedia: defaultBanner?.bannerMedia || FALLBACK_BANNER,
+            bannerMediaDesktop: defaultBanner?.bannerMediaDesktop || null,
+            bannerMediaMobile: defaultBanner?.bannerMediaMobile || null,
             bannerHeading: defaultBanner?.bannerHeading || "The Collection",
             bannerSubtitle: defaultBanner?.bannerSubtitle || "Impeccable printing and bespoke craftsmanship tailored for corporate events, modern businesses, and life's special occasions."
         };
@@ -662,7 +670,7 @@ export default function Products({ initialCategory, initialSubcategory, initialS
             <div data-hero-sentinel className="relative w-full h-[42vh] sm:h-[46vh] md:h-[54vh] lg:h-[56vh] min-h-[300px] sm:min-h-[380px] md:min-h-[480px] max-h-[560px] flex flex-col items-center justify-center pt-20 sm:pt-24 pb-8 sm:pb-10 overflow-hidden">
                 <AnimatePresence mode="wait">
                     <motion.div
-                        key={activeBanner.bannerMedia}
+                        key={activeBanner.bannerMediaDesktop || activeBanner.bannerMediaMobile || activeBanner.bannerMedia}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -679,11 +687,12 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                                 className="w-full h-full object-cover scale-105 filter brightness-[0.72] contrast-105"
                             />
                         ) : (
-                            <img 
-                                src={resolveImage(activeBanner.bannerMedia)!} 
-                                alt={`${brandName} Products Header`} 
-                                className="w-full h-full object-cover scale-105 filter brightness-[0.72] contrast-105"
-                                loading="eager"
+                            <ResponsiveBanner
+                                desktopSrc={activeBanner.bannerMediaDesktop || activeBanner.bannerMedia}
+                                mobileSrc={activeBanner.bannerMediaMobile || activeBanner.bannerMedia}
+                                alt={`${brandName} Products Header`}
+                                priority
+                                className="object-cover scale-105 filter brightness-[0.72] contrast-105"
                             />
                         )}
                         {/* Lighter premium overlay — keeps text readable while the media stays clearly visible */}
@@ -696,7 +705,7 @@ export default function Products({ initialCategory, initialSubcategory, initialS
                 </AnimatePresence>
 
                 <AnimatePresence mode="wait">
-                    <motion.div 
+                    <motion.div
                         key={`${activeBanner.bannerHeading}-${activeBanner.bannerSubtitle}`}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}

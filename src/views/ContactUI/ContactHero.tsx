@@ -3,9 +3,9 @@
 
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { resolveImage } from "@/lib/imageUtils";
+import ResponsiveBanner from "@/components/ResponsiveBanner";
 
 const FALLBACK_BG =
   "https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000";
@@ -32,13 +32,11 @@ export default function ContactHero({ data }) {
           aria-hidden="true"
         />
       ) : (
-        <Image
-          src={data.backgroundMedia ? resolveImage(data.backgroundMedia) : FALLBACK_BG}
+        <ResponsiveBanner
+          desktopSrc={data.backgroundMediaDesktop || data.backgroundMedia || FALLBACK_BG}
+          mobileSrc={data.backgroundMediaMobile || data.backgroundMedia || FALLBACK_BG}
           alt="Contact PrintVoz"
-          fill
           priority
-          unoptimized
-          sizes="100vw"
           className="object-cover"
         />
       )}

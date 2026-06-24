@@ -6,6 +6,7 @@ import config from '../../brand/config';
 import { useShop } from '../../context/ShopContext';
 import { resolveImage } from '../../lib/imageUtils';
 import api from '../../lib/axios';
+import AutoScrollRail from '../../components/AutoScrollRail';
 
 export default function NewArrivals() {
     const [products, setProducts] = useState([]);
@@ -79,23 +80,9 @@ export default function NewArrivals() {
                     </Link>
                 </div>
 
-                <style>{`
-                    @keyframes scrollNewArrivals {
-                        0% { transform: translateX(0); }
-                        100% { transform: translateX(calc(-50% - 1rem)); }
-                    }
-                    .animate-scroll-new {
-                        animation: scrollNewArrivals 40s linear infinite;
-                    }
-                    .animate-scroll-new:hover {
-                        animation-play-state: paused;
-                    }
-                `}</style>
-
-                {/* Products Slider */}
-                <div className="relative w-full overflow-hidden py-4 -mx-4 px-4 sm:mx-0 sm:px-0 mask-image-edges">
-                    <div className="flex w-max animate-scroll-new gap-8">
-                        {[...products, ...products].map((product, idx) => (
+                {/* Products Slider — auto-scrolls, drag/swipe to scroll, arrows to step */}
+                <AutoScrollRail ariaLabel="New arrivals">
+                    {[...products, ...products].map((product, idx) => (
                             <Link 
                                 href={`/product/${product.slug || product._id}`} 
                                 key={`${product._id}-${idx}`} 
@@ -163,8 +150,7 @@ export default function NewArrivals() {
                                 </div>
                             </Link>
                         ))}
-                    </div>
-                </div>
+                </AutoScrollRail>
             </div>
         </section>
     );

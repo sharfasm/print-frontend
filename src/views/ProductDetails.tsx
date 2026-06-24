@@ -2,12 +2,18 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import Link from "next/link";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useShop } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import config from '../brand/config';
-import { resolveImage } from '../lib/imageUtils';
+import { resolveBannerSrc, cloudinaryLoader } from '../lib/imageUtils';
+
+// Placeholder shown when an image source is missing. resolveBannerSrc() returns
+// "" for empty sources and next/image errors on an empty src, so callers fall
+// back to this. (placehold.co is whitelisted in next.config remotePatterns.)
+const IMG_PLACEHOLDER = "https://placehold.co/600x800?text=No+Image";
 import { useForm, FormProvider } from 'react-hook-form';
 import { DynamicFormRenderer } from '../components/DynamicFormRenderer';
 import { ChevronDown, ChevronUp, Edit3, Tag, Truck, Copy, Check } from 'lucide-react';
@@ -349,7 +355,9 @@ export default function ProductDetails() {
     return (
         <div className="flex flex-col min-h-screen bg-[var(--bg)] font-sans text-[var(--text)]">
             
-            <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-10 md:pb-16 pt-24 sm:pt-28 md:pt-32">
+            {/* pt clears the fixed navbar — on mobile/tablet it also includes the
+                always-on search bar (~110px), so the breadcrumb below stays visible. */}
+            <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-10 md:pb-16 pt-32">
                 
                 {/* Breakcrumb Section */}
                 <div className="mb-8 flex items-center justify-between">
@@ -391,10 +399,14 @@ export default function ProductDetails() {
                     <div className="flex flex-col gap-4">
                         {/* Main Image */}
                         <div className="aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-3xl overflow-hidden bg-[var(--secondary)]/5 border border-[var(--secondary)]/10 shadow-sm relative group">
-                            <img 
-                                src={resolveImage(activeImage)} 
-                                alt={product.name} 
-                                className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500"
+                            <Image
+                                loader={cloudinaryLoader}
+                                src={resolveBannerSrc(activeImage) || IMG_PLACEHOLDER}
+                                alt={product.name}
+                                fill
+                                priority
+                                sizes="(max-width: 1024px) 100vw, 600px"
+                                className="object-cover object-center group-hover:scale-[1.02] transition-transform duration-500"
                             />
                             {product.isFeatured && (
                                 <div className="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-black px-2 py-1 rounded-md shadow-md z-10 flex items-center gap-1">
@@ -416,12 +428,19 @@ export default function ProductDetails() {
                         {/* Thumbnail Gallery */}
                         <div className="grid grid-cols-4 gap-4">
                             {galleryImages.slice(0, 4).map((img, i) => (
-                                <button 
-                                    key={i} 
+                                <button
+                                    key={i}
                                     onClick={() => setActiveImage(img)}
-                                    className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${activeImage === img ? 'border-[var(--primary)] shadow-md' : 'border-transparent hover:border-[var(--secondary)]/30 opacity-70 hover:opacity-100'}`}
+                                    className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${activeImage === img ? 'border-[var(--primary)] shadow-md' : 'border-transparent hover:border-[var(--secondary)]/30 opacity-70 hover:opacity-100'}`}
                                 >
-                                    <img src={resolveImage(img)} className="w-full h-full object-cover hover:scale-110 transition-transform duration-300" alt={`${product.name} thumbnail ${i+1}`} />
+                                    <Image
+                                        loader={cloudinaryLoader}
+                                        src={resolveBannerSrc(img) || IMG_PLACEHOLDER}
+                                        alt={`${product.name} thumbnail ${i+1}`}
+                                        fill
+                                        sizes="(max-width: 640px) 25vw, 140px"
+                                        className="object-cover hover:scale-110 transition-transform duration-300"
+                                    />
                                 </button>
                             ))}
                         </div>
@@ -792,7 +811,7 @@ export default function ProductDetails() {
                                         {reviews.map((review) => (
                                             <div key={review._id} className="bg-[var(--bg)] p-8 rounded-3xl shadow-xl border border-[var(--secondary)]/10 hover:-translate-y-1 transition-all duration-300">
                                                 <div className="flex items-start gap-5">
-                                                    <img src={resolveImage(review.userImage) || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.username || 'Customer')}`} alt={review.username} className="w-16 h-16 rounded-2xl object-cover border border-[var(--secondary)]/10" />
+                                                    <Image loader={cloudinaryLoader} src={resolveBannerSrc(review.userImage) || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.username || 'Customer')}`} alt={review.username || 'Customer'} width={64} height={64} className="w-16 h-16 rounded-2xl object-cover border border-[var(--secondary)]/10" />
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex flex-wrap items-center justify-between gap-2">
                                                             <h4 className="font-black text-xl">{review.username}</h4>
@@ -803,7 +822,9 @@ export default function ProductDetails() {
                                                         {review.reviewImages?.length > 0 && (
                                                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-5">
                                                                 {review.reviewImages.map((image) => (
-                                                                    <img key={image} src={resolveImage(image)} alt="Review upload" className="aspect-square rounded-2xl object-cover border border-[var(--secondary)]/10" />
+                                                                    <div key={image} className="relative aspect-square rounded-2xl overflow-hidden border border-[var(--secondary)]/10">
+                                                                        <Image loader={cloudinaryLoader} src={resolveBannerSrc(image) || IMG_PLACEHOLDER} alt="Review upload" fill sizes="(max-width: 640px) 33vw, 120px" className="object-cover" />
+                                                                    </div>
                                                                 ))}
                                                             </div>
                                                         )}
@@ -888,7 +909,7 @@ export default function ProductDetails() {
                                 {reviews.map((review) => (
                                     <div key={review._id} className="max-w-2xl mx-auto bg-[var(--bg)] p-6 rounded-3xl shadow-lg border border-[var(--secondary)]/10">
                                         <div className="flex flex-col items-center text-center gap-3 mb-4">
-                                            <img src={resolveImage(review.userImage) || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.username || 'Customer')}`} alt={review.username} className="w-16 h-16 rounded-2xl object-cover border border-[var(--secondary)]/10" />
+                                            <Image loader={cloudinaryLoader} src={resolveBannerSrc(review.userImage) || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.username || 'Customer')}`} alt={review.username || 'Customer'} width={64} height={64} className="w-16 h-16 rounded-2xl object-cover border border-[var(--secondary)]/10" />
                                             <div>
                                                 <div className="font-black text-lg">{review.username}</div>
                                                 <div className="flex justify-center mt-1">{renderStars(review.rating)}</div>
@@ -899,7 +920,9 @@ export default function ProductDetails() {
                                         {review.reviewImages?.length > 0 && (
                                             <div className="grid grid-cols-3 gap-2 mt-4">
                                                 {review.reviewImages.map((image) => (
-                                                    <img key={image} src={resolveImage(image)} alt="Review upload" className="aspect-square rounded-xl object-cover border border-[var(--secondary)]/10" />
+                                                    <div key={image} className="relative aspect-square rounded-xl overflow-hidden border border-[var(--secondary)]/10">
+                                                        <Image loader={cloudinaryLoader} src={resolveBannerSrc(image) || IMG_PLACEHOLDER} alt="Review upload" fill sizes="(max-width: 640px) 33vw, 160px" className="object-cover" />
+                                                    </div>
                                                 ))}
                                             </div>
                                         )}
@@ -949,11 +972,16 @@ export default function ProductDetails() {
                                         className="w-64 sm:w-72 flex-shrink-0 flex flex-col bg-[var(--bg)] rounded-3xl overflow-hidden border border-[var(--secondary)]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                                     >
                                         <div className="relative aspect-[4/5] overflow-hidden bg-[var(--secondary)]/5 p-4">
-                                                <img 
-                                                    src={resolveImage(related.coverImage || related.primaryImage || (related.images && related.images[0]) || related.image)} 
+                                            <div className="relative w-full h-full">
+                                                <Image
+                                                    loader={cloudinaryLoader}
+                                                    src={resolveBannerSrc(related.coverImage || related.primaryImage || (related.images && related.images[0]) || related.image) || IMG_PLACEHOLDER}
                                                     alt={related.name}
-                                                className="w-full h-full object-cover object-center rounded-2xl group-hover:scale-105 transition-transform duration-500 ease-out shadow-sm"
-                                            />
+                                                    fill
+                                                    sizes="(max-width: 640px) 256px, 288px"
+                                                    className="object-cover object-center rounded-2xl group-hover:scale-105 transition-transform duration-500 ease-out shadow-sm"
+                                                />
+                                            </div>
                                         </div>
                                         <div className="p-6">
                                             <div className="text-xs uppercase tracking-widest font-bold opacity-50 mb-1">{categoryName}</div>
